@@ -45,6 +45,7 @@ public class MainTipitakaDBAdapter {
     public Cursor getContent(int volumn, int page, String lang) {
  		page--;
  		volumn--;
+ 		Log.i ("Tipitaka","db lookup: volume: "+volumn+", page: "+page);
 
     	String selection = String.format("volume = '%s' AND item = '%s'", volumn, page);
  		
@@ -157,3 +158,14 @@ public class MainTipitakaDBAdapter {
 	}*/
 }
 
+
+/*
+CREATE TABLE pali (
+    "_id" INTEGER,
+    "volume" VARCHAR(3),
+    "item" VARCHAR(100),
+    "content" TEXT
+);
+CREATE INDEX idx_pali_volume ON pali (volume);
+CREATE INDEX idx_pali_volume_item ON pali (volume, item);
+*/

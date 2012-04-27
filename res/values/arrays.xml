@@ -1,61 +1,177 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string-array name="thaibook">	
-		<item>" พระวินัยปิฎก เล่มที่ ๑ มหาวิภังค์ ภาค ๑ "</item>
-		<item>" พระวินัยปิฎก เล่มที่ ๒ มหาวิภังค์ ภาค ๒ "</item>
-		<item>" พระวินัยปิฎก เล่มที่ ๓ ภิกขุนีวิภังค์ "</item>
-		<item>" พระวินัยปิฎก เล่มที่ ๔ มหาวรรค ภาค ๑ "</item>
-		<item>" พระวินัยปิฎก เล่มที่ ๕ มหาวรรค ภาค ๒ "</item>
-		<item>" พระวินัยปิฎก เล่มที่ ๖ จุลวรรค ภาค ๑ "</item>
-		<item>" พระวินัยปิฎก เล่มที่ ๗ จุลวรรค ภาค ๒ "</item>
-		<item>" พระวินัยปิฎก เล่มที่ ๘ ปริวาร "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๑ ทีฆนิกาย สีลขันธวรรค "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๒ ทีฆนิกาย มหาวรรค "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๓ ทีฆนิกาย ปาฏิกวรรค "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๔ มัชฌิมนิกาย มูลปัณณาสก์ "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๕ มัชฌิมนิกาย มัชฌิมปัณณาสก์ "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๖ มัชฌิมนิกาย อุปริปัณณาสก์ "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๗ สังยุตตนิกาย สคาถวรรค "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๘ สังยุตตนิกาย นิทานวรรค "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๙ สังยุตตนิกาย ขันธวารวรรค "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๑๐ สังยุตตนิกาย สฬายตนวรรค "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๑๑ สังยุตตนิกาย มหาวารวรรค "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๑๒ อังคุตตรนิกาย เอก-ทุก-ติกนิบาต "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๑๓ อังคุตตรนิกาย จตุกกนิบาต "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๑๔ อังคุตตรนิกาย ปัญจก-ฉักกนิบาต "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๑๕ อังคุตตรนิกาย สัตตก-อัฏฐก-นวกนิบาต "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๑๖ อังคุตตรนิกาย ทสก-เอกาทสกนิบาต "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๑๗ ขุททกนิกาย ขุททกปาฐ-ธรรมบท-อุทาน-อิติวุตตกะ-สุตตนิบาต "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๑๘ ขุททกนิกาย วิมาน-เปตวัตถุ เถร-เถรีคาถา "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๑๙ ขุททกนิกาย ชาดก ภาค ๑ "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๒๐ ขุททกนิกาย ชาดก ภาค ๒ "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๒๑ ขุททกนิกาย มหานิทเทส "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๒๒ ขุททกนิกาย จูฬนิทเทส "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๒๓ ขุททกนิกาย ปฏิสัมภิทามรรค "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๒๔ ขุททกนิกาย อปทาน ภาค ๑ "</item>
-		<item>" พระสุตตันตปิฎก เล่มที่ ๒๕ ขุททกนิกาย อปทาน ภาค ๒ พุทธวังสะ-จริยาปิฎก "</item>
-		<item>" พระอภิธรรมปิฎก เล่มที่ ๑ ธรรมสังคณีปกรณ์ "</item>
-		<item>" พระอภิธรรมปิฎก เล่มที่ ๒ วิภังคปกรณ์ "</item>
-		<item>" พระอภิธรรมปิฎก เล่มที่ ๓ ธาตุกถา-ปุคคลบัญญัติปกรณ์ "</item>
-		<item>" พระอภิธรรมปิฎก เล่มที่ ๔ กถาวัตถุปกรณ์ "</item>
-		<item>" พระอภิธรรมปิฎก เล่มที่ ๕ ยมกปกรณ์ ภาค ๑ "</item>
-		<item>" พระอภิธรรมปิฎก เล่มที่ ๖ ยมกปกรณ์ ภาค ๒ "</item>
-		<item>" พระอภิธรรมปิฎก เล่มที่ ๗ มหาปัฏฐานปกรณ์ ภาค ๑ "</item>
-		<item>" พระอภิธรรมปิฎก เล่มที่ ๘ มหาปัฏฐานปกรณ์ ภาค ๒ "</item>
-		<item>" พระอภิธรรมปิฎก เล่มที่ ๙ มหาปัฏฐานปกรณ์ ภาค ๓ "</item>
-		<item>" พระอภิธรรมปิฎก เล่มที่ ๑๐ ปัฏฐานปกรณ์ ภาค ๔ "</item>
-		<item>" พระอภิธรรมปิฎก เล่มที่ ๑๑ ปัฏฐานปกรณ์ ภาค ๕ "</item>
-		<item>" พระอภิธรรมปิฎก เล่มที่ ๑๒ ปัฏฐานปกรณ์ ภาค ๖ "</item>
+		<item>" pārājikapāḷi "</item>
+		<item>" pārājikakaṇḍaaṭṭhakathā "</item>
+		<item>" sāratthadīpanīṭīkā "</item>
+		<item>" pācittiyapāḷi "</item>
+		<item>" pācittiyaaṭṭhakathā "</item>
+		<item>" sāratthadīpanīṭīkā tatiyo bhāgo "</item>
+		<item>" bhikkhunīvibhaṅgo "</item>
+		<item>" bhikkhunīvibhaṅgavaṇṇanā "</item>
+		<item>" sāratthadīpanīṭīkā "</item>
+		<item>" mahāvaggapāḷi "</item>
+		<item>" mahāvaggaaṭṭhakathā "</item>
+		<item>" sāratthadīpanīṭīkā mahāvaggaṭīkā "</item>
+		<item>" cūḷavaggapāḷi "</item>
+		<item>" cūḷavaggaaṭṭhakathā "</item>
+		<item>" sāratthadīpanīṭīkā cūḷavaggaṭīkā "</item>
+		<item>" parivārapāḷi "</item>
+		<item>" parivāraaṭṭhakathā "</item>
+		<item>" sāratthadīpanīṭīkā parivāraṭīkā "</item>
+		<item>" dvemātikāpāḷi "</item>
+		<item>" sīlakkhandhavaggapāḷi "</item>
+		<item>" sīlakkhandhavaggaṭṭhakathā "</item>
+		<item>" sīlakkhandhavaggaṭīkā "</item>
+		<item>" mahāvaggapāḷi "</item>
+		<item>" mahāvaggaṭṭhakathā "</item>
+		<item>" mahāvaggaṭīkā "</item>
+		<item>" pāthikavaggapāḷi "</item>
+		<item>" pāthikavaggaṭṭhakathā "</item>
+		<item>" pāthikavaggaṭīkā "</item>
+		<item>" mūlapaṇṇāsapāḷi "</item>
+		<item>" mūlapaṇṇāsaaṭṭhakathā "</item>
+		<item>" mūlapaṇṇāsaṭīkā "</item>
+		<item>" majjhimapaṇṇāsapāḷi "</item>
+		<item>" majjhimapaṇṇāsaaṭṭhakathā "</item>
+		<item>" majjhimapaṇṇāsaṭīkā "</item>
+		<item>" uparipaṇṇāsapāḷi "</item>
+		<item>" uparipaṇṇāsaaṭṭhakathā "</item>
+		<item>" uparipaṇṇāsaṭīkā "</item>
+		<item>" sagāthāvaggo "</item>
+		<item>" sagāthāvaggaaṭṭhakathā "</item>
+		<item>" sagāthāvaggaṭīkā "</item>
+		<item>" nidānavaggo "</item>
+		<item>" nidānavaggaaṭṭhakathā "</item>
+		<item>" nidānavaggaṭīkā "</item>
+		<item>" khandhavaggo "</item>
+		<item>" khandhavaggaaṭṭhakathā "</item>
+		<item>" khandhavaggaṭīkā "</item>
+		<item>" saḷāyatanavaggo "</item>
+		<item>" saḷāyatanavaggaaṭṭhakathā "</item>
+		<item>" saḷāyatanavaggaṭīkā "</item>
+		<item>" mahāvaggo "</item>
+		<item>" mahāvaggaaṭṭhakathā "</item>
+		<item>" mahāvaggaṭīkā "</item>
+		<item>" ekakanipātapāḷi "</item>
+		<item>" ekakanipātaaṭṭhakathā "</item>
+		<item>" ekakanipātaṭīkā "</item>
+		<item>" dukanipātapāḷi "</item>
+		<item>" dukanipātaaṭṭhakathā "</item>
+		<item>" dukanipātaṭīkā "</item>
+		<item>" tikanipātapāḷi "</item>
+		<item>" tikanipātaaṭṭhakathā "</item>
+		<item>" tikanipātaṭīkā "</item>
+		<item>" catukkanipātapāḷi "</item>
+		<item>" catukkanipātaaṭṭhakathā "</item>
+		<item>" catukkanipātaṭīkā "</item>
+		<item>" pañcakanipātapāḷi "</item>
+		<item>" pañcakanipātaaṭṭhakathā "</item>
+		<item>" pañcakanipātaṭīkā "</item>
+		<item>" chakkanipātapāḷi "</item>
+		<item>" chakkanipātaaṭṭhakathā "</item>
+		<item>" chakkanipātaṭīkā "</item>
+		<item>" sattakanipātapāḷi "</item>
+		<item>" sattakanipātaaṭṭhakathā "</item>
+		<item>" sattakanipātaṭīkā "</item>
+		<item>" aṭṭhakanipātapāḷi "</item>
+		<item>" aṭṭhakanipātaaṭṭhakathā "</item>
+		<item>" aṭṭhakanipātaṭīkā "</item>
+		<item>" navakanipātapāḷi "</item>
+		<item>" navakanipātaaṭṭhakathā "</item>
+		<item>" navakanipātaṭīkā "</item>
+		<item>" dasakanipātapāḷi "</item>
+		<item>" dasakanipātaaṭṭhakathā "</item>
+		<item>" dasakanipātaṭīkā "</item>
+		<item>" ekādasakanipātapāḷi "</item>
+		<item>" ekādasakanipātaaṭṭhakathā "</item>
+		<item>" ekādasakanipātaṭīkā "</item>
+		<item>" khuddakapāṭhapāḷi "</item>
+		<item>" khuddakapāṭhaaṭṭhakathā "</item>
+		<item>" dhammapadapāḷi "</item>
+		<item>" dhammapadaaṭṭhakathā "</item>
+		<item>" udānapāḷi "</item>
+		<item>" udānaaṭṭhakathā "</item>
+		<item>" itivuttakapāḷi "</item>
+		<item>" itivuttakaaṭṭhakathā "</item>
+		<item>" suttanipātapāḷi "</item>
+		<item>" suttanipātaaṭṭhakathā "</item>
+		<item>" vimānavatthupāḷi "</item>
+		<item>" vimānavatthuaṭṭhakathā "</item>
+		<item>" petavatthupāḷi "</item>
+		<item>" petavatthuaṭṭhakathā "</item>
+		<item>" theragāthāpāḷi "</item>
+		<item>" theragāthāaṭṭhakathā "</item>
+		<item>" therīgāthāpāḷi "</item>
+		<item>" therīgāthāaṭṭhakathā "</item>
+		<item>" therāpadānapāḷi "</item>
+		<item>" apadānaaṭṭhakathā "</item>
+		<item>" therīapadānapāḷi "</item>
+		<item>" buddhavaṃsapāḷi "</item>
+		<item>" buddhavaṃsaaṭṭhakathā "</item>
+		<item>" cariyāpiṭakapāḷi "</item>
+		<item>" cariyāpiṭakaaṭṭhakathā "</item>
+		<item>" jātakapāḷi paṭhamo bhāgo "</item>
+		<item>" jātakaaṭṭhakathā "</item>
+		<item>" jātakapāḷi dutiyo bhāgo "</item>
+		<item>" jātakaaṭṭhakathā "</item>
+		<item>" mahāniddesapāḷi "</item>
+		<item>" cūḷaniddesapāḷi "</item>
+		<item>" paṭisambhidāmaggapāḷi "</item>
+		<item>" milindapañhapāḷi "</item>
+		<item>" nettippakaraṇapāḷi "</item>
+		<item>" peṭakopadesapāḷi "</item>
+		<item>" dhammasaṅgaṇīpāḷi "</item>
+		<item>" dhammasaṅgaṇīaṭṭhakathā "</item>
+		<item>" dhammasaṅgaṇīmūlaṭīkā "</item>
+		<item>" vibhaṅgapāḷi "</item>
+		<item>" vibhaṅgaaṭṭhakathā "</item>
+		<item>" vibhaṅgamūlaṭīkā "</item>
+		<item>" dhātukathāpāḷi "</item>
+		<item>" dhātukathāaṭṭhakathā "</item>
+		<item>" dhātukathāpakaraṇamūlaṭīkā "</item>
+		<item>" puggalapaññattipāḷi "</item>
+		<item>" puggalapaññattiaṭṭhakathā "</item>
+		<item>" puggalapaññattipakaraṇa-mūlaṭīkā "</item>
+		<item>" kathāvatthupāḷi "</item>
+		<item>" kathāvatthuaṭṭhakathā "</item>
+		<item>" kathāvatthupakaraṇamūlaṭīkā "</item>
+		<item>" yamakapāḷi paṭhamo bhāgo "</item>
+		<item>" yamakappakaraṇaaṭṭhakathā "</item>
+		<item>" yamakapakaraṇamūlaṭīkā "</item>
+		<item>" yamakapāḷi dutiyo bhāgo "</item>
+		<item>" yamakapāḷi tatiyo bhāgo "</item>
+		<item>" paṭṭhānapāḷi paṭhamo bhāgo dhammānulome tikapaṭṭhānaṃ "</item>
+		<item>" paṭṭhānappakaraṇaaṭṭhakathā "</item>
+		<item>" paṭṭhānapakaraṇamūlaṭīkā "</item>
+		<item>" paṭṭhānapāḷi dutiyo bhāgo dhammānulome tikapaṭṭhānaṃ "</item>
+		<item>" paṭṭhānapāḷi tatiyo bhāgo dhammānulome dukapaṭṭhānaṃ "</item>
+		<item>" paṭṭhānapāḷi catuttho bhāgo dhammānulome dukapaṭṭhānaṃ "</item>
+		<item>" paṭṭhānapāḷi catuttho bhāgo "</item>
+		<item>" paṭṭhānapāḷi pañcamo bhāgo "</item>
+		<item>" visuddhimaggo paṭhamo bhāgo "</item>
+		<item>" visuddhimagga-mahāṭīkā paṭhamo bhāgo "</item>
+		<item>" visuddhimaggo dutiyo bhāgo "</item>
+		<item>" visuddhimagga-mahāṭīkā dutiyo bhāgo "</item>
+		<item>" abhidhammatthasaṅgaho "</item>
+		<item>" abhidhammatthavibhāvinīṭīkā "</item>
+		<item>" moggallāna "</item>
+		<item>" kaccāyanabyākaraṇaṃ "</item>
+		<item>" saddanītippakaraṇaṃ padamālā "</item>
+		<item>" saddanītippakaraṇaṃ dhātumālā "</item>
+		<item>" padarūpasiddhi "</item>
 	</string-array>
 	<string-array name="category"> 
 		<item>" Vinaya Pitaka "</item>
 		<item>" Suttanta Pitaka "</item>
 		<item>" Abhidhamma Pitaka "</item>
+		<item>" Etc. "</item>
 	</string-array>
 	<integer-array name="ncategory">
-		<item>8</item>
-		<item>25</item>
-		<item>12</item>
+		<item>19</item>
+		<item>101</item>
+		<item>28</item>
+		<item>11</item>
 	</integer-array>
 	<integer-array name="nitem">
 		<item>657</item>

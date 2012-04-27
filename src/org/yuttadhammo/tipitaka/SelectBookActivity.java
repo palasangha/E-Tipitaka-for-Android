@@ -51,6 +51,9 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import android.graphics.Typeface;
+
+
 public class SelectBookActivity extends Activity {
 	private int selectedCate = 0;
 	private View main;
@@ -584,7 +587,7 @@ public class SelectBookActivity extends Activity {
         textHeader = (TextView) findViewById(R.id.tipitaka_label);
         textHeaderLang = (TextView) findViewById(R.id.tipitaka_lang_label);
         readBtn = (Button) findViewById(R.id.read_btn);
-        //searchBtn = (Button) findViewById(R.id.search_btn);
+        searchBtn = (Button) findViewById(R.id.search_btn);
         
         gCate = (Gallery) findViewById(R.id.gallery_cate);
         gNCate = (Gallery) findViewById(R.id.gallery_ncate);
@@ -662,22 +665,20 @@ public class SelectBookActivity extends Activity {
 						break;
 				}
 				
-				//String header = getString(R.string.th_tipitaka_book).trim() + " " + arabic2thai(Integer.toString(selectedBook));
-				//if(lang == "thai")
-				//	header = header + "\n" + getString(R.string.th_lang);
-				//else if(lang == "pali")
-				//	header = header + "\n" + getString(R.string.pl_lang);
-				//textHeader.setText(header);
+				String header = getString(R.string.th_tipitaka_book).trim() + " " + Integer.toString(selectedBook);
+				if(lang == "thai")
+					header = header + "\n" + getString(R.string.th_lang);
+				else if(lang == "pali")
+					header = header + "\n" + getString(R.string.pl_lang);
+				textHeader.setText(header);
 				changeHeader();
 				
-				String info = "";
+				String info = t_book[selectedBook-1].trim();
 				
-				String [] tokens = t_book[selectedBook-1].trim().split("\\s+");
-				for(int i=3; i<tokens.length; i++) {
-					info = info + tokens[i] + " ";
-				}
-				textInfo.setText(info.trim());
-				
+				Log.i ("Tipitaka","book title: "+info);
+				textInfo.setText(info);
+				Typeface font = Typeface.createFromAsset(getAssets(), "verajjan.ttf");  
+				textInfo.setTypeface(font);				
 			}
 
 			@Override
