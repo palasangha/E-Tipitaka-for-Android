@@ -1,4 +1,4 @@
-package  com.watnapp.etipitaka;
+package  org.yuttadhammo.tipitaka;
 
 import java.util.ArrayList;
 
@@ -32,10 +32,10 @@ import android.widget.RadioButton;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-public class BookmarkThaiActivity extends Activity {
+public class BookmarkPaliActivity extends Activity {
 	
 	private BookmarkDBAdapter bookmarkDBAdapter;
-	private String language = "thai";
+	private String language = "pali";
 	private AlertDialog bmItemDialog;
 	private int selectedItemPosition = -1;
 	private MatrixCursor savedCursor;
@@ -300,7 +300,7 @@ public class BookmarkThaiActivity extends Activity {
 				cursor.close();
 				bookmarkDBAdapter.close();
 				
-        		Intent intent = new Intent(BookmarkThaiActivity.this, ReadBookActivity.class);
+        		Intent intent = new Intent(BookmarkPaliActivity.this, ReadBookActivity.class);
         		Bundle dataBundle = new Bundle();
         		dataBundle.putInt("VOL", volumn);
         		dataBundle.putInt("PAGE", page);
@@ -324,7 +324,7 @@ public class BookmarkThaiActivity extends Activity {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				selectedItemPosition = arg2;
-				AlertDialog.Builder builder = new AlertDialog.Builder(BookmarkThaiActivity.this);
+				AlertDialog.Builder builder = new AlertDialog.Builder(BookmarkPaliActivity.this);
 				
 				CharSequence[] items1 = {getString(R.string.edit), getString(R.string.delete)};
 				//CharSequence[] items2 = {getString(R.string.edit)};
@@ -398,7 +398,7 @@ public class BookmarkThaiActivity extends Activity {
 			savedCursor = convertCursor(bookmarkDBAdapter.getEntries(language, keywords, sortKey, isDesc));
 		}
 
-		adapter = new SpecialCursorAdapter(BookmarkThaiActivity.this, R.layout.bookmark_item, savedCursor,
+		adapter = new SpecialCursorAdapter(BookmarkPaliActivity.this, R.layout.bookmark_item, savedCursor,
     	        		new String[] {"line1", "line2", BookmarkDBAdapter.KEY_KEYWORDS},
     	        		new int[] {R.id.bm_line1, R.id.bm_line2, R.id.bm_keywords});
 		listview.setAdapter(adapter);

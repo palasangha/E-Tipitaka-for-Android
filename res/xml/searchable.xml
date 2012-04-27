@@ -3,7 +3,7 @@
   	xmlns:android="http://schemas.android.com/apk/res/android"
   	android:label="@string/app_name"
   	android:hint="@string/search_hint"
-    android:searchSuggestAuthority="com.watnapp.etipitaka.ETPKSearchSuggestionProvider"
+    android:searchSuggestAuthority="org.yuttadhammo.tipitaka.ETPKSearchSuggestionProvider"
     android:searchSuggestSelection=" ?"  	
   	>
 </searchable>

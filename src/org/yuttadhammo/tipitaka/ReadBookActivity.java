@@ -1,4 +1,4 @@
-package com.watnapp.etipitaka;
+package org.yuttadhammo.tipitaka;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +38,11 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import android.graphics.Typeface;
+
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
+
 public class ReadBookActivity extends Activity { //implements OnGesturePerformedListener {
 	private EditText textContent;
 	private TextView pageLabel;
@@ -56,10 +61,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	private int toPosition = -1;
 	//private int jumpLine = 0;
 	
-	private ImageButton nextBtn;
-	private ImageButton backBtn;
-	private ImageButton zoomInBtn;
-	private ImageButton zoomOutBtn;
 	//private Button gotoBtn;
 	private Handler mHandler = new Handler();
 	private View main;
@@ -88,7 +89,12 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	private BookmarkDBAdapter bookmarkDBAdapter = null;
 	private SearchDialog searchDialog = null;
 	
-	//GestureLibrary mLibrary;
+	//Gestures
+
+    private static final int SWIPE_MIN_DISTANCE = 60;
+    private static final int SWIPE_MAX_OFF_PATH = 250;
+    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+    private GestureDetector gestureDetector;
 	
 	SharedPreferences prefs;
 	
@@ -523,10 +529,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	private Runnable mHideButtons = new Runnable() {
 		public void run() {
 			//Toast.makeText(ReadPage.this, "Hide them", Toast.LENGTH_SHORT).show();
-			nextBtn.setVisibility(View.INVISIBLE);
-			backBtn.setVisibility(View.INVISIBLE);
-			zoomInBtn.setVisibility(View.INVISIBLE);
-			zoomOutBtn.setVisibility(View.INVISIBLE);
 			//gotoBtn.setVisibility(View.INVISIBLE);
 			
 			main.requestLayout();
@@ -582,12 +584,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        //mLibrary = GestureLibraries.fromRawResource(this, R.raw.gestures);
-        //if (!mLibrary.load()) {
-        //    finish();
-        //}        
-        
+
         Context context = getApplicationContext();
         prefs =  PreferenceManager.getDefaultSharedPreferences(context);
         textSize = prefs.getFloat("TextSize", 16f);
@@ -596,7 +593,10 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         
         main =  View.inflate(this, R.layout.read, null);
         setContentView(main);
-        
+
+        gestureDetector = new GestureDetector(new MyGestureDetector());
+ 
+       
         //GestureOverlayView gestures = (GestureOverlayView) findViewById(R.id.gestures);
         //gestures.addOnGesturePerformedListener(this);
         
@@ -618,22 +618,18 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         
         textContent = (EditText)findViewById(R.id.main_text);
         
+		Typeface font = Typeface.createFromAsset(getAssets(), "verajjan.ttf");  
+		textContent.setTypeface(font);
+        
         pageLabel = (TextView) findViewById(R.id.page_label);
         itemsLabel = (TextView) findViewById(R.id.items_label);
         headerLabel = (TextView) findViewById(R.id.header);
-        nextBtn = (ImageButton) findViewById(R.id.nextbtn);
-        backBtn = (ImageButton) findViewById(R.id.backbtn);
-        zoomInBtn = (ImageButton) findViewById(R.id.zoominbtn);
-        zoomOutBtn = (ImageButton) findViewById(R.id.zoomoutbtn);
        // gotoBtn = (Button) findViewById(R.id.gotobtn);
         
 		scrollview = (ScrollView)findViewById(R.id.scrollview);
 		scrollview.setSmoothScrollingEnabled(false);
-		        
-		nextBtn.setVisibility(View.INVISIBLE);
-		backBtn.setVisibility(View.INVISIBLE);
-		zoomInBtn.setVisibility(View.INVISIBLE);
-		zoomOutBtn.setVisibility(View.INVISIBLE);
+
+	        
 		//gotoBtn.setVisibility(View.INVISIBLE);
 		
 		main.requestLayout();
@@ -670,6 +666,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				mainTipitakaDBAdapter.open();
 				Cursor cursor = mainTipitakaDBAdapter.getContent(selected_volume, arg2+1, lang);
 				cursor.moveToFirst();
+				Log.i ("Tipitaka","db cursor length: "+cursor.getCount());
 				String content = cursor.getString(1);
 				
 				// highlight keywords (yellow)
@@ -691,8 +688,17 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 					}
 				}				
 				
+				content = content.replaceAll("\\[[ 0-9]+\\]", "");
+
 				// highlight items numbers (orange)
-				content = content.replaceAll(getString(R.string.regex_item), "<font color='#EE9A00'><b>$0</b></font>");
+				//content = content.replaceAll(getString(R.string.regex_item), "<font color='#EE9A00'><b>$0</b></font>");
+				
+				content = content.replaceAll("\\^b\\^", "<b>");
+				content = content.replaceAll("\\^eb\\^", "</b>");
+				
+				content = content.replaceAll("\\^a\\^[^^]+\\^ea\\^", "");
+
+				content = content.replaceAll("\\{([^}]+)\\}", "<i><font color=\"#7D7D7D\">[$1]</font></i>");
 				
 				textContent.setText(Html.fromHtml(content.replace("\n", "<br/>")));
 				
@@ -764,88 +770,60 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			
 		});
 		
-		nextBtn.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				readNext();
-				mHandler.removeCallbacks(mHideButtons);
-				mHandler.postDelayed(mHideButtons, autoHideTime);				
-			}
-			
-		});
-
-		backBtn.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				readBack();
-				mHandler.removeCallbacks(mHideButtons);
-				mHandler.postDelayed(mHideButtons, autoHideTime);
-				
-			}
-			
-		});
-		
-		
-		zoomInBtn.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				SharedPreferences.Editor editor = prefs.edit();
-		    	textSize = prefs.getFloat("TextSize", 16f);
-		    	textContent.setTextSize(textSize+1);
-		    	editor.putFloat("TextSize", textSize+1);
-		    	editor.commit();
-				
-			}
-		});
-		
-		zoomOutBtn.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				SharedPreferences.Editor editor = prefs.edit();
-		    	textSize = prefs.getFloat("TextSize", 16f);
-		    	textContent.setTextSize(textSize-1);
-		    	editor.putFloat("TextSize", textSize-1);
-		    	editor.commit();		
-				
-			}
-		});
-		
-		textContent.setOnTouchListener(new OnTouchListener () {
-
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				nextBtn.bringToFront();
-				backBtn.bringToFront();
-				zoomInBtn.bringToFront();
-				zoomOutBtn.bringToFront();
-				
-				nextBtn.setVisibility(View.VISIBLE);
-				backBtn.setVisibility(View.VISIBLE);
-				zoomInBtn.setVisibility(View.VISIBLE);
-				zoomOutBtn.setVisibility(View.VISIBLE);
-				//gotoBtn.setVisibility(View.VISIBLE);
-				main.requestLayout();
-				
-				mHandler.removeCallbacks(mHideButtons);
-				mHandler.postDelayed(mHideButtons, autoHideTime);
-				
+        // Set the touch listener for the main view to be our custom gesture listener
+        textContent.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                if (gestureDetector.onTouchEvent(event)) {
+                    return true;
+                }
+                return false;
+            }
 				/*
 				// multi-touch zoom in and zoom out
 				if(event.getPointerCount() > 1) {
 					float dist = spacing(event);
 					//Log.i("SPACE", Float.toString(dist));
 					return true;
-				}*/
-				
-				return false;
-			}
-			
-		});
+				}*/            
+        });
+		
 	}
+
+    class MyGestureDetector extends SimpleOnGestureListener {
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+ 
+            if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
+                return false;
+            }
+ 
+            if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+			// left to right swipe
+				readNext();
+				ReadBookActivity.this.overridePendingTransition(
+					R.anim.slide_in_right,
+					R.anim.slide_out_left
+				);
+            }  
+            else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+            // right to left swipe
+				readBack();
+				ReadBookActivity.this.overridePendingTransition(
+					R.anim.slide_in_left, 
+					R.anim.slide_out_right
+				);
+            }
+ 
+            return false;
+        }
+ 
+        // It is necessary to return true from onDown for the onFling event to register
+        @Override
+        public boolean onDown(MotionEvent e) {
+	        	return true;
+        }
+    }
+
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {

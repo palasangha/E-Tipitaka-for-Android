@@ -1,4 +1,4 @@
-package com.watnapp.etipitaka;
+package org.yuttadhammo.tipitaka;
 
 
 import java.io.BufferedReader;
@@ -11,6 +11,8 @@ import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import android.util.Log;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -58,8 +60,7 @@ public class SelectBookActivity extends Activity {
 	private TextView textHeaderLang;
 	private Button readBtn;
 	private Button searchBtn;
-	private RadioGroup langMenu;
-	public String lang = "thai";
+	public String lang = "pali";
     private Gallery gCate; //= (Gallery) findViewById(R.id.gallery_cate);
     private Gallery gNCate;// = (Gallery) findViewById(R.id.gallery_ncate);
     private SharedPreferences prefs;  
@@ -75,7 +76,7 @@ public class SelectBookActivity extends Activity {
     
     
     
-    private final String infoFile = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "ETPK" + File.separator + "saveinfo.txt";
+    private final String infoFile = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "ATPK" + File.separator + "saveinfo.txt";
 
     
     // copy from http://www.chrisdadswell.co.uk/android-coding-example-checking-for-the-presence-of-an-internet-connection-on-an-android-device/
@@ -474,11 +475,9 @@ public class SelectBookActivity extends Activity {
 		textHeader.setText(header);
 		if(lang.equals("thai")) {
 			textHeaderLang.setText(getString(R.string.th_lang));
-			langMenu.check(R.id.thai_rbtn);
 		}
 		else if(lang.equals("pali")) {
 			textHeaderLang.setText(getString(R.string.pl_lang));
-			langMenu.check(R.id.pali_rbtn);
 		}
 			
 	}
@@ -493,7 +492,7 @@ public class SelectBookActivity extends Activity {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				if(isInternetOn()) {
-					downloadFile("http://203.114.103.68/etipitaka/android/ETPK.zip", "ETPK.zip");
+					downloadFile("http://static.sirimangalo.org/pali/ATPK/ATPK.zip", "ATPK.zip");
 				} else {
 					AlertDialog.Builder builder = new AlertDialog.Builder(SelectBookActivity.this);
 					builder.setTitle(getString(R.string.internet_not_connected));
@@ -559,28 +558,6 @@ public class SelectBookActivity extends Activity {
         //mainTipitakaDBAdapter.open();
         //mainTipitakaDBAdapter.close();
         
-        langMenu = (RadioGroup) findViewById(R.id.lang_group);
-        langMenu.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(RadioGroup group, int checkedId) {
-				switch(checkedId) {
-					case R.id.thai_rbtn:
-						lang = "thai";
-				    	changeHeader();	
-						break;
-					case R.id.pali_rbtn:
-						lang = "pali";
-						changeHeader();		
-						break;
-					default:
-						break;
-				}
-				//SharedPreferences.Editor editor = prefs.edit();
-				//editor.putString("SELECTED_LANG", lang);
-				//SearchActivity.lang = lang;
-			}
-		});
-
         Context context = getApplicationContext();
         prefs =  PreferenceManager.getDefaultSharedPreferences(context);
         
@@ -595,6 +572,7 @@ public class SelectBookActivity extends Activity {
         		startDownloader();
         	}
         } catch (SQLiteException e) {
+			Log.e ("Tipitaka","error:", e);
         	startDownloader();
         }
         
@@ -606,7 +584,7 @@ public class SelectBookActivity extends Activity {
         textHeader = (TextView) findViewById(R.id.tipitaka_label);
         textHeaderLang = (TextView) findViewById(R.id.tipitaka_lang_label);
         readBtn = (Button) findViewById(R.id.read_btn);
-        searchBtn = (Button) findViewById(R.id.search_btn);
+        //searchBtn = (Button) findViewById(R.id.search_btn);
         
         gCate = (Gallery) findViewById(R.id.gallery_cate);
         gNCate = (Gallery) findViewById(R.id.gallery_ncate);
@@ -709,20 +687,20 @@ public class SelectBookActivity extends Activity {
         	
         });
         
-        searchBtn.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				Thread thread = new Thread(new Runnable() {					
-					@Override
-					public void run() {
-						Instrumentation instrumentation = new Instrumentation();
-						instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_SEARCH);
-					}
-				});
-				thread.start();
-			}
-		});
+        //~ searchBtn.setOnClickListener(new View.OnClickListener() {
+			//~ 
+			//~ @Override
+			//~ public void onClick(View v) {
+				//~ Thread thread = new Thread(new Runnable() {					
+					//~ @Override
+					//~ public void run() {
+						//~ Instrumentation instrumentation = new Instrumentation();
+						//~ instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_SEARCH);
+					//~ }
+				//~ });
+				//~ thread.start();
+			//~ }
+		//~ });
         
         readBtn.setOnClickListener(new View.OnClickListener() {
 

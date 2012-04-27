@@ -1,4 +1,4 @@
-package com.watnapp.etipitaka;
+package org.yuttadhammo.tipitaka;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,15 +29,11 @@ public class Utils {
 	}
 	
 	public static String arabic2thai(String number, Resources res) {
-		final String[] tnum = res.getStringArray(R.array.thainum);
-		String output = "";
-		for(int i=0;i<number.length();i++) {			
-			output = output + tnum[Character.getNumericValue(number.charAt(i))];
-		}
-		return output;	
+
+		return number;	
 	}
 	
 	public static String arabic2thai(int number, Resources res) {
-		return Utils.arabic2thai(Integer.toString(number), res);
+		return Integer.toString(number);
 	}
 }

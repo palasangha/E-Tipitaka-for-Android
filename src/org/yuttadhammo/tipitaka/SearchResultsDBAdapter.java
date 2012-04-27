@@ -1,4 +1,4 @@
-package com.watnapp.etipitaka;
+package org.yuttadhammo.tipitaka;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.watnapp.etipitaka;
+package org.yuttadhammo.tipitaka;
 
 import java.io.File;
 
@@ -10,9 +10,9 @@ import android.os.Environment;
 import android.util.Log;
 
 public class MainTipitakaDBAdapter {
-	private static final String DATABASE_NAME = "etipitaka.db";
+	private static final String DATABASE_NAME = "atipitaka.db";
 	//private static final int DATABASE_VERSION = 1;	
-	private static String DATABASE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "ETPK"; 
+	private static String DATABASE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "ATPK"; 
 	private SQLiteDatabase db = null;
 	private final Context context;
 	//private MainTipitakaDBHelper dbHelper;
@@ -43,12 +43,15 @@ public class MainTipitakaDBAdapter {
     }	
 	
     public Cursor getContent(int volumn, int page, String lang) {
-    	String sPage = String.format("%04d",page);
-    	String sVol = String.format("%02d", volumn);
-    	String selection = String.format("volumn = '%s' AND page = '%s'", sVol, sPage);
+ 		page--;
+ 		volumn--;
+
+    	String selection = String.format("volume = '%s' AND item = '%s'", volumn, page);
+ 		
+   	
     	final Cursor cursor = this.db.query(
     			lang, 
-    			new String[] {"items","content"}, 
+    			new String[] {"item","content"}, 
     			selection,
     			null, 
     			null, 

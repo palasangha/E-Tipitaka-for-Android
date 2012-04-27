@@ -35,7 +35,7 @@
 				android:layout_height="wrap_content"
 				android:layout_toRightOf="@id/about_logo"
 				android:layout_centerVertical="true"
-				android:text="-Tipitaka"
+				android:text="Android Tipitaka"
 				android:textSize="24sp"
 				android:textColor="@android:color/primary_text_dark_nodisable"/>	
 				
@@ -130,43 +130,7 @@
 				android:textSize="16dp"
 			/>
 		</RelativeLayout>
-		<RadioGroup 
-			android:id="@+id/lang_group" 
-			android:layout_width="wrap_content" 
-			android:layout_height="wrap_content"
-			android:orientation="horizontal"
-			android:layout_marginTop="10dp"
-			android:gravity="center"
-			android:layout_gravity="center_horizontal">
-			<RadioButton
-				android:id="@+id/thai_rbtn"
-				android:checked="true"
-				android:layout_marginRight="30dp"
-				android:text="@string/th_lang"/>
-			<RadioButton
-				android:id="@+id/pali_rbtn"
-				android:checked="false"
-				android:text="@string/pl_lang"/>
-		</RadioGroup>
-		<!-- 
-		<TextView
-			android:id="@+id/limitation"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center"
-			android:gravity="center"
-			android:textColor="@android:color/primary_text_dark_nodisable"
-			android:text="@string/limitation"/>
-		
-		<TextView
-			android:id="@+id/caution"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center"
-			android:gravity="center"
-			android:textSize="13dp"
-			android:layout_marginTop="3dp"
-			android:text="@string/caution"/>	 -->
+
 </LinearLayout>
 </ScrollView>
 

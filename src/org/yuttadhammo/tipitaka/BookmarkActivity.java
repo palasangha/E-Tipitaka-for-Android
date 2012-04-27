@@ -1,4 +1,4 @@
-package  com.watnapp.etipitaka;
+package  org.yuttadhammo.tipitaka;
 
 import android.app.Activity;
 import android.content.Intent;

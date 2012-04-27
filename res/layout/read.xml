@@ -119,7 +119,7 @@
 					<EditText style="?android:attr/textViewStyle"
 						android:editable="false"
 						android:background="@null" 
-						android:textColor="@android:color/secondary_text_dark_nodisable"
+						android:textColor="@android:color/white"
 						android:id="@+id/main_text"
 						android:layout_width="fill_parent"
 						android:layout_height="fill_parent"
@@ -133,43 +133,7 @@
 				</RelativeLayout>
 		</ScrollView>
 	</android.gesture.GestureOverlayView>
-	
-	<ImageButton
-		android:id="@+id/nextbtn"
-		android:layout_height="wrap_content"
-		android:layout_width="wrap_content"
-		android:layout_alignParentBottom="true"
-		android:layout_alignParentRight="true"
-		android:src="@drawable/arrow_right_02"
-		android:background="@null"
-	/>
-	<ImageButton
-		android:id="@+id/backbtn"
-		android:layout_height="wrap_content"
-		android:layout_width="wrap_content"
-		android:layout_alignParentBottom="true"
-		android:layout_toLeftOf="@id/nextbtn"
-		android:src="@drawable/arrow_left_02"
-		android:background="@null"		
-	/>
-	<ImageButton
-		android:id="@+id/zoomoutbtn"
-		android:layout_height="wrap_content"
-		android:layout_width="wrap_content"
-		android:layout_alignParentBottom="true"
-		android:layout_alignParentLeft="true"
-		android:src="@drawable/zoom_out_96"
-		android:background="@null"		
-	/>
-	<ImageButton
-		android:id="@+id/zoominbtn"
-		android:layout_height="wrap_content"
-		android:layout_width="wrap_content"
-		android:layout_alignParentBottom="true"
-		android:layout_toRightOf="@id/zoomoutbtn"
-		android:src="@drawable/zoom_in_96"
-		android:background="@null"		
-	/>
+
 
 	
 </RelativeLayout>

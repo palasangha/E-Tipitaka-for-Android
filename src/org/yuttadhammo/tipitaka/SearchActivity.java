@@ -1,4 +1,4 @@
-package com.watnapp.etipitaka;
+package org.yuttadhammo.tipitaka;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -654,7 +654,7 @@ public class SearchActivity extends Activity {
 		lang = _lang;
     	
         //SearchRecentSuggestions suggestions = new SearchRecentSuggestions(this, 
-        //		ETPKSearchSuggestionProvider.AUTHORITY, ETPKSearchSuggestionProvider.MODE);
+        //		ATPKSearchSuggestionProvider.AUTHORITY, ATPKSearchSuggestionProvider.MODE);
         //suggestions.saveRecentQuery(savedQuery, null);
     	
         //dbhelper = new DataBaseHelper(SearchActivity.this);
