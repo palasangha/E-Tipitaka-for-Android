@@ -43,10 +43,12 @@ import android.graphics.Typeface;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 
+import android.util.DisplayMetrics;
+
 public class ReadBookActivity extends Activity { //implements OnGesturePerformedListener {
 	private EditText textContent;
-	private TextView pageLabel;
-	private TextView itemsLabel;
+	//~ private TextView pageLabel;
+	//~ private TextView itemsLabel;
 	private TextView headerLabel;
 	private Gallery gPage;
 	
@@ -91,10 +93,13 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	
 	//Gestures
 
-    private static final int SWIPE_MIN_DISTANCE = 60;
-    private static final int SWIPE_MAX_OFF_PATH = 250;
-    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+    private static final int SWIPE_MIN_LENGTH = 1;
+    private static final int SWIPE_MAX_OFF_PATH = 1;
+    private static final int SWIPE_THRESHOLD_VELOCITY = 1;
     private GestureDetector gestureDetector;
+
+    private String[] t_book;
+	private Typeface font;
 	
 	SharedPreferences prefs;
 	
@@ -588,7 +593,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         Context context = getApplicationContext();
         prefs =  PreferenceManager.getDefaultSharedPreferences(context);
         textSize = prefs.getFloat("TextSize", 16f);
-        
+		font = Typeface.createFromAsset(getAssets(), "verajjan.ttf");      
         //Toast.makeText(this, "Create", Toast.LENGTH_SHORT).show();
         
         main =  View.inflate(this, R.layout.read, null);
@@ -616,13 +621,15 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         	
         nitem = res.getIntArray(R.array.nitem);
         
-        textContent = (EditText)findViewById(R.id.main_text);
-        
-		Typeface font = Typeface.createFromAsset(getAssets(), "verajjan.ttf");  
+        textContent = (EditText) this.findViewById(R.id.main_text);
 		textContent.setTypeface(font);
+        SharedPreferences sizePref = getSharedPreferences("size", MODE_PRIVATE);
+        float size = Float.parseFloat(sizePref.getString("size", "12"));
         
-        pageLabel = (TextView) findViewById(R.id.page_label);
-        itemsLabel = (TextView) findViewById(R.id.items_label);
+		textContent.setTextSize(size);
+                
+        //~ pageLabel = (TextView) findViewById(R.id.page_label);
+        //~ itemsLabel = (TextView) findViewById(R.id.items_label);
         headerLabel = (TextView) findViewById(R.id.header);
        // gotoBtn = (Button) findViewById(R.id.gotobtn);
         
@@ -702,8 +709,8 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				
 				textContent.setText(Html.fromHtml(content.replace("\n", "<br/>")));
 				
-				pageLabel.setText(res.getString(R.string.th_page_label) + "  " + 
-						Utils.arabic2thai(Integer.toString(arg2+1), getResources()));
+				//~ pageLabel.setText(res.getString(R.string.th_page_label) + "  " + 
+						//~ Utils.arabic2thai(Integer.toString(arg2+1), getResources()));
 								
 				savedItems = cursor.getString(0);	
 				cursor.close();
@@ -719,9 +726,13 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				}
 				
 				String tmp = res.getString(R.string.th_items_label).trim() + " " + t_items;
-				itemsLabel.setText(Html.fromHtml("<pre>"+tmp+"</pre>"));
-				String header = getString(R.string.th_tipitaka_book).trim() + 
-					" " + Utils.arabic2thai(Integer.toString(selected_volume), getResources());
+				//~ itemsLabel.setText(Html.fromHtml("<pre>"+tmp+"</pre>"));
+				
+				t_book = res.getStringArray(R.array.thaibook);
+				String header = t_book[selected_volume-1].trim();
+
+				headerLabel.setTypeface(font);
+
 				headerLabel.setText(header);
 				
 				String i_tmp = "";
@@ -792,26 +803,29 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
     class MyGestureDetector extends SimpleOnGestureListener {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
- 
             if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
                 return false;
             }
- 
-            if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+			DisplayMetrics displaymetrics = new DisplayMetrics();
+			getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+			int width = displaymetrics.widthPixels;
+
+
+            if(e1.getX() - e2.getX() > SWIPE_MIN_LENGTH && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 			// left to right swipe
 				readNext();
-				ReadBookActivity.this.overridePendingTransition(
-					R.anim.slide_in_right,
-					R.anim.slide_out_left
-				);
+				//~ ReadBookActivity.this.overridePendingTransition(
+					//~ R.anim.slide_in_right,
+					//~ R.anim.slide_out_left
+				//~ );
             }  
-            else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+            else if (e2.getX() - e1.getX() > SWIPE_MIN_LENGTH && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
             // right to left swipe
 				readBack();
-				ReadBookActivity.this.overridePendingTransition(
-					R.anim.slide_in_left, 
-					R.anim.slide_out_right
-				);
+				//~ ReadBookActivity.this.overridePendingTransition(
+					//~ R.anim.slide_in_left, 
+					//~ R.anim.slide_out_right
+				//~ );
             }
  
             return false;
@@ -823,6 +837,13 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	        	return true;
         }
     }
+
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent ev){
+		super.dispatchTouchEvent(ev);    
+		return gestureDetector.onTouchEvent(ev); 
+	}
+
 
 
 	@Override

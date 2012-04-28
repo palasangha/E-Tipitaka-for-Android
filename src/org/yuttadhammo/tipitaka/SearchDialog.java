@@ -273,13 +273,14 @@ public class SearchDialog extends Dialog {
 		this.setCancelable(true);
 		this.setCanceledOnTouchOutside(true);
 		
-		queryBtn = (Button) findViewById(R.id.query_btn);
+		queryBtn = (Button) this.findViewById(R.id.query_btn);
 		queryBtn.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				String query = searchText.getText().toString();
 				if(query.trim().length() > 0) {
+	        		query = query.replace("aa", "ā").replace("ii", "ī").replace("uu", "ū").replace(".t", "ṭ").replace(".d", "ḍ").replace("\"n", "ṅ").replace(".n", "ṇ").replace(".m", "ṃ").replace("~n", "ñ").replace(".l", "ḷ");
 	        		Intent intent = new Intent(context, SearchActivity.class);
 	        		Bundle dataBundle = new Bundle();
 	        		dataBundle.putString("LANG", lang);

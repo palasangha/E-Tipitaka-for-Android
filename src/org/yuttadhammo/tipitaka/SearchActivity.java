@@ -2,6 +2,8 @@ package org.yuttadhammo.tipitaka;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -40,6 +42,9 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import android.graphics.Typeface;
+
+
 public class SearchActivity extends Activity {
     /** Called when the activity is first created. */
 	private MainTipitakaDBAdapter mainTipitakaDBAdapter = null;
@@ -63,12 +68,15 @@ public class SearchActivity extends Activity {
 	private int pVinai = 0;
 	private int pSuttan = 0;
 	private int pAbhidhum = 0;
+	private int pEtc = 0;
 	private int suVinai = 0;
 	private int suSuttan = 0;
 	private int suAbhidhum = 0;
+	private int suEtc = 0;
 	private int firstPosVinai = Integer.MAX_VALUE;
 	private int firstPosSuttan = Integer.MAX_VALUE;
 	private int firstPosAbhidhum = Integer.MAX_VALUE;
+	private int firstPosEtc = Integer.MAX_VALUE;
 	private Intent intent;
 	private Dialog cateDialog;
 	private float line1Size = 12f;
@@ -87,7 +95,14 @@ public class SearchActivity extends Activity {
 	private static final int SHOW_READBOOK_ACTIVITY = 1;
 	private static final int SHOW_BOOKMARK_ACTIVITY = 2;
 	
+	private static final int V_BOOKS = 19;
+	private static final int S_BOOKS = 101;
+	private static final int A_BOOKS = 28;
+	private static final int E_BOOKS = 11;
+	
 	private String [] readPages = null;
+
+	private Typeface font;
 	
 	// for highlighting selected items
 	private class SpecialCursorAdapter extends SimpleCursorAdapter {
@@ -115,7 +130,9 @@ public class SearchActivity extends Activity {
 			line1.setTextSize(prefs.getFloat("Line1Size", 12f));
 			TextView line2 = (TextView)view.findViewById(R.id.line2);
 			line2.setTextSize(prefs.getFloat("Line2Size", 12f));
-			
+
+			line2.setTypeface(font);				
+
 			ImageView star = (ImageView)view.findViewById(R.id.star_mark);
 			
 			if(checkMarked.contains(position)) {
@@ -309,22 +326,22 @@ public class SearchActivity extends Activity {
         TextView p2 = (TextView) findViewById(R.id.npage2);
         TextView p3 = (TextView) findViewById(R.id.npage3);
         
-        p1.setText(Utils.arabic2thai(Integer.toString(pVinai), getResources())+" "+getString(R.string.th_page));
-        p2.setText(Utils.arabic2thai(Integer.toString(pSuttan), getResources())+" "+getString(R.string.th_page));
-        p3.setText(Utils.arabic2thai(Integer.toString(pAbhidhum), getResources())+" "+getString(R.string.th_page));
+        p1.setText(Utils.arabic2thai(Integer.toString(pVinai), getResources())+" "+getString(R.string.sections));
+        p2.setText(Utils.arabic2thai(Integer.toString(pSuttan), getResources())+" "+getString(R.string.sections));
+        p3.setText(Utils.arabic2thai(Integer.toString(pAbhidhum), getResources())+" "+getString(R.string.sections));
         
         TextView s1 = (TextView) findViewById(R.id.nsutt1);
         TextView s2 = (TextView) findViewById(R.id.nsutt2);
         TextView s3 = (TextView) findViewById(R.id.nsutt3);
         
-        s1.setText(Utils.arabic2thai(Integer.toString(suVinai), getResources())+" "+getString(R.string.th_suttra));
-        s2.setText(Utils.arabic2thai(Integer.toString(suSuttan), getResources())+" "+getString(R.string.th_suttra));
-        s3.setText(Utils.arabic2thai(Integer.toString(suAbhidhum), getResources())+" "+getString(R.string.th_suttra));
+        s1.setText(Utils.arabic2thai(Integer.toString(suVinai), getResources())+" "+getString(R.string.volumes));
+        s2.setText(Utils.arabic2thai(Integer.toString(suSuttan), getResources())+" "+getString(R.string.volumes));
+        s3.setText(Utils.arabic2thai(Integer.toString(suAbhidhum), getResources())+" "+getString(R.string.volumes));
 
         // save search history
         if(isSaved) {
-            String tmp = Utils.arabic2thai(""+(pVinai+pSuttan+pAbhidhum), getResources()) + " " + getString(R.string.th_page);
-            tmp += " " + Utils.arabic2thai(""+(suVinai+suSuttan+suAbhidhum), getResources()) + " " + getString(R.string.th_suttra);
+            String tmp = Utils.arabic2thai(""+(pVinai+pSuttan+pAbhidhum), getResources()) + " " + getString(R.string.sections);
+            tmp += " " + Utils.arabic2thai(""+(suVinai+suSuttan+suAbhidhum), getResources()) + " " + getString(R.string.volumes);
             String line1 = String.format("(%s)", tmp);
 
             String line2 = "";
@@ -423,9 +440,10 @@ public class SearchActivity extends Activity {
 		if(_resultList.size() > 0) {
 			statusText.setText(getString(R.string.th_found) + 
 					" " + Utils.arabic2thai(Integer.toString(_resultList.size()), getResources()) + 
-					" " + getString(R.string.th_page) + 
+					" " + getString(R.string.sections) + 
+					" " + getString(R.string.in) + 
 					" " + Utils.arabic2thai(Integer.toString(suVinai+suSuttan+suAbhidhum), getResources()) +
-					" " + getString(R.string.th_suttra));
+					" " + getString(R.string.volumes));
 		} else {
 			statusText.setText(getString(R.string.not_found));
 		}
@@ -441,7 +459,7 @@ public class SearchActivity extends Activity {
 	private Runnable doUpdateGUI = new Runnable() {
     	public void run() {
     		pdialog.incrementProgressBy(1);  
-    		pdialog.setMessage(getString(R.string.th_found)+" "+Integer.toString(resultList.size())+" "+getString(R.string.th_page));
+    		pdialog.setMessage(getString(R.string.th_found)+" "+Integer.toString(resultList.size())+" "+getString(R.string.sections));
     		if(pdialog.getProgress() == pdialog.getMax()) {
     			pdialog.dismiss();
     			showResults(resultList, true, savedQuery, null, null, null, null);
@@ -455,18 +473,20 @@ public class SearchActivity extends Activity {
 		private boolean vinai = true;
 		private boolean suttan = true;
 		private boolean abhidham = true;
+		private boolean etc = true;
 		
 		public QueryAllThread(String query, ArrayList<String> resultList) {
 			this.query = query;
 			this.resultList = resultList;
 		}
 
-		public QueryAllThread(String query, ArrayList<String> resultList, boolean vinai, boolean suttan, boolean abhidham) {
+		public QueryAllThread(String query, ArrayList<String> resultList, boolean vinai, boolean suttan, boolean abhidham, boolean etc) {
 			this.query = query;
 			this.resultList = resultList;
 			this.vinai = vinai;
 			this.suttan = suttan;
 			this.abhidham = abhidham;
+			this.etc = etc;
 		}
 		
 		private void search(int vol) {
@@ -474,7 +494,7 @@ public class SearchActivity extends Activity {
     		Cursor cursor = mainTipitakaDBAdapter.search(vol, this.query, lang);    		
     		cursor.moveToFirst();
     		while(cursor.isAfterLast() == false) {
-    			this.resultList.add(cursor.getString(0)+":"+cursor.getString(1)+":"+cursor.getString(2)+":"+cursor.getString(3)+":"+cursor.getString(4));
+    			this.resultList.add(cursor.getString(0)+":"+cursor.getString(1)+":"+cursor.getString(2));
     			cursor.moveToNext();
     		}
     		cursor.close();
@@ -485,17 +505,22 @@ public class SearchActivity extends Activity {
 		@Override
 		public void run() {
 			if(vinai) {
-				for(int i=1; i<=8; i++) {
+				for(int i=1; i<=V_BOOKS; i++) {
 					search(i);
 				} 
 			}
 			if(suttan) {
-				for(int i=9; i<=33; i++) {
+				for(int i=V_BOOKS+1; i<=V_BOOKS+S_BOOKS; i++) {
 					search(i);
 				}
 			}
 			if(abhidham) {
-				for(int i=34; i<=45; i++) {
+				for(int i=V_BOOKS+S_BOOKS; i<=V_BOOKS+S_BOOKS+A_BOOKS; i++) {
+					search(i);
+				}
+			}
+			if(etc) {
+				for(int i=V_BOOKS+S_BOOKS; i<=V_BOOKS+S_BOOKS+A_BOOKS; i++) {
 					search(i);
 				}
 			}
@@ -531,12 +556,15 @@ public class SearchActivity extends Activity {
 		pVinai = 0;
 		pSuttan = 0;
 		pAbhidhum = 0;
+		pEtc = 0;
 		suVinai = 0;
 		suSuttan = 0;
 		suAbhidhum = 0;
+		suEtc = 0;
 		firstPosVinai = Integer.MAX_VALUE;
 		firstPosSuttan = Integer.MAX_VALUE;
 		firstPosAbhidhum = Integer.MAX_VALUE;
+		firstPosEtc = Integer.MAX_VALUE;
 		
 		ArrayList<String> al_tmp = new ArrayList<String>();
 		
@@ -548,18 +576,22 @@ public class SearchActivity extends Activity {
 		boolean sFound = false;
 		boolean aFound = false;
 		
-		for(String item : results) {
+		for (Iterator<String> it = results.iterator(); it.hasNext();) {
+			String item = it.next();
 			String [] tokens = item.split(":");
 			int vol = Integer.parseInt(tokens[1]);
-			
-			if(vol >= 1 && vol <= 8) {
+			vol++;
+			if(vol >= 1 && vol <= V_BOOKS) {
 				pVinai++;
 			}
-			else if(vol >=9 && vol <= 33) {
+			else if(vol >V_BOOKS && vol <= S_BOOKS+V_BOOKS) {
 				pSuttan++;
 			}
-			else if(vol >= 34){
+			else if(vol > S_BOOKS+V_BOOKS && vol <= S_BOOKS+V_BOOKS+A_BOOKS){
 				pAbhidhum++;
+			}
+			else if(vol > S_BOOKS+V_BOOKS+A_BOOKS){
+				pEtc++;
 			}
 		
 			if(!vFound && vol >= 1 && vol <= 8) {
@@ -581,13 +613,13 @@ public class SearchActivity extends Activity {
 			String slang = null;
 			
 
-			for(String sut : tokens[4].split("\\s+")) {
+			for(String sut : tokens[1].split("\\s+")) {
 				if(! al_tmp.contains(sVol+":"+sut)) {
 					al_tmp.add(sVol+":"+sut);
-					if(vol >= 1 && vol <= 8) {
+					if(vol >= 1 && vol <= V_BOOKS) {
 						suVinai++;
 					}
-					else if(vol >=9 && vol <= 33) {
+					else if(vol > V_BOOKS && vol <= V_BOOKS+S_BOOKS) {
 						suSuttan++;
 					}
 					else {
@@ -610,7 +642,7 @@ public class SearchActivity extends Activity {
 					getString(R.string.th_page_label) + " " +  
 					Utils.arabic2thai(sPage, getResources());
 			
-			String [] ts = tokens[3].split("\\s+");
+			String [] ts = tokens[2].split("\\s+");
 
 			String t_items;
 			if(ts.length > 1) {
@@ -621,6 +653,8 @@ public class SearchActivity extends Activity {
 			
 			String tmp = "";
 			int count = 0;
+			
+			
 			for(String t: bnames[vol-1].trim().split("\\s+")) {
 				if(count==4)
 					break;
@@ -672,6 +706,7 @@ public class SearchActivity extends Activity {
 		boolean b1 = ((CheckBox) cateDialog.findViewById(R.id.cb_vinai)).isChecked();
 		boolean b2 = ((CheckBox) cateDialog.findViewById(R.id.cb_suttan)).isChecked();
 		boolean b3 = ((CheckBox) cateDialog.findViewById(R.id.cb_abhidham)).isChecked();
+		boolean b4 = ((CheckBox) cateDialog.findViewById(R.id.cb_etc)).isChecked();
 
 		// convert selected categories into string
 		selCate = "";
@@ -692,21 +727,30 @@ public class SearchActivity extends Activity {
 		} else {
 			selCate += "0";
 		}
+		
+		if(b4) {
+			selCate += "1";
+		} else {
+			selCate += "0";
+		}
 
 		
-		Thread searchThread = new Thread(new QueryAllThread(savedQuery, resultList,b1 ,b2, b3));
+		Thread searchThread = new Thread(new QueryAllThread(savedQuery, resultList,b1 ,b2, b3, b4));
 		searchThread.start();
 		
 		int maxSearch = 0;
 
 		if(b1) {
-			maxSearch += 8;
+			maxSearch += V_BOOKS;
 		}
 		if(b2) {
-			maxSearch += 25;
+			maxSearch += S_BOOKS;
 		}
 		if(b3) {
-			maxSearch += 12;
+			maxSearch += A_BOOKS;
+		}
+		if(b4) {
+			maxSearch += E_BOOKS;
 		}
 		
 		pdialog.setMax(maxSearch);
@@ -914,6 +958,8 @@ public class SearchActivity extends Activity {
         
         Context context = getApplicationContext();
         prefs =  PreferenceManager.getDefaultSharedPreferences(context);
+
+		font = Typeface.createFromAsset(getAssets(), "verajjan.ttf");
         
         line1Size = prefs.getFloat("Line1Size", 12f);        
         line2Size = prefs.getFloat("Line2Size", 12f);        
@@ -1032,8 +1078,8 @@ public class SearchActivity extends Activity {
         table = (TableLayout) findViewById(R.id.table_layout);
         divider1 = findViewById(R.id.result_divider_1);
         divider2 = findViewById(R.id.result_divider_2);
-        
-        
+
+
         // long click action
         resultView.setOnItemLongClickListener(new OnItemLongClickListener() {
 
@@ -1144,8 +1190,9 @@ public class SearchActivity extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				String [] tokens = ((String) resultList.get(arg2)).split(":");
-				int volume = Integer.parseInt(tokens[1]);
-				int page = Integer.parseInt(tokens[2]);
+				int volume = Integer.parseInt(tokens[1])+1;
+				int page = Integer.parseInt(tokens[2])+1;
+				Log.i("Tipitaka","search result clicked: "+volume+" "+page);
 				
 				//Toast.makeText(SearchPage.this, Integer.toString(arg2) + ":" + Long.toString(arg3), Toast.LENGTH_SHORT).show();
 				
@@ -1191,6 +1238,7 @@ public class SearchActivity extends Activity {
 					boolean b1 = ((CheckBox) cateDialog.findViewById(R.id.cb_vinai)).isChecked();
 					boolean b2 = ((CheckBox) cateDialog.findViewById(R.id.cb_suttan)).isChecked();
 					boolean b3 = ((CheckBox) cateDialog.findViewById(R.id.cb_abhidham)).isChecked();
+					boolean b4 = ((CheckBox) cateDialog.findViewById(R.id.cb_etc)).isChecked();
 
 					String sCate = "";
 					if(b1) {
@@ -1208,8 +1256,13 @@ public class SearchActivity extends Activity {
 					} else {
 						sCate += "0";
 					}
+					if(b4) {
+						sCate += "1";
+					} else {
+						sCate += "0";
+					}
 					
-					if(b1 | b2 | b3) {
+					if(b1 | b2 | b3 | b4) {
 						cateDialog.dismiss();
 						//TODO if the keywords was searched
 						doSearch(query, lang);						

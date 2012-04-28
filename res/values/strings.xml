@@ -2,8 +2,8 @@
 <resources>
     <string name="app_name">Android Pali Tipitaka</string>
     <string name="th_searching">Searching</string>
-    <string name="th_found">Found</string>
-    <string name="th_page">Page</string>
+    <string name="th_found">Found in</string>
+    <string name="th_page">Sections</string>
     <string name="th_search">Search</string>
     <string name="th_book_label">Volume</string>
     <string name="th_page_label">Section</string>
@@ -19,11 +19,11 @@
     <string name="read_page">Read the Tipitaka</string>
     <string name="search_page">Search Results</string>
     <string name="not_found">Term not found</string>
-    <string name="goto_page">Go to page</string>
+    <string name="goto_page">Go to section</string>
     <string name="goto_item">Go to paragraph</string>
-    <string name="enter_page">Enter page no.</string>
+    <string name="enter_page">Enter section no.</string>
     <string name="enter_item">Enter para. no.</string>
-    <string name="between_page">From page</string>
+    <string name="between_page">From section</string>
 	<string name="between_item">From paragraph</string>
 	<string name="more_found">Found more than one instance</string>
 	<string name="select_lang">Choose</string>
@@ -43,12 +43,13 @@
 	<string name="s_page">p.</string>
 	<string name="s_sut">su.</string>		
 	<string name="s_vinai">Vinaya</string>
-	<string name="s_suttan">Suttanta</string>
-	<string name="s_abhidum">Abhidhamma</string>	
+	<string name="s_suttan">Sutta</string>
+	<string name="s_abhidum">Abhi.</string>	
 	<string name="vinai_full">Vinaya Pitaka</string>
 	<string name="suttan_full">Suttanta Pitaka</string>
 	<string name="abhidum_full">Abhidhamma Pitaka</string>
-	<string name="th_suttra">Sutta</string>
+	<string name="etc_full">Et Cetera</string>
+	<string name="th_suttra">Suttas</string>
 	<string name="select_item_compare">Select item to compare</string>
 	<string name="select_item_memo">Select item to bookmark</string>
 	<string name="all">all</string>
@@ -73,7 +74,7 @@
 	<string name="spinner_lang_prompt">Change language</string>
 	<string name="enter_thai">Enter Thai</string>
 	<string name="enter_pali">Enter Pali</string>	
-	<string name="private_info">Preferences</string>
+	<string name="private_info">Move database</string>
 	<string name="import_info">Move database to internal storage</string>
 	<string name="export_info">Move database to SD card</string>
 	<string name="error_found">Error found</string>
@@ -142,11 +143,16 @@
 	<string name="duplicated_item">Item already saved</string>
 	<string name="swap_lang">Switch language</string>
 	<string name="note_top">Letter order of saved item</string>
-	<string name="volume_page">number,volume-page</string>
+	<string name="volume_page">number,volume-section</string>
 	<string name="sorting">Sorting</string>
 	<string name="marked">Star</string>
 	<string name="unmarked">Unstar</string>	
 	<string name="confirm_delete_memo">Confirm delete bookmark?</string>
 	<string name="deleted_memo">Bookmark deleted</string>
 	<string name="memo_not_found">Bookmark not found</string>
+
+	<string name="volumes">volumes</string>
+	<string name="sections">sections</string>
+	<string name="in">in</string>
+	<string name="preferences">Preferences</string>
 </resources>

@@ -42,12 +42,12 @@ public class MainTipitakaDBAdapter {
     	return db == null ? false : true;
     }	
 	
-    public Cursor getContent(int volumn, int page, String lang) {
+    public Cursor getContent(int volume, int page, String lang) {
  		page--;
- 		volumn--;
- 		Log.i ("Tipitaka","db lookup: volume: "+volumn+", page: "+page);
+ 		volume--;
+ 		//Log.i ("Tipitaka","db lookup: volume: "+volume+", page: "+page);
 
-    	String selection = String.format("volume = '%s' AND item = '%s'", volumn, page);
+    	String selection = String.format("volume = '%s' AND item = '%s'", volume, page);
  		
    	
     	final Cursor cursor = this.db.query(
@@ -61,13 +61,13 @@ public class MainTipitakaDBAdapter {
     	return cursor;    	
     }    
     
-    public Cursor getPageByItem(int volumn, int item, String lang, boolean single) {
+    public Cursor getPageByItem(int volume, int item, String lang, boolean single) {
     	String sItem = Integer.toString(item);
     	String selection = "";
     	if(single) {
-    		selection = "item = " + sItem + " AND volumn = " + String.format("%02d", volumn) + " AND marked = 1";
+    		selection = "item = " + sItem + " AND volume = " + String.format("%02d", volume) + " AND marked = 1";
     	} else {
-    		selection = "item = " + sItem + " AND volumn = " + String.format("%02d", volumn);
+    		selection = "item = " + sItem + " AND volume = " + String.format("%02d", volume);
     	}
     	final Cursor cursor = this.db.query(
     			lang+"_items", 
@@ -81,11 +81,11 @@ public class MainTipitakaDBAdapter {
     	return cursor;
     }    
     
-    public Cursor getSutByPage(int volumn, int page, String lang) {
-    	String sPage = String.format("%04d", page);
+    public Cursor getSutByPage(int volume, int page, String lang) {
+		
     	String selection = "";
 
-    	selection = "page = " + sPage + " AND volumn = " + String.format("%02d", volumn);
+    	selection = "item = " + page + " AND volume = " + volume;
 
     	Cursor cursor = this.db.query(
     			lang+"_items", 
@@ -99,17 +99,14 @@ public class MainTipitakaDBAdapter {
     	return cursor;
     }      
     
-    public Cursor search(int volumn, String query, String lang) {
-    	String strVol = Integer.toString(volumn);
+    public Cursor search(int volume, String query, String lang) {
+ 		query = toUni(query);
+ 		volume--;
     	String selection = "";
-    	
-    	if(volumn < 10) {
-    		strVol = "0" + Integer.toString(volumn);
-    	}
     	
     	String[] tokens = query.split("\\s+");
     	
-    	selection = selection + "volumn = '" + strVol + "'";
+    	selection = selection + "volume = '" + volume + "'";
     	for(int i=0; i<tokens.length; i++) {
     		//Log.i("Tokens", tokens[i].replace('+', ' '));
     		selection = selection + " AND content LIKE " + "'%" + tokens[i].replace('+', ' ') + "%'";
@@ -117,7 +114,7 @@ public class MainTipitakaDBAdapter {
     	
     	final Cursor cursor = this.db.query(
     			lang, 
-    			new String[] {"_id","volumn", "page", "items", "suts"}, 
+    			new String[] {"_id","volume", "item"}, 
     			selection,
     			null, 
     			null, 
@@ -156,6 +153,11 @@ public class MainTipitakaDBAdapter {
 	        return db;
 		}		
 	}*/
+
+	String toUni(String input) {
+		return input.replace("aa", "ā").replace("ii", "ī").replace("uu", "ū").replace(".t", "ṭ").replace(".d", "ḍ").replace("\"n", "ṅ").replace(".n", "ṇ").replace(".m", "ṃ").replace("~n", "ñ").replace(".l", "ḷ");
+	}
+
 }
 
 

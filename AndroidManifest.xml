@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="org.yuttadhammo.tipitaka"
-      android:versionName="1.0.2" android:versionCode="3">
+      android:versionName="0.1" android:versionCode="1">
 
     <application android:label="@string/app_name" android:icon="@drawable/logo">
     	<!-- 
@@ -53,6 +53,7 @@
 			android:name=".BookmarkPaliActivity"
 			android:configChanges="orientation|keyboardHidden"
 		/>
+        <activity android:name=".SettingsActivity"/>
 		
 		<!-- 
 		<meta-data android:name="android.app.default_searchable"
@@ -60,13 +61,8 @@
          -->
 
     </application>
-    <uses-sdk android:minSdkVersion="7" />
-
-
-
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
-
-
-<uses-permission android:name="android.permission.INTERNET"></uses-permission>
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+    <uses-sdk android:minSdkVersion="8" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+	<uses-permission android:name="android.permission.INTERNET"></uses-permission>
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
 </manifest> 

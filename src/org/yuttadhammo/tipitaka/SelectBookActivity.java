@@ -390,51 +390,56 @@ public class SelectBookActivity extends Activity {
     		dataBundle.putString("LANG", lang);
     		intent.putExtras(dataBundle);
     		startActivity(intent);	
-    		
-	    	return true;
-	    case R.id.export_info:
-			if( new File(infoFile).exists()) {
-				AlertDialog.Builder builder2 = new AlertDialog.Builder(this);				
-				builder2.setTitle(getString(R.string.file_exists));
-				builder2.setMessage(getString(R.string.confirm_overwrite));
-		    	builder2.setIcon(android.R.drawable.ic_dialog_alert);
-				builder2.setCancelable(false);
-				builder2.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						exportInfo();
-						dialog.dismiss();
-					}
-				});
-				
-				builder2.setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
-				});
-				
-				AlertDialog alert2 = builder2.create();
-		    	alert2.show();			
-			} else {
-				exportInfo();
-			}
-	    	
-	    	return true;
-	    case R.id.import_info:
-	    	importInfo();
-	    	return true;
-	    	
+    		break;
+	    //~ case R.id.export_info:
+			//~ if( new File(infoFile).exists()) {
+				//~ AlertDialog.Builder builder2 = new AlertDialog.Builder(this);				
+				//~ builder2.setTitle(getString(R.string.file_exists));
+				//~ builder2.setMessage(getString(R.string.confirm_overwrite));
+		    	//~ builder2.setIcon(android.R.drawable.ic_dialog_alert);
+				//~ builder2.setCancelable(false);
+				//~ builder2.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
+					//~ @Override
+					//~ public void onClick(DialogInterface dialog, int which) {
+						//~ exportInfo();
+						//~ dialog.dismiss();
+					//~ }
+				//~ });
+				//~ 
+				//~ builder2.setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
+					//~ 
+					//~ @Override
+					//~ public void onClick(DialogInterface dialog, int which) {
+						//~ dialog.dismiss();
+					//~ }
+				//~ });
+				//~ 
+				//~ AlertDialog alert2 = builder2.create();
+		    	//~ alert2.show();			
+			//~ } else {
+				//~ exportInfo();
+			//~ }
+	    	//~ 
+	    	//~ return true;
+	    //~ case R.id.import_info:
+	    	//~ importInfo();
+	    	//~ return true;
+	    	//~ 
+	    case R.id.preferences:
+			Intent i = new Intent(this, SettingsActivity.class);
+			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			startActivity(i);
+			break;
 	    case R.id.about:
 	    	showAboutDialog();
-	    	return true;
-	    case R.id.limitation:
-	    	showLimitationDialog();
-	    	return true;
+	    	break;
+	    //~ case R.id.limitation:
+	    	//~ showLimitationDialog();
+	    	//~ return true;
 	    default:
 	        return false;
 	    }
+    	return true;
 	}		
 	
 	@Override
@@ -473,17 +478,17 @@ public class SelectBookActivity extends Activity {
 	}
 	
 	
-	private void changeHeader() {
-		String header = getString(R.string.th_tipitaka_book).trim() + " " + Utils.arabic2thai(Integer.toString(selectedBook), getResources());
-		textHeader.setText(header);
-		if(lang.equals("thai")) {
-			textHeaderLang.setText(getString(R.string.th_lang));
-		}
-		else if(lang.equals("pali")) {
-			textHeaderLang.setText(getString(R.string.pl_lang));
-		}
-			
-	}
+	//~ private void changeHeader() {
+		//~ String header = getString(R.string.th_tipitaka_book).trim() + " " + Utils.arabic2thai(Integer.toString(selectedBook), getResources());
+		//~ textHeader.setText(header);
+		//~ if(lang.equals("thai")) {
+			//~ textHeaderLang.setText(getString(R.string.th_lang));
+		//~ }
+		//~ else if(lang.equals("pali")) {
+			//~ textHeaderLang.setText(getString(R.string.pl_lang));
+		//~ }
+			//~ 
+	//~ }
 	
 	private void startDownloader() {
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -526,7 +531,7 @@ public class SelectBookActivity extends Activity {
 	@Override
 	protected void onRestart() {
 		super.onRestart();
-		changeHeader();
+		//changeHeader();
         int pos1 = prefs.getInt("Position1", 0);      
         gCate.setSelection(pos1);
 		gCate.refreshDrawableState();
@@ -558,14 +563,9 @@ public class SelectBookActivity extends Activity {
         searchResultsDBAdapter = new SearchResultsDBAdapter(SelectBookActivity.this);
         bookmarkDBAdapter = new BookmarkDBAdapter(SelectBookActivity.this);
                 
-        //mainTipitakaDBAdapter.open();
-        //mainTipitakaDBAdapter.close();
-        
         Context context = getApplicationContext();
         prefs =  PreferenceManager.getDefaultSharedPreferences(context);
         
-    	//DataBaseHelper dbhelper = new DataBaseHelper(this);
-    	
         MainTipitakaDBAdapter mainTipitakaDBAdapter = new MainTipitakaDBAdapter(this);
         try {
         	mainTipitakaDBAdapter.open();
@@ -584,8 +584,8 @@ public class SelectBookActivity extends Activity {
         
         
         textInfo = (TextView) findViewById(R.id.text_info);
-        textHeader = (TextView) findViewById(R.id.tipitaka_label);
-        textHeaderLang = (TextView) findViewById(R.id.tipitaka_lang_label);
+        //textHeader = (TextView) findViewById(R.id.tipitaka_label);
+        //textHeaderLang = (TextView) findViewById(R.id.tipitaka_lang_label);
         readBtn = (Button) findViewById(R.id.read_btn);
         searchBtn = (Button) findViewById(R.id.search_btn);
         
@@ -656,22 +656,25 @@ public class SelectBookActivity extends Activity {
 						selectedBook = arg2 + 1;
 						break;
 					case 2:
-						selectedBook = arg2 + 1 + 8;
+						selectedBook = arg2 + 1 + 19;
 						break;
 					case 3:
-						selectedBook = arg2 + 1 + 8 + 25;
+						selectedBook = arg2 + 1 + 19 + 101;
+						break;
+					case 4:
+						selectedBook = arg2 + 1 + 19 + 101 + 28;
 						break;
 					default:
 						break;
 				}
 				
-				String header = getString(R.string.th_tipitaka_book).trim() + " " + Integer.toString(selectedBook);
-				if(lang == "thai")
-					header = header + "\n" + getString(R.string.th_lang);
-				else if(lang == "pali")
-					header = header + "\n" + getString(R.string.pl_lang);
-				textHeader.setText(header);
-				changeHeader();
+				//~ String header = getString(R.string.th_tipitaka_book).trim() + " " + Integer.toString(selectedBook);
+				//~ if(lang == "thai")
+					//~ header = header + "\n" + getString(R.string.th_lang);
+				//~ else if(lang == "pali")
+					//~ header = header + "\n" + getString(R.string.pl_lang);
+				//~ textHeader.setText(header);
+				//changeHeader();
 				
 				String info = t_book[selectedBook-1].trim();
 				
@@ -688,20 +691,20 @@ public class SelectBookActivity extends Activity {
         	
         });
         
-        //~ searchBtn.setOnClickListener(new View.OnClickListener() {
-			//~ 
-			//~ @Override
-			//~ public void onClick(View v) {
-				//~ Thread thread = new Thread(new Runnable() {					
-					//~ @Override
-					//~ public void run() {
-						//~ Instrumentation instrumentation = new Instrumentation();
-						//~ instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_SEARCH);
-					//~ }
-				//~ });
-				//~ thread.start();
-			//~ }
-		//~ });
+        searchBtn.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Thread thread = new Thread(new Runnable() {					
+					@Override
+					public void run() {
+						Instrumentation instrumentation = new Instrumentation();
+						instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_SEARCH);
+					}
+				});
+				thread.start();
+			}
+		});
         
         readBtn.setOnClickListener(new View.OnClickListener() {
 
@@ -740,4 +743,5 @@ public class SelectBookActivity extends Activity {
         gCate.setSelection(pos1);
         
     }
+
 }

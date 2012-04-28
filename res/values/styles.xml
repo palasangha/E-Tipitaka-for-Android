@@ -2,4 +2,17 @@
 <resources>
     <style name="searchDialogStyle" parent="@android:style/Theme.Panel">
     </style>
+    <style name="SettingsText">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">25dp</item>
+        <item name="android:padding">20dp</item>
+        <item name="android:gravity">left|center_vertical</item>
+        <item name="android:clickable">true</item>
+    </style>
+    <style name="GradientDivider">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">1px</item>
+        <item name="android:background">@drawable/black_white_gradient</item>
+    </style>
 </resources>
