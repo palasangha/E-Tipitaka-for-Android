@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
-  	xmlns:android="http://schemas.android.com/apk/res/android">
+  	xmlns:android="http://schemas.android.com/apk/res/android"
+  	android:id="@+id/main_menu">
       
-	<item android:id="@+id/bookmark"
+	<item android:id="@+id/bookmark_menu_item"
           android:title="@string/bookmark" />
-	<item android:id="@+id/preferences"
+	<item android:id="@+id/preferences_menu_item"
           android:title="@string/preferences" />
-  	<item android:id="@+id/about"
+  	<item android:id="@+id/about_menu_item"
 		  android:title="@string/about" />
 		            
 <!--

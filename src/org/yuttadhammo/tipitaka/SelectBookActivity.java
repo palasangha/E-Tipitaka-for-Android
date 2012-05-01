@@ -353,7 +353,7 @@ public class SelectBookActivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    // Handle item selection
-		super.onOptionsItemSelected(item);	
+		//super.onOptionsItemSelected(item);	
 		
 		switch (item.getItemId()) {
 
@@ -384,7 +384,7 @@ public class SelectBookActivity extends Activity {
 	       
 	    	return true; */
 	    	
-	    case R.id.bookmark:
+	    case R.id.bookmark_menu_item:
     		Intent intent = new Intent(SelectBookActivity.this, BookmarkTabWidget.class);
     		Bundle dataBundle = new Bundle();
     		dataBundle.putString("LANG", lang);
@@ -425,12 +425,12 @@ public class SelectBookActivity extends Activity {
 	    	//~ importInfo();
 	    	//~ return true;
 	    	//~ 
-	    case R.id.preferences:
+	    case R.id.preferences_menu_item:
 			Intent i = new Intent(this, SettingsActivity.class);
 			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			startActivity(i);
 			break;
-	    case R.id.about:
+	    case R.id.about_menu_item:
 	    	showAboutDialog();
 	    	break;
 	    //~ case R.id.limitation:

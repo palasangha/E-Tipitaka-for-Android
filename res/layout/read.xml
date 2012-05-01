@@ -85,11 +85,12 @@
 	    android:orientation="vertical">
 		<ScrollView
 	  		android:id="@+id/scrollview"
-	  		android:scrollbars="none"
+			android:scrollbars="vertical"
 	  		android:layout_width="match_parent"
 	  		android:layout_height="match_parent">
 	  			<RelativeLayout
 	  				android:layout_width="match_parent"
+					android:id="@+id/main_text_container"
 	  				android:layout_height="match_parent">
 					<EditText style="?android:attr/textViewStyle"
 						android:editable="false"

@@ -220,9 +220,9 @@ public class BookmarkPaliActivity extends Activity {
 			String note = cursor.getString(BookmarkDBAdapter.NOTE_COL);
 			String keywords = cursor.getString(BookmarkDBAdapter.KEYWORDS_COL);
 			// Utils.arabic2thai(""+(key+1), getResources()) + ". " + 
-			String line1 = getString(R.string.th_book_label) + " " + Utils.arabic2thai(Integer.toString(volume), getResources());
-			line1 = line1 + " " + getString(R.string.th_page_label) + " " + Utils.arabic2thai(Integer.toString(page), getResources());
-			line1 = line1 + " " + getString(R.string.th_items_label) + " " + Utils.arabic2thai(Integer.toString(item), getResources());
+			String line1 = getString(R.string.th_book_label) + " " + Integer.toString(volume);
+			line1 = line1 + " " + getString(R.string.th_page_label) + " " + Integer.toString(page);
+			line1 = line1 + " " + getString(R.string.th_items_label) + " " + Integer.toString(item);
 			String line2 = note;
 			
 			newCursor.addRow(new Object[] { key++, line1, line2, volume, keywords});

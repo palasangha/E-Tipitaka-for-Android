@@ -9,17 +9,16 @@ import android.app.Activity;
 import android.os.Bundle;
 
 public class SettingsActivity extends Activity {
-    private EditText settings_text;
 	private SharedPreferences sizePref;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
         setTitle("Android Tipitaka: Settings");
-        settings_text = (EditText) this.findViewById(R.id.settings_text);
+        final EditText settings_text = (EditText) this.findViewById(R.id.settings_text_edit);
 
         sizePref = getSharedPreferences("size", MODE_PRIVATE);
-        String size = sizePref.getString("size", "12");
+        String size = sizePref.getString("size", "16");
         settings_text.setText(size);
         
         Button saveButton = (Button)this.findViewById(R.id.save_pref_btn);

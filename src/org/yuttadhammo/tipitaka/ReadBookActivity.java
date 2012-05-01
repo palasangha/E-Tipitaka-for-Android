@@ -45,6 +45,9 @@ import android.view.GestureDetector.SimpleOnGestureListener;
 
 import android.util.DisplayMetrics;
 
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+
 public class ReadBookActivity extends Activity { //implements OnGesturePerformedListener {
 	private EditText textContent;
 	//~ private TextView pageLabel;
@@ -65,7 +68,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	
 	//private Button gotoBtn;
 	private Handler mHandler = new Handler();
-	private View main;
+	private View read;
 	private String keywords = "";
 	private Dialog dialog;
 	private Dialog selectDialog;
@@ -536,7 +539,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			//Toast.makeText(ReadPage.this, "Hide them", Toast.LENGTH_SHORT).show();
 			//gotoBtn.setVisibility(View.INVISIBLE);
 			
-			main.requestLayout();
+			read.requestLayout();
 		}
 	};
 	
@@ -556,7 +559,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	@Override
 	protected void onRestart() {
 		super.onRestart();
-		textContent.setTextSize(textSize);
+		//textContent.setTextSize(textSize);
 		if(searchDialog != null) {
 			searchDialog.updateHistoryList();
 		}
@@ -573,7 +576,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	@Override
 	protected void onResume() {
 		super.onResume();
-		textContent.setTextSize(textSize);
+		//textContent.setTextSize(textSize);
 		/*
 		int p = 0;
 		if(lang == "thai") {
@@ -596,8 +599,8 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		font = Typeface.createFromAsset(getAssets(), "verajjan.ttf");      
         //Toast.makeText(this, "Create", Toast.LENGTH_SHORT).show();
         
-        main =  View.inflate(this, R.layout.read, null);
-        setContentView(main);
+        read =  View.inflate(this, R.layout.read, null);
+        setContentView(read);
 
         gestureDetector = new GestureDetector(new MyGestureDetector());
  
@@ -624,7 +627,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         textContent = (EditText) this.findViewById(R.id.main_text);
 		textContent.setTypeface(font);
         SharedPreferences sizePref = getSharedPreferences("size", MODE_PRIVATE);
-        float size = Float.parseFloat(sizePref.getString("size", "12"));
+        float size = Float.parseFloat(sizePref.getString("size", "16"));
         
 		textContent.setTextSize(size);
                 
@@ -639,7 +642,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	        
 		//gotoBtn.setVisibility(View.INVISIBLE);
 		
-		main.requestLayout();
+		read.requestLayout();
         
         gPage = (Gallery) findViewById(R.id.gallery_page);
         
@@ -669,6 +672,38 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 
 			@Override
 			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				final AdapterView<?> a0 = arg0;
+				final View a1 = arg1;
+				final int a2 = arg2;
+				final long a3 = arg3;
+				// fade out
+				if(textContent.getVisibility() == View.VISIBLE) {
+					Animation anim = AnimationUtils.loadAnimation(ReadBookActivity.this, android.R.anim.fade_out);
+				anim.setAnimationListener(new Animation.AnimationListener()
+					{
+						public void onAnimationEnd(Animation animation)
+						{
+							changeItem(a0,a1,a2,a3);
+						}
+
+						public void onAnimationRepeat(Animation animation)
+						{
+							// Do nothing!
+						}
+
+						public void  onAnimationStart(Animation animation)
+						{
+							// Do nothing!
+						}
+					});
+					textContent.startAnimation(anim);
+				}
+				else
+					changeItem(a0,a1,a2,a3);
+			}
+			
+			private void changeItem(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+
 				savedReadPages.add(selected_volume+":"+(arg2+1));
 				mainTipitakaDBAdapter.open();
 				Cursor cursor = mainTipitakaDBAdapter.getContent(selected_volume, arg2+1, lang);
@@ -772,11 +807,18 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 					scrollview.fullScroll(View.FOCUS_UP);
 				}
 				gPage.requestFocus();
+
+				// fade in
+
+				textContent.startAnimation(AnimationUtils.loadAnimation(ReadBookActivity.this, android.R.anim.fade_in));
+				textContent.setVisibility(View.VISIBLE);
+
 			}
 
 			@Override
 			public void onNothingSelected(AdapterView<?> arg0) {
-				
+				textContent.startAnimation(AnimationUtils.loadAnimation(ReadBookActivity.this, android.R.anim.fade_in));
+				textContent.setVisibility(View.VISIBLE);				
 			}
 			
 		});
@@ -817,15 +859,12 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				Log.i("Tipitaka", "left to right");
 			// left to right swipe
 				readNext();
-				//~ ReadBookActivity.this.overridePendingTransition(
-					//~ R.anim.slide_in_right,
-					//~ R.anim.slide_out_left
-				//~ );
             }  
             else if (e2.getX() - e1.getX() > SWIPE_MIN_LENGTH && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 				Log.i("Tipitaka", "right to left");
             // right to left swipe
 				readBack();
+
 				//~ ReadBookActivity.this.overridePendingTransition(
 					//~ R.anim.slide_in_left, 
 					//~ R.anim.slide_out_right
