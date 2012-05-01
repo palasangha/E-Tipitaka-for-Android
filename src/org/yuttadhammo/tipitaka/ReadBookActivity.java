@@ -93,9 +93,9 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	
 	//Gestures
 
-    private static final int SWIPE_MIN_LENGTH = 1;
-    private static final int SWIPE_MAX_OFF_PATH = 1;
-    private static final int SWIPE_THRESHOLD_VELOCITY = 1;
+    private static final int SWIPE_MIN_LENGTH = 120;
+    private static final int SWIPE_MAX_OFF_PATH = 120;
+    private static final int SWIPE_THRESHOLD_VELOCITY = 50;
     private GestureDetector gestureDetector;
 
     private String[] t_book;
@@ -803,15 +803,18 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
     class MyGestureDetector extends SimpleOnGestureListener {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+			Log.i("Tipitaka", "flinging");
             if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
                 return false;
             }
+			Log.i("Tipitaka", "on path");
 			DisplayMetrics displaymetrics = new DisplayMetrics();
 			getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
 			int width = displaymetrics.widthPixels;
 
 
             if(e1.getX() - e2.getX() > SWIPE_MIN_LENGTH && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+				Log.i("Tipitaka", "left to right");
 			// left to right swipe
 				readNext();
 				//~ ReadBookActivity.this.overridePendingTransition(
@@ -820,6 +823,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				//~ );
             }  
             else if (e2.getX() - e1.getX() > SWIPE_MIN_LENGTH && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+				Log.i("Tipitaka", "right to left");
             // right to left swipe
 				readBack();
 				//~ ReadBookActivity.this.overridePendingTransition(
@@ -834,6 +838,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         // It is necessary to return true from onDown for the onFling event to register
         @Override
         public boolean onDown(MotionEvent e) {
+				//Log.i("Tipitaka", "down click");
 	        	return true;
         }
     }

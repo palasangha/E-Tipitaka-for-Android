@@ -13,11 +13,11 @@ public class BookmarkTabWidget extends TabActivity {
 		TabHost.TabSpec spec;
 		Intent intent;
 		intent = new Intent().setClass(this, BookmarkThaiActivity.class);
-		spec = tabHost.newTabSpec("thai").setIndicator(getString(R.string.th_lang)).setContent(intent);
+		spec = tabHost.newTabSpec("thai").setIndicator(this.getString(R.string.th_lang)).setContent(intent);
 		tabHost.addTab(spec);
 		
 		intent = new Intent().setClass(this, BookmarkPaliActivity.class);
-		spec = tabHost.newTabSpec("pali").setIndicator(getString(R.string.pl_lang)).setContent(intent);
+		spec = tabHost.newTabSpec("pali").setIndicator(this.getString(R.string.pl_lang)).setContent(intent);
 		tabHost.addTab(spec);
 		if(BookmarkTabWidget.this.getIntent().getExtras() != null) {
 			Bundle dataBundle = BookmarkTabWidget.this.getIntent().getExtras();

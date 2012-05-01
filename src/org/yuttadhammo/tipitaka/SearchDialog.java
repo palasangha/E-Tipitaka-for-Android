@@ -33,6 +33,8 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import android.graphics.Typeface;
+
 public class SearchDialog extends Dialog {
 
 	private EditText searchText;
@@ -154,7 +156,8 @@ public class SearchDialog extends Dialog {
 				}
 			}
 			line3.setText(Html.fromHtml(output.trim()));
-			
+			Typeface font = Typeface.createFromAsset(context.getAssets(), "verajjan.ttf");
+			line3.setTypeface(font);
 			view.setBackgroundColor(Color.BLACK);
 			if(markedPosition == position) {
 				view.setBackgroundColor(Color.DKGRAY);

@@ -515,12 +515,12 @@ public class SearchActivity extends Activity {
 				}
 			}
 			if(abhidham) {
-				for(int i=V_BOOKS+S_BOOKS; i<=V_BOOKS+S_BOOKS+A_BOOKS; i++) {
+				for(int i=V_BOOKS+S_BOOKS+1; i<=V_BOOKS+S_BOOKS+A_BOOKS; i++) {
 					search(i);
 				}
 			}
 			if(etc) {
-				for(int i=V_BOOKS+S_BOOKS; i<=V_BOOKS+S_BOOKS+A_BOOKS; i++) {
+				for(int i=V_BOOKS+S_BOOKS+A_BOOKS+1; i<=V_BOOKS+S_BOOKS+A_BOOKS+E_BOOKS; i++) {
 					search(i);
 				}
 			}
@@ -575,6 +575,9 @@ public class SearchActivity extends Activity {
 		boolean vFound = false;
 		boolean sFound = false;
 		boolean aFound = false;
+		boolean eFound = false;
+					
+		Log.i("Tipitaka","Parsing search results");
 		
 		for (Iterator<String> it = results.iterator(); it.hasNext();) {
 			String item = it.next();
@@ -594,17 +597,21 @@ public class SearchActivity extends Activity {
 				pEtc++;
 			}
 		
-			if(!vFound && vol >= 1 && vol <= 8) {
+			if(!vFound && vol >= 1 && vol <= V_BOOKS) {
 				vFound = true;
 				firstPosVinai = key;
 			}
-			else if(!sFound && vol >=9 && vol <= 33) {
+			else if(!sFound && vol > V_BOOKS && vol <= S_BOOKS+V_BOOKS) {
 				sFound = true;
 				firstPosSuttan = key;
 			}
-			else if(!aFound && vol >= 34) {
+			else if(!aFound && vol > S_BOOKS+V_BOOKS && vol <= S_BOOKS+V_BOOKS+A_BOOKS) {
 				aFound = true;
 				firstPosAbhidhum = key;
+			}
+			else if(!eFound && vol > S_BOOKS+V_BOOKS+A_BOOKS) {
+				eFound = true;
+				firstPosEtc = key;
 			}
 			
 			String sVol = Integer.toString(vol);
@@ -735,7 +742,7 @@ public class SearchActivity extends Activity {
 		}
 
 		
-		Thread searchThread = new Thread(new QueryAllThread(savedQuery, resultList,b1 ,b2, b3, b4));
+		Thread searchThread = new Thread(new QueryAllThread(savedQuery, resultList, b1 ,b2, b3, b4));
 		searchThread.start();
 		
 		int maxSearch = 0;
@@ -964,7 +971,7 @@ public class SearchActivity extends Activity {
         line1Size = prefs.getFloat("Line1Size", 12f);        
         line2Size = prefs.getFloat("Line2Size", 12f);        
         
-        statusText = (TextView) findViewById(R.id.result_status);
+        statusText = (TextView) this.findViewById(R.id.result_status);
         statusText.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {

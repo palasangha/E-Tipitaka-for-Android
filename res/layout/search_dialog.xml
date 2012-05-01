@@ -92,14 +92,20 @@
 		</RelativeLayout>  	
   	</LinearLayout>
   		
-
-	<ListView 
-		android:id="@+id/search_history_listview"
-		android:background="#FF000000"
-		android:layout_width="fill_parent" 
-		android:layout_height="wrap_content"
-		android:drawSelectorOnTop="true"
-		android:smoothScrollbar="true"
-		android:layout_below="@id/filter_layout"
-		/>
+	<ScrollView
+		xmlns:android="http://schemas.android.com/apk/res/android"
+		android:id="@+id/ScrollView01" 
+		android:layout_width="match_parent" 
+		android:layout_height="match_parent"
+		android:scrollbars="horizontal|vertical">
+			<ListView 
+				android:id="@+id/search_history_listview"
+				android:background="#FF000000"
+				android:layout_width="fill_parent" 
+				android:layout_height="wrap_content"
+				android:drawSelectorOnTop="true"
+				android:smoothScrollbar="true"
+				android:layout_below="@id/filter_layout"
+				/>
+	</ScrollView>
 </LinearLayout>
