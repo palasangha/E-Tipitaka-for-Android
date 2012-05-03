@@ -12,6 +12,7 @@
             style="@style/SettingsText"
             android:layout_width="wrap_content"
             android:text="Text Size"
+			android:id="@+id/settings_text"
             android:clickable="false"/>
 		<EditText
 			android:id="@+id/settings_text_edit"
@@ -19,8 +20,7 @@
 			android:singleLine="true"
 			android:layout_height="wrap_content"
 			android:layout_width="fill_parent"
-			android:layout_toRightOf="@id/lang_spinner"
-			android:layout_toLeftOf="@id/query_btn"/>
+			android:layout_toRightOf="@id/settings_text"/>
     </LinearLayout>
 	<Button
 		android:id="@+id/save_pref_btn"

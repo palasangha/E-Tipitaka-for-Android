@@ -6,6 +6,7 @@ import java.util.Collections;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -96,7 +97,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	
 	//Gestures
 
-    private static final int SWIPE_MIN_LENGTH = 120;
+    private static final int SWIPE_MIN_LENGTH = 60;
     private static final int SWIPE_MAX_OFF_PATH = 120;
     private static final int SWIPE_THRESHOLD_VELOCITY = 50;
     private GestureDetector gestureDetector;
@@ -245,24 +246,24 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				BookmarkItem bookmarkItem = new BookmarkItem(bmLang, bmVolume, bmPage, bmItem, memoText.getText().toString(),"");
 				long row = bookmarkDBAdapter.insertEntry(bookmarkItem);
 				bookmarkDBAdapter.close();
-				Toast.makeText(ReadBookActivity.this, getString(R.string.memo), Toast.LENGTH_SHORT).show();
+				Toast.makeText(ReadBookActivity.this, getString(R.string.memo_set), Toast.LENGTH_SHORT).show();
 				memoDialog.dismiss();
 			}
 		});
 		
 		memoDialog.setCancelable(true);
-		String title1 = "";
-		if(lang.equals("thai")) {
-			title1 = getString(R.string.th_tipitaka_label) + " " + getString(R.string.th_lang);
-		} else if(language.equals("pali")) {
-			title1 = getString(R.string.th_tipitaka_label) + " " + getString(R.string.pl_lang);
-		}
-		TextView sub_title = (TextView)memoDialog.findViewById(R.id.memo_sub_title);
-		String title2 = getString(R.string.th_book_label) + " " + Utils.arabic2thai(Integer.toString(volume), getResources());
-		title2 = title2 + " " + getString(R.string.th_page_label) + " " + Utils.arabic2thai(Integer.toString(page), getResources());
-		title2 = title2 + " " + getString(R.string.th_items_label) + " " + Utils.arabic2thai(Integer.toString(item), getResources());
-		sub_title.setText(title2);
-		memoDialog.setTitle(title1);
+		//~ String title1 = "";
+		//~ if(lang.equals("thai")) {
+			//~ title1 = getString(R.string.th_tipitaka_label) + " " + getString(R.string.th_lang);
+		//~ } else if(language.equals("pali")) {
+			//~ title1 = getString(R.string.th_tipitaka_label) + " " + getString(R.string.pl_lang);
+		//~ }
+		//~ TextView sub_title = (TextView)memoDialog.findViewById(R.id.memo_sub_title);
+		//~ String title2 = getString(R.string.th_book_label) + " " + Utils.arabic2thai(Integer.toString(volume), getResources());
+		//~ title2 = title2 + " " + getString(R.string.th_page_label) + " " + Utils.arabic2thai(Integer.toString(page), getResources());
+		//~ title2 = title2 + " " + getString(R.string.th_items_label) + " " + Utils.arabic2thai(Integer.toString(item), getResources());
+		//~ sub_title.setText(title2);
+		memoDialog.setTitle(getString(R.string.memoTitle));
 		memoDialog.show();
 	}
 	
@@ -493,18 +494,18 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		//SharedPreferences.Editor editor = prefs.edit();
 		
 		switch (item.getItemId()) {
-	    case R.id.goto_item:
-	    	gotoItem();
-	        return true;
 	    case R.id.goto_page:
 	    	gotoPage();
 	        return true;
-	    case R.id.compare:
-	    	compare();
-	    	return true;
-	    case R.id.swap:
-	    	swap();
-	    	return true;
+	    //~ case R.id.goto_item:
+	    	//~ gotoItem();
+	        //~ return true;
+	    //~ case R.id.compare:
+	    	//~ compare();
+	    	//~ return true;
+	    //~ case R.id.swap:
+	    	//~ swap();
+	    	//~ return true;
 	    case R.id.memo:
 	    	memoItem();
 	    	return true;
@@ -601,6 +602,10 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         
         read =  View.inflate(this, R.layout.read, null);
         setContentView(read);
+
+		//~ ProgressDialog dialog = ProgressDialog.show(this, "", 
+                    //~ "Loading. Please wait...", true);
+
 
         gestureDetector = new GestureDetector(new MyGestureDetector());
  
@@ -709,6 +714,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				Cursor cursor = mainTipitakaDBAdapter.getContent(selected_volume, arg2+1, lang);
 				cursor.moveToFirst();
 				Log.i ("Tipitaka","db cursor length: "+cursor.getCount());
+				String title = cursor.getString(2);
 				String content = cursor.getString(1);
 				
 				// highlight keywords (yellow)
@@ -742,7 +748,12 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 
 				content = content.replaceAll("\\{([^}]+)\\}", "<i><font color=\"#7D7D7D\">[$1]</font></i>");
 				
-				textContent.setText(Html.fromHtml(content.replace("\n", "<br/>")));
+				title = title.replaceAll("\\^+", "^");
+				title = title.replaceAll("^\\^", "");
+				title = title.replaceAll("\\^$", "");
+				title = title.replaceAll("\\^", ", ");
+				
+				textContent.setText(Html.fromHtml("<font color='#f9f109'><b>"+title+"</b></font><br/><br/>"+content.replace("\n", "<br/>")));
 				
 				//~ pageLabel.setText(res.getString(R.string.th_page_label) + "  " + 
 						//~ Utils.arabic2thai(Integer.toString(arg2+1), getResources()));
@@ -839,6 +850,8 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 					return true;
 				}*/            
         });
+        
+        //dialog.hide();
 		
 	}
 

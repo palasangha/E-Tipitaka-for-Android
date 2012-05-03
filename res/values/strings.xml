@@ -59,7 +59,9 @@
 	<string name="yes">yes</string>
 	<string name="no">no</string>
 	<string name="confirm_clear_history">Are you sure you want to clear the history?</string>
+	<string name="memoTitle">Set Bookmark</string>
 	<string name="memo">Bookmark</string>
+	<string name="memo_set">Bookmark Set</string>
 	<string name="delete_memo">Delete bookmark</string>
 	<string name="enter_note">Enter bookmark name</string>
 	<string name="save">Save</string>

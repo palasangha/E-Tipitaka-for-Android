@@ -25,7 +25,11 @@ public class MainTipitakaDBAdapter {
 	public MainTipitakaDBAdapter open() throws SQLException {
         File f = new File(DATABASE_PATH + File.separator + DATABASE_NAME);
         if(f.exists()) {
-        	db = SQLiteDatabase.openDatabase(DATABASE_PATH + File.separator + DATABASE_NAME, null, SQLiteDatabase.OPEN_READONLY);
+				db = SQLiteDatabase.openDatabase(DATABASE_PATH + File.separator + DATABASE_NAME, null, SQLiteDatabase.OPEN_READONLY);
+			Cursor cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = 'pali_titles'", null);
+			if(cursor==null || cursor.getCount()==0) {
+				db = null;
+			}
         } else {
         	db = null;
         }
@@ -47,12 +51,12 @@ public class MainTipitakaDBAdapter {
  		volume--;
  		//Log.i ("Tipitaka","db lookup: volume: "+volume+", page: "+page);
 
-    	String selection = String.format("volume = '%s' AND item = '%s'", volume, page);
+    	String selection = String.format("pali.volume = '%s' AND pali.item = '%s' AND pali._id = pali_titles._id", volume, page);
  		
    	
     	final Cursor cursor = this.db.query(
-    			lang, 
-    			new String[] {"item","content"}, 
+    			"pali, pali_titles", 
+    			new String[] {"pali.item","pali.content","pali_titles.title"}, 
     			selection,
     			null, 
     			null, 

@@ -99,6 +99,11 @@ public class SearchActivity extends Activity {
 	private static final int S_BOOKS = 101;
 	private static final int A_BOOKS = 28;
 	private static final int E_BOOKS = 11;
+
+	private boolean b1;
+	private boolean b2;
+	private boolean b3;
+	private boolean b4;
 	
 	private String [] readPages = null;
 
@@ -616,7 +621,7 @@ public class SearchActivity extends Activity {
 			
 			String sVol = Integer.toString(vol);
 			int page = Integer.parseInt(tokens[2]);
-			String sPage = Integer.toString(page);
+			String sPage = Integer.toString(page+1);
 			String slang = null;
 			
 
@@ -642,20 +647,22 @@ public class SearchActivity extends Activity {
 			else if (lang.equals("pali")) {
 				slang = getString(R.string.pl);
 			}
-			String line1 =  Utils.arabic2thai(Integer.toString(key+1), getResources()) + ". " +  
-					getString(R.string.th_tipitaka_label) + " " + "("+ slang + ")" + " "  +
+			String line1 =  Integer.toString(key+1) + ". " +  
+					getString(R.string.th_tipitaka_label) + " "  +
 					getString(R.string.th_book_label) + " " +
-					Utils.arabic2thai(sVol, getResources()) + " " +
+					sVol + " " +
 					getString(R.string.th_page_label) + " " +  
-					Utils.arabic2thai(sPage, getResources());
+					sPage;
 			
 			String [] ts = tokens[2].split("\\s+");
 
+			String l2p = Integer.toString((Integer.parseInt(ts[ts.length-1])+1));
+
 			String t_items;
 			if(ts.length > 1) {
-				t_items = Utils.arabic2thai(ts[0], getResources()) + "-" + Utils.arabic2thai(ts[ts.length-1], getResources());
+				t_items = ts[0] + "-" + l2p;
 			} else {
-				t_items = Utils.arabic2thai(ts[0], getResources());
+				t_items = l2p;
 			}
 			
 			String tmp = "";
@@ -710,11 +717,6 @@ public class SearchActivity extends Activity {
 		pdialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		pdialog.setProgress(0);
 		
-		boolean b1 = ((CheckBox) cateDialog.findViewById(R.id.cb_vinai)).isChecked();
-		boolean b2 = ((CheckBox) cateDialog.findViewById(R.id.cb_suttan)).isChecked();
-		boolean b3 = ((CheckBox) cateDialog.findViewById(R.id.cb_abhidham)).isChecked();
-		boolean b4 = ((CheckBox) cateDialog.findViewById(R.id.cb_etc)).isChecked();
-
 		// convert selected categories into string
 		selCate = "";
 		if(b1) {
@@ -942,11 +944,11 @@ public class SearchActivity extends Activity {
 			title1 = getString(R.string.th_tipitaka_label) + " " + getString(R.string.pl_lang);
 		}
 		
-		TextView sub_title = (TextView)memoDialog.findViewById(R.id.memo_sub_title);
-		String title2 = getString(R.string.th_book_label) + " " + Utils.arabic2thai(Integer.toString(volume), getResources());
-		title2 = title2 + " " + getString(R.string.th_page_label) + " " + Utils.arabic2thai(Integer.toString(page), getResources());
-		title2 = title2 + " " + getString(R.string.th_items_label) + " " + Utils.arabic2thai(Integer.toString(item), getResources());
-		sub_title.setText(title2);
+		//~ TextView sub_title = (TextView)memoDialog.findViewById(R.id.memo_sub_title);
+		//~ String title2 = getString(R.string.th_book_label) + " " + Utils.arabic2thai(Integer.toString(volume), getResources());
+		//~ title2 = title2 + " " + getString(R.string.th_page_label) + " " + Utils.arabic2thai(Integer.toString(page), getResources());
+		//~ title2 = title2 + " " + getString(R.string.th_items_label) + " " + Utils.arabic2thai(Integer.toString(item), getResources());
+		//~ sub_title.setText(title2);
 		memoDialog.setTitle(title1);
 		memoDialog.show();		
 		
@@ -1231,63 +1233,19 @@ public class SearchActivity extends Activity {
 		intent = getIntent();
 		Bundle dataBundle = intent.getExtras();
 		if(dataBundle != null && dataBundle.containsKey("QUERY") && dataBundle.containsKey("LANG") && !dataBundle.containsKey("CONTENT")) {
-			cateDialog = new Dialog(SearchActivity.this);						
-			cateDialog.setContentView(R.layout.cate_dialog);
-			cateDialog.setCancelable(true);
-			cateDialog.setTitle(getString(R.string.select_cate));
 
-			Button okBtn = (Button)cateDialog.findViewById(R.id.okcatebtn);
 			final String query = dataBundle.getString("QUERY");
 			final String lang = dataBundle.getString("LANG");
-			okBtn.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					boolean b1 = ((CheckBox) cateDialog.findViewById(R.id.cb_vinai)).isChecked();
-					boolean b2 = ((CheckBox) cateDialog.findViewById(R.id.cb_suttan)).isChecked();
-					boolean b3 = ((CheckBox) cateDialog.findViewById(R.id.cb_abhidham)).isChecked();
-					boolean b4 = ((CheckBox) cateDialog.findViewById(R.id.cb_etc)).isChecked();
 
-					String sCate = "";
-					if(b1) {
-						sCate += "1";
-					} else {
-						sCate += "0";
-					}
-					if(b2) {
-						sCate += "1";
-					} else {
-						sCate += "0";
-					}
-					if(b3) {
-						sCate += "1";
-					} else {
-						sCate += "0";
-					}
-					if(b4) {
-						sCate += "1";
-					} else {
-						sCate += "0";
-					}
-					
-					if(b1 | b2 | b3 | b4) {
-						cateDialog.dismiss();
-						//TODO if the keywords was searched
-						doSearch(query, lang);						
-					}
-				}
-			});
+			b1 = dataBundle.getBoolean("b1");
+			b2 = dataBundle.getBoolean("b2");
+			b3 = dataBundle.getBoolean("b3");
+			b4 = dataBundle.getBoolean("b4");
 			
-			cateDialog.setOnCancelListener(new OnCancelListener() {
-				@Override
-				public void onCancel(DialogInterface dialog) {
-					SearchActivity.this.finish();
-				}
-			});
-        	        	
-        	table.setVisibility(View.INVISIBLE);
+			if(b1 | b2 | b3 | b4) {
+				doSearch(query, lang);						
+			}
 
-        	cateDialog.show();	
-        	
 		} else if (dataBundle != null && dataBundle.containsKey("LANG") && dataBundle.containsKey("QUERY")  && dataBundle.containsKey("CONTENT")) {
 			String content = dataBundle.getString("CONTENT");
 			String pClicked = dataBundle.getString("PCLICKED");

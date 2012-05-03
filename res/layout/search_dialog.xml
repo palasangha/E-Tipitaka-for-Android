@@ -2,11 +2,9 @@
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:orientation="vertical"
-  android:layout_marginTop="3dp"
   android:layout_width="fill_parent"
   android:id="@+id/search_dialog_layout_shell_out" 
-  android:layout_height="wrap_content">
-  	
+  android:layout_height="fill_parent">
   	<LinearLayout
   		android:layout_width="fill_parent"
   		android:layout_height="wrap_content"
@@ -23,24 +21,49 @@
 				android:layout_width="wrap_content"
 				android:text="@string/th_search"
 				android:layout_alignParentRight="true"/>
-			<Spinner
-				android:id="@+id/lang_spinner"
-				android:layout_height="wrap_content"
-				android:layout_width="wrap_content"
-				android:prompt="@string/spinner_lang_prompt"
-				android:layout_alignParentLeft="true"/>
 			<EditText
 				android:id="@+id/search_text"
 				android:textSize="22dp"
 				android:singleLine="true"
 				android:layout_height="wrap_content"
 				android:layout_width="fill_parent"
-				android:layout_toRightOf="@id/lang_spinner"
 				android:layout_toLeftOf="@id/query_btn"/>							
 		</RelativeLayout>
+		<LinearLayout 
+			android:id="@+id/search_dialog_layout_checks" 
+			android:layout_width="fill_parent" 
+			android:orientation="vertical"
+			android:layout_below="@id/search_dialog_layout"
+			android:layout_height="wrap_content">	
+			<CheckBox 
+				android:layout_width="wrap_content" 
+				android:text="@string/vinai_full" 
+				android:checked="true"
+				android:id="@+id/cb_vinai" 
+				android:layout_height="wrap_content"/>
+			<CheckBox 
+				android:layout_width="wrap_content" 
+				android:text="@string/suttan_full" 
+				android:checked="true"
+				android:id="@+id/cb_suttan"
+				android:layout_height="wrap_content"/>
+			<CheckBox 
+				android:layout_width="wrap_content"
+				android:text="@string/abhidum_full" 
+				android:checked="true"
+				android:id="@+id/cb_abhidham" 
+				android:layout_height="wrap_content"/>
+			<CheckBox 
+				android:layout_width="wrap_content"
+				android:text="@string/etc_full" 
+				android:checked="true"
+				android:id="@+id/cb_etc" 
+				android:layout_height="wrap_content"/>	
+		</LinearLayout>
 		<RelativeLayout
 			android:id="@+id/filter_layout"
 			android:layout_height="wrap_content"
+			android:layout_below="@id/search_dialog_layout_checks"
 			android:layout_width="fill_parent">
 			
 			<TextView
@@ -95,9 +118,9 @@
 	<ScrollView
 		xmlns:android="http://schemas.android.com/apk/res/android"
 		android:id="@+id/ScrollView01" 
+		android:layout_height="wrap_content" 
 		android:layout_width="match_parent" 
-		android:layout_height="match_parent"
-		android:scrollbars="horizontal|vertical">
+		android:scrollbars="vertical">
 			<ListView 
 				android:id="@+id/search_history_listview"
 				android:background="#FF000000"

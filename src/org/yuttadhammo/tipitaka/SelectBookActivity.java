@@ -354,90 +354,26 @@ public class SelectBookActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    // Handle item selection
 		//super.onOptionsItemSelected(item);	
-		
+		//Log.i("Tipitaka","Menu clicked ID: " + item.getItemId() + " vs. "+ R.id.preferences_menu_item);
 		switch (item.getItemId()) {
-
-		/*
-	    case R.id.clear_history:
-	    	AlertDialog.Builder builder1 = new AlertDialog.Builder(SelectBookActivity.this);
-	    	builder1.setCancelable(false);
-	    	builder1.setIcon(android.R.drawable.ic_dialog_alert);
-	    	builder1.setTitle(getString(R.string.clear_history));
-	    	builder1.setMessage(getString(R.string.confirm_clear_history));
-	    	builder1.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
-	            public void onClick(DialogInterface dialog, int id) {	            	
-	            	searchHistoryDBAdapter.open();
-	            	searchHistoryDBAdapter.removeAllEntries();
-	            	searchHistoryDBAdapter.close();
-	            	searchResultsDBAdapter.open();
-	            	searchResultsDBAdapter.removeAllEntries();
-	            	searchResultsDBAdapter.close();
-	            }
-	    	});
-	    	builder1.setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
-	           	public void onClick(DialogInterface dialog, int id) {
-	                dialog.dismiss();
-	           	}
-	       	});
-	    	AlertDialog alert1 = builder1.create();
-	    	alert1.show();
-	       
-	    	return true; */
 	    	
-	    case R.id.bookmark_menu_item:
-    		Intent intent = new Intent(SelectBookActivity.this, BookmarkTabWidget.class);
-    		Bundle dataBundle = new Bundle();
-    		dataBundle.putString("LANG", lang);
-    		intent.putExtras(dataBundle);
-    		startActivity(intent);	
-    		break;
-	    //~ case R.id.export_info:
-			//~ if( new File(infoFile).exists()) {
-				//~ AlertDialog.Builder builder2 = new AlertDialog.Builder(this);				
-				//~ builder2.setTitle(getString(R.string.file_exists));
-				//~ builder2.setMessage(getString(R.string.confirm_overwrite));
-		    	//~ builder2.setIcon(android.R.drawable.ic_dialog_alert);
-				//~ builder2.setCancelable(false);
-				//~ builder2.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
-					//~ @Override
-					//~ public void onClick(DialogInterface dialog, int which) {
-						//~ exportInfo();
-						//~ dialog.dismiss();
-					//~ }
-				//~ });
-				//~ 
-				//~ builder2.setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
-					//~ 
-					//~ @Override
-					//~ public void onClick(DialogInterface dialog, int which) {
-						//~ dialog.dismiss();
-					//~ }
-				//~ });
-				//~ 
-				//~ AlertDialog alert2 = builder2.create();
-		    	//~ alert2.show();			
-			//~ } else {
-				//~ exportInfo();
-			//~ }
-	    	//~ 
-	    	//~ return true;
-	    //~ case R.id.import_info:
-	    	//~ importInfo();
-	    	//~ return true;
-	    	//~ 
-	    case R.id.preferences_menu_item:
-			Intent i = new Intent(this, SettingsActivity.class);
-			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivity(i);
-			break;
-	    case R.id.about_menu_item:
-	    	showAboutDialog();
-	    	break;
-	    //~ case R.id.limitation:
-	    	//~ showLimitationDialog();
-	    	//~ return true;
-	    default:
-	        return false;
+			case (int)R.id.bookmark_menu_item:
+				Intent intent = new Intent(SelectBookActivity.this, BookmarkTabWidget.class);
+				Bundle dataBundle = new Bundle();
+				dataBundle.putString("LANG", lang);
+				intent.putExtras(dataBundle);
+				startActivity(intent);	
+				break;
+			case (int)R.id.preferences_menu_item:
+				Intent i = new Intent(this, SettingsActivity.class);
+				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(i);
+				break;
+			case (int)R.id.about_menu_item:
+				showAboutDialog();
+				break;
+			default:
+				return false;
 	    }
     	return true;
 	}		

@@ -33,9 +33,16 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import android.widget.CheckBox;
+
 import android.graphics.Typeface;
 
 public class SearchDialog extends Dialog {
+
+	private boolean b1;
+	private boolean b2;
+	private boolean b3;
+	private boolean b4;
 
 	private EditText searchText;
 	private EditText codeText;
@@ -45,7 +52,6 @@ public class SearchDialog extends Dialog {
 	private ListView historyList;
 	private Context context;
 	private String lang = "thai";
-	private Button queryBtn;
 	private SearchHistoryDBAdapter searchHistoryDBAdapter;
 	private SearchResultsDBAdapter searchResultsDBAdapter;
 	private ResultsCursorAdapter historyAdapter;
@@ -276,18 +282,26 @@ public class SearchDialog extends Dialog {
 		this.setCancelable(true);
 		this.setCanceledOnTouchOutside(true);
 		
-		queryBtn = (Button) this.findViewById(R.id.query_btn);
+		Button queryBtn = (Button) this.findViewById(R.id.query_btn);
 		queryBtn.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				String query = searchText.getText().toString();
+				b1 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_vinai)).isChecked();
+				b2 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_suttan)).isChecked();
+				b3 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_abhidham)).isChecked();
+				b4 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_etc)).isChecked();
 				if(query.trim().length() > 0) {
 	        		query = query.replace("aa", "ā").replace("ii", "ī").replace("uu", "ū").replace(".t", "ṭ").replace(".d", "ḍ").replace("\"n", "ṅ").replace(".n", "ṇ").replace(".m", "ṃ").replace("~n", "ñ").replace(".l", "ḷ");
 	        		Intent intent = new Intent(context, SearchActivity.class);
 	        		Bundle dataBundle = new Bundle();
 	        		dataBundle.putString("LANG", lang);
 	        		dataBundle.putString("QUERY", query);
+	        		dataBundle.putBoolean("b1", b1);
+	        		dataBundle.putBoolean("b2", b2);
+	        		dataBundle.putBoolean("b3", b3);
+	        		dataBundle.putBoolean("b4", b4);
 	        		intent.putExtras(dataBundle);
 	        		context.startActivity(intent);
 	        		//SearchDialog.this.dismiss();
@@ -371,41 +385,6 @@ public class SearchDialog extends Dialog {
         imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
 	    imm.toggleSoftInput(0, 0);		
 		
-		langSpinner = (Spinner) this.findViewById(R.id.lang_spinner);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-        		context, R.array.langs, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        langSpinner.setAdapter(adapter);
-        if(lang.equals("thai")) {
-        	langSpinner.setSelection(0);
-        } else if(lang.equals("pali")) {
-        	langSpinner.setSelection(1);
-        }
-        langSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> arg0, View arg1,
-					int arg2, long arg3) {
-				switch(arg2) {
-					case 0:
-						lang = "thai";
-						searchText.setHint(R.string.enter_thai);
-						break;
-					case 1:
-						lang = "pali";
-						searchText.setHint(R.string.enter_pali);
-						break;
-				}
-				updateHistoryList(lang, searchText.getText().toString().trim());
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-        
         historyList = (ListView) this.findViewById(R.id.search_history_listview);
         
         updateHistoryList(lang);
