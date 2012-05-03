@@ -123,6 +123,11 @@
 	<string name="about_content_2">https://github.com/ssutee/E-Tipitaka-for-Android</string>
 	<string name="about_content_3">Tipitaka files are taken from the VRI tipitaka here:</string>
 	<string name="about_content_4">http://tipitaka.org/romn/</string>
+	<string name="help">Help</string>
+	<string name="help_content_1">Select one of the four sets and a volume number by scrolling horizontally, then press the "Read" button to open the volume.  Once the volume is open, navigate to a section using the horizontally scrolling numbers at the top.  Flinging left or right moves back or forward in the sections, respectively.</string>
+	<string name="help_content_2">The search button allows to search for a word or phrase; use the Velthuis scheme (e.g. "aa", ".t", etc.) for diacritics.</string>
+	<string name="help_content_3">Bookmark using the "Bookmark" button when viewing a section.</string>
+	<string name="help_content_4">Good luck :)</string>
 	<string name="program_thai_name">Android Tipitaka</string>
 	<string name="license">Android Tipitaka is licensed under the GPL 3.0</string>
 	<string name="edit_n_suts">Edit number of suttas</string>

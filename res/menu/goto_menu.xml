@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
   	xmlns:android="http://schemas.android.com/apk/res/android">
+  	<item android:id="@+id/memo"
+  		  android:title="@string/memo" />          
+  	<item android:id="@+id/read_bookmark"
+  		  android:title="@string/bookmark" />          
 	<item android:id="@+id/goto_page"
           android:title="@string/goto_page" />
 <!--
@@ -11,6 +15,8 @@
    	<item android:id="@+id/swap"
    		  android:title="@string/swap_lang"/>
 -->
-  	<item android:id="@+id/memo"
-  		  android:title="@string/memo" />          
+  	<item android:id="@+id/prefs_read"
+		  android:title="@string/preferences" />
+  	<item android:id="@+id/help_menu_item"
+		  android:title="@string/help" />
 </menu>

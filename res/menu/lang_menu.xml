@@ -7,6 +7,8 @@
           android:title="@string/bookmark" />
 	<item android:id="@+id/preferences_menu_item"
           android:title="@string/preferences" />
+  	<item android:id="@+id/help_menu_item"
+		  android:title="@string/help" />
   	<item android:id="@+id/about_menu_item"
 		  android:title="@string/about" />
 		            

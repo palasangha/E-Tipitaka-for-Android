@@ -49,6 +49,7 @@ import android.util.DisplayMetrics;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
+
 public class ReadBookActivity extends Activity { //implements OnGesturePerformedListener {
 	private EditText textContent;
 	//~ private TextView pageLabel;
@@ -82,7 +83,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	private int [] nitem;
 	private final int autoHideTime = 2000;
 	private String [] found_pages;
-	private String lang = "thai";
+	private String lang = "pali";
 	private float textSize = 0f;
 	private ScrollView scrollview;
 	//private boolean isZoom = false;
@@ -494,23 +495,38 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		//SharedPreferences.Editor editor = prefs.edit();
 		
 		switch (item.getItemId()) {
-	    case R.id.goto_page:
-	    	gotoPage();
-	        return true;
-	    //~ case R.id.goto_item:
-	    	//~ gotoItem();
-	        //~ return true;
-	    //~ case R.id.compare:
-	    	//~ compare();
-	    	//~ return true;
-	    //~ case R.id.swap:
-	    	//~ swap();
-	    	//~ return true;
-	    case R.id.memo:
-	    	memoItem();
-	    	return true;
-	    default:
-	        return false;
+			case (int)R.id.goto_page:
+				gotoPage();
+				return true;
+			//~ case R.id.goto_item:
+				//~ gotoItem();
+				//~ return true;
+			//~ case R.id.compare:
+				//~ compare();
+				//~ return true;
+			//~ case R.id.swap:
+				//~ swap();
+				//~ return true;
+			case (int)R.id.help_menu_item:
+				showHelpDialog();
+				return true;
+			case (int)R.id.read_bookmark:
+				Intent intent = new Intent(ReadBookActivity.this, BookmarkPaliActivity.class);
+				Bundle dataBundle = new Bundle();
+				dataBundle.putString("LANG", lang);
+				intent.putExtras(dataBundle);
+				startActivity(intent);	
+				return true;
+			case (int)R.id.memo:
+				memoItem();
+				return true;
+			case (int)R.id.prefs_read:
+				Intent i = new Intent(this, SettingsActivity.class);
+				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(i);
+				return true;
+			default:
+				return false;
 	    }
 	}	
 		
@@ -560,7 +576,9 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	@Override
 	protected void onRestart() {
 		super.onRestart();
-		//textContent.setTextSize(textSize);
+        SharedPreferences sizePref = getSharedPreferences("size", MODE_PRIVATE);
+        textSize = Float.parseFloat(sizePref.getString("size", "16"));
+		textContent.setTextSize(textSize);
 		if(searchDialog != null) {
 			searchDialog.updateHistoryList();
 		}
@@ -577,7 +595,9 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	@Override
 	protected void onResume() {
 		super.onResume();
-		//textContent.setTextSize(textSize);
+        SharedPreferences sizePref = getSharedPreferences("size", MODE_PRIVATE);
+        textSize = Float.parseFloat(sizePref.getString("size", "16"));
+		textContent.setTextSize(textSize);
 		/*
 		int p = 0;
 		if(lang == "thai") {
@@ -596,7 +616,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 
         Context context = getApplicationContext();
         prefs =  PreferenceManager.getDefaultSharedPreferences(context);
-        textSize = prefs.getFloat("TextSize", 16f);
+        //textSize = prefs.getFloat("TextSize", 16f);
 		font = Typeface.createFromAsset(getAssets(), "verajjan.ttf");      
         //Toast.makeText(this, "Create", Toast.LENGTH_SHORT).show();
         
@@ -629,19 +649,19 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         	
         nitem = res.getIntArray(R.array.nitem);
         
-        textContent = (EditText) this.findViewById(R.id.main_text);
+        textContent = (EditText) read.findViewById(R.id.main_text);
 		textContent.setTypeface(font);
         SharedPreferences sizePref = getSharedPreferences("size", MODE_PRIVATE);
-        float size = Float.parseFloat(sizePref.getString("size", "16"));
+        textSize = Float.parseFloat(sizePref.getString("size", "16"));
         
-		textContent.setTextSize(size);
+		textContent.setTextSize(textSize);
                 
         //~ pageLabel = (TextView) findViewById(R.id.page_label);
         //~ itemsLabel = (TextView) findViewById(R.id.items_label);
         headerLabel = (TextView) findViewById(R.id.header);
        // gotoBtn = (Button) findViewById(R.id.gotobtn);
         
-		scrollview = (ScrollView)findViewById(R.id.scrollview);
+		scrollview = (ScrollView)read.findViewById(R.id.scrollview);
 		scrollview.setSmoothScrollingEnabled(false);
 
 	        
@@ -649,7 +669,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		
 		read.requestLayout();
         
-        gPage = (Gallery) findViewById(R.id.gallery_page);
+        gPage = (Gallery) read.findViewById(R.id.gallery_page);
         
         //final int [] npage = res.getIntArray(R.array.npage);
                 
@@ -944,6 +964,12 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		if(pos-1 >= 0) {
 			gPage.setSelection(pos-1);
 		}		
+	}
+
+	private void showHelpDialog() {
+		final Dialog helpDialog = new Dialog(this, android.R.style.Theme_NoTitleBar);
+		helpDialog.setContentView(R.layout.help_dialog);
+		helpDialog.show();
 	}
 	
 	/*

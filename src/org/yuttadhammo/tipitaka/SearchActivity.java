@@ -981,7 +981,7 @@ public class SearchActivity extends Activity {
 			}
 		});
         
-        TextView vinaiLabel = (TextView) findViewById(R.id.vinai_label);
+        TextView vinaiLabel = (TextView) SearchActivity.this.findViewById(R.id.vinai_label);
         vinaiLabel.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -1289,7 +1289,7 @@ public class SearchActivity extends Activity {
 		SharedPreferences.Editor editor = prefs.edit();
 		
 		switch (item.getItemId()) {
-			case R.id.zoom_in_result:
+			case (int)R.id.zoom_in_result:
 				line1Size=prefs.getFloat("Line1Size", 12f)+1;
 				line2Size=prefs.getFloat("Line2Size", 12f)+1;
 				editor.putFloat("Line1Size", line1Size);
@@ -1297,7 +1297,7 @@ public class SearchActivity extends Activity {
 				editor.commit();
 				adapter.notifyDataSetChanged();
 				return true;
-			case R.id.zoom_out_result:
+			case (int)R.id.zoom_out_result:
 				line1Size=prefs.getFloat("Line1Size", 12f)-1;
 				line2Size=prefs.getFloat("Line2Size", 12f)-1;
 				editor.putFloat("Line1Size", line1Size);
@@ -1305,7 +1305,7 @@ public class SearchActivity extends Activity {
 				editor.commit();
 				adapter.notifyDataSetChanged();
 				return true;
-			case R.id.jump_to_result_item:
+			case (int)R.id.jump_to_result_item:
 				final Dialog dialog = new Dialog(SearchActivity.this);
 				dialog.setContentView(R.layout.goto_position_dialog);
 				dialog.setTitle(R.string.goto_result_position);
@@ -1320,17 +1320,12 @@ public class SearchActivity extends Activity {
 				});
 				dialog.show();
 				return true;
-			case R.id.results_bookmark:
-	    		Intent intent;
-	    		if(lang.equals("thai")) {
-	    			intent = new Intent(SearchActivity.this, BookmarkThaiActivity.class);
-	    		} else {
-	    			intent = new Intent(SearchActivity.this, BookmarkPaliActivity.class);
-	    		}
-	    		Bundle dataBundle = new Bundle();
-	    		dataBundle.putString("KEYWORDS", savedQuery);
-	    		intent.putExtras(dataBundle);
-	    		startActivityForResult(intent, SHOW_BOOKMARK_ACTIVITY);	
+			case (int)R.id.results_bookmark:
+				Intent intent = new Intent(SearchActivity.this, BookmarkPaliActivity.class);
+				Bundle dataBundle = new Bundle();
+				dataBundle.putString("LANG", lang);
+				intent.putExtras(dataBundle);
+				startActivity(intent);
 				return true;
 			default:
 				return false;

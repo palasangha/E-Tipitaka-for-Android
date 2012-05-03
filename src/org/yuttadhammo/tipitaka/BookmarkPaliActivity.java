@@ -34,6 +34,7 @@ import android.widget.TextView;
 
 public class BookmarkPaliActivity extends Activity {
 	
+	private View bookmarks;
 	private BookmarkDBAdapter bookmarkDBAdapter;
 	private String language = "pali";
 	private AlertDialog bmItemDialog;
@@ -222,7 +223,7 @@ public class BookmarkPaliActivity extends Activity {
 			// Utils.arabic2thai(""+(key+1), getResources()) + ". " + 
 			String line1 = getString(R.string.th_book_label) + " " + Integer.toString(volume);
 			line1 = line1 + " " + getString(R.string.th_page_label) + " " + Integer.toString(page);
-			line1 = line1 + " " + getString(R.string.th_items_label) + " " + Integer.toString(item);
+			line1 = line1 + " " + getString(R.string.th_items_label) + " " + Integer.toString(item+1);
 			String line2 = note;
 			
 			newCursor.addRow(new Object[] { key++, line1, line2, volume, keywords});
@@ -254,9 +255,11 @@ public class BookmarkPaliActivity extends Activity {
 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		bookmarks = View.inflate(this, R.layout.bookmarks, null);
+        setContentView(bookmarks);
 		
-		listview = new ListView(this);
-		setContentView(listview);
+		listview = (ListView) this.findViewById(R.id.bookmarks_list);
 		
         Context context = getApplicationContext();
         prefs =  PreferenceManager.getDefaultSharedPreferences(context);

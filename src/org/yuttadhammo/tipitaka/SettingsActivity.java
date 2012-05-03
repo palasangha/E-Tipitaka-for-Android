@@ -15,7 +15,7 @@ public class SettingsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
         setTitle("Android Tipitaka: Settings");
-        final EditText settings_text = (EditText) this.findViewById(R.id.settings_text_edit);
+        final EditText settings_text = (EditText) SettingsActivity.this.findViewById(R.id.settings_text_edit);
 
         sizePref = getSharedPreferences("size", MODE_PRIVATE);
         String size = sizePref.getString("size", "16");

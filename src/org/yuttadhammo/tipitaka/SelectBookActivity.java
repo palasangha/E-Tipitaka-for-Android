@@ -335,11 +335,16 @@ public class SelectBookActivity extends Activity {
 		aboutDialog.setContentView(R.layout.about_dialog);
 		try {
 			PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_META_DATA);
-			((TextView)aboutDialog.findViewById(R.id.about_text_3)).setText("Version "+ pInfo.versionName);
+			((TextView)aboutDialog.findViewById(R.id.about_text_2)).setText("Version "+ pInfo.versionName);
 		} catch (NameNotFoundException e) {
 			e.printStackTrace();
 		}
 		aboutDialog.show();
+	}
+	private void showHelpDialog() {
+		final Dialog helpDialog = new Dialog(this, android.R.style.Theme_NoTitleBar);
+		helpDialog.setContentView(R.layout.help_dialog);
+		helpDialog.show();
 	}
 	
 	private void showLimitationDialog() {
@@ -358,7 +363,7 @@ public class SelectBookActivity extends Activity {
 		switch (item.getItemId()) {
 	    	
 			case (int)R.id.bookmark_menu_item:
-				Intent intent = new Intent(SelectBookActivity.this, BookmarkTabWidget.class);
+				Intent intent = new Intent(SelectBookActivity.this, BookmarkPaliActivity.class);
 				Bundle dataBundle = new Bundle();
 				dataBundle.putString("LANG", lang);
 				intent.putExtras(dataBundle);
@@ -371,6 +376,9 @@ public class SelectBookActivity extends Activity {
 				break;
 			case (int)R.id.about_menu_item:
 				showAboutDialog();
+				break;
+			case (int)R.id.help_menu_item:
+				showHelpDialog();
 				break;
 			default:
 				return false;
@@ -519,14 +527,14 @@ public class SelectBookActivity extends Activity {
         final String [] cnames = res.getStringArray(R.array.category);
         
         
-        textInfo = (TextView) findViewById(R.id.text_info);
+        textInfo = (TextView) main.findViewById(R.id.text_info);
         //textHeader = (TextView) findViewById(R.id.tipitaka_label);
         //textHeaderLang = (TextView) findViewById(R.id.tipitaka_lang_label);
-        readBtn = (Button) findViewById(R.id.read_btn);
-        searchBtn = (Button) findViewById(R.id.search_btn);
+        readBtn = (Button) main.findViewById(R.id.read_btn);
+        searchBtn = (Button) main.findViewById(R.id.search_btn);
         
-        gCate = (Gallery) findViewById(R.id.gallery_cate);
-        gNCate = (Gallery) findViewById(R.id.gallery_ncate);
+        gCate = (Gallery) main.findViewById(R.id.gallery_cate);
+        gNCate = (Gallery) main.findViewById(R.id.gallery_ncate);
 
         //TextView cautionText = (TextView) findViewById(R.id.caution);
         //cautionText.setText(Html.fromHtml(getString(R.string.caution)));

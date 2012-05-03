@@ -282,7 +282,7 @@ public class SearchDialog extends Dialog {
 		this.setCancelable(true);
 		this.setCanceledOnTouchOutside(true);
 		
-		Button queryBtn = (Button) this.findViewById(R.id.query_btn);
+		Button queryBtn = (Button) SearchDialog.this.findViewById(R.id.query_btn);
 		queryBtn.setOnClickListener(new View.OnClickListener() {
 			
 			@Override

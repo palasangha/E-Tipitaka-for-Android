@@ -12,23 +12,15 @@ public class BookmarkTabWidget extends TabActivity {
 		TabHost tabHost = getTabHost();
 		TabHost.TabSpec spec;
 		Intent intent;
-		intent = new Intent().setClass(this, BookmarkThaiActivity.class);
-		spec = tabHost.newTabSpec("thai").setIndicator(this.getString(R.string.th_lang)).setContent(intent);
-		tabHost.addTab(spec);
+		//~ intent = new Intent().setClass(this, BookmarkThaiActivity.class);
+		//~ spec = tabHost.newTabSpec("thai").setIndicator(this.getString(R.string.th_lang)).setContent(intent);
+		//~ tabHost.addTab(spec);
 		
 		intent = new Intent().setClass(this, BookmarkPaliActivity.class);
 		spec = tabHost.newTabSpec("pali").setIndicator(this.getString(R.string.pl_lang)).setContent(intent);
 		tabHost.addTab(spec);
 		if(BookmarkTabWidget.this.getIntent().getExtras() != null) {
-			Bundle dataBundle = BookmarkTabWidget.this.getIntent().getExtras();
-			String lang = dataBundle.getString("LANG");
-			if(lang.equals("thai")) {
-				tabHost.setCurrentTab(0);
-			}
-			else if(lang.equals("pali")) {
-				tabHost.setCurrentTab(1);
-			}
-			
+			tabHost.setCurrentTab(0);
 		}
 		
 	}
