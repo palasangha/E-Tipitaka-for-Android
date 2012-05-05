@@ -162,6 +162,15 @@
 	<string name="sections">sections</string>
 	<string name="in">in</string>
 	<string name="preferences">Preferences</string>
+	<string name="dictionary">Dictionary</string>
+	
+	<string name="lookup">Lookup</string>
+	<string name="menu">Menu</string>
+    <string name="dict">Dictionaries</string>
+    <string name="top">Top</string>
+    <string name="minus">Zoom Out</string>
+    <string name="plus">Zoom In</string>
+
 
     <string name="text_paused_cellular">Would you like to enable downloading over cellular connections? Depending on your data plan, this may cost you money.</string>
     <string name="text_paused_cellular_2">If you choose not to enable downloading over cellular connections, the download will automatically resume when wi-fi is available.</string>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="org.yuttadhammo.tipitaka"
-      android:versionName="0.5" android:versionCode="5">
+      android:versionName="0.8" android:versionCode="8">
 
-    <application android:label="@string/app_name" android:icon="@drawable/logo">
+    <application android:label="@string/app_name" android:icon="@drawable/logo_96">
     	<!-- 
         <provider android:name=".ATPKSearchSuggestionProvider"
               android:authorities="org.yuttadhammo.tipitaka.ATPKSearchSuggestionProvider" />
@@ -59,6 +59,10 @@
 		/>
         <activity 
 			android:name=".SettingsActivity"
+			android:noHistory="true"
+        />
+        <activity 
+			android:name=".cped"
 			android:noHistory="true"
         />
 		

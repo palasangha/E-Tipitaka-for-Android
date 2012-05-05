@@ -8,6 +8,8 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
 import android.util.Log;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 
 public class MainTipitakaDBAdapter {
 	private static final String DATABASE_NAME = "atipitaka.db";
@@ -17,6 +19,9 @@ public class MainTipitakaDBAdapter {
 	private final Context context;
 	//private MainTipitakaDBHelper dbHelper;
 	
+	private PackageInfo pi;
+	private int pversion;
+	
 	public MainTipitakaDBAdapter(Context _context) {
 		//dbHelper = new MainTipitakaDBHelper(DATABASE_PATH + File.separator + DATABASE_NAME);
 		context = _context;
@@ -25,11 +30,23 @@ public class MainTipitakaDBAdapter {
 	public MainTipitakaDBAdapter open() throws SQLException {
         File f = new File(DATABASE_PATH + File.separator + DATABASE_NAME);
         if(f.exists()) {
-				db = SQLiteDatabase.openDatabase(DATABASE_PATH + File.separator + DATABASE_NAME, null, SQLiteDatabase.OPEN_READONLY);
-			Cursor cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = 'pali_titles'", null);
-			if(cursor==null || cursor.getCount()==0) {
-				db = null;
+			//db = SQLiteDatabase.openDatabase(DATABASE_PATH + File.separator + DATABASE_NAME, null, SQLiteDatabase.OPEN_READWRITE);
+			db = SQLiteDatabase.openDatabase(DATABASE_PATH + File.separator + DATABASE_NAME, null, SQLiteDatabase.OPEN_READONLY);
+			// version check
+			try {
+				pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+				pversion = pi.versionCode;
 			}
+			catch(NameNotFoundException ex) {
+				pversion = 0;
+			}
+			//db.setVersion(pversion);
+			int version = db.getVersion();
+
+			Log.i("Tipitaka","package version: "+pversion);
+			Log.i("Tipitaka","db version: "+version);
+			if(version < pversion)
+				db = null;
         } else {
         	db = null;
         }
@@ -51,12 +68,12 @@ public class MainTipitakaDBAdapter {
  		volume--;
  		//Log.i ("Tipitaka","db lookup: volume: "+volume+", page: "+page);
 
-    	String selection = String.format("pali.volume = '%s' AND pali.item = '%s' AND pali._id = pali_titles._id", volume, page);
+    	String selection = String.format("volume = '%s' AND item = '%s'", volume, page);
  		
    	
     	final Cursor cursor = this.db.query(
-    			"pali, pali_titles", 
-    			new String[] {"pali.item","pali.content","pali_titles.title"}, 
+    			"pali", 
+    			new String[] {"item","content","title"}, 
     			selection,
     			null, 
     			null, 
@@ -136,6 +153,17 @@ public class MainTipitakaDBAdapter {
     			null, 
     			null, 
     			null);
+    	return cursor;
+    }    
+    
+
+    public Cursor dictQuery(String table, String query) {
+		final Cursor cursor = db
+		.rawQuery(
+			"SELECT entry, text FROM "+table+" WHERE entry LIKE '"+query+"%'",
+			null
+		);		
+
     	return cursor;
     }    
     

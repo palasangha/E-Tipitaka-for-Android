@@ -19,7 +19,6 @@
 	  		android:layout_gravity="center_horizontal"
 	  		android:padding="3dp"
 	  		android:id="@+id/about_header">
-	  		
 			<TextView
 				android:id="@+id/about_text_1"
 				android:layout_marginLeft="1dp"
@@ -30,7 +29,6 @@
 				android:text="Android Tipitaka"
 				android:textSize="24sp"
 				android:textColor="@android:color/primary_text_dark_nodisable"/>	
-				
 		</RelativeLayout>	  	
 		<LinearLayout
 	  		android:layout_width="match_parent"
@@ -50,7 +48,12 @@
 				android:spacing="6dp" 
 				android:gravity="center_vertical" 
 				android:layout_height="60dp"/>
-				
+			<Gallery 
+				android:layout_width="match_parent" 
+				android:id="@+id/gallery_hier" 
+				android:spacing="6dp" 
+				android:gravity="center_vertical" 
+				android:layout_height="60dp"/>
 			<TextView
 				android:id="@+id/book_label"
 				android:layout_width="wrap_content"
@@ -59,7 +62,6 @@
 				android:text="@string/th_book_label"
 				android:textSize="17sp"
 			/>
-			
 			<Gallery 
 				android:id="@+id/gallery_ncate" 
 				android:layout_width="match_parent" 
