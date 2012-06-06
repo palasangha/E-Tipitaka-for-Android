@@ -170,6 +170,7 @@ public class cped extends Activity {
 		db.open();
 		Cursor c = db.dictQuery(table,word);		
 		String html = parse(c);
+		db.close();
 		displayResult (word, html);
 	}
 
@@ -209,7 +210,11 @@ public class cped extends Activity {
 			
 			idx=0;
 			while(idx<entries.length) {
-				raw+= (dict < 2?"<b style=\"color:#5A5;font-family:verajjab\">"+entries[idx]+"</b>: ":"<a name=\""+entries[idx]+"\">")+texts[idx]+(dict < 2?"<br/>":"<hr/>");
+				String thisText = texts[idx];
+				if(dict == 2) { // fudge for DPPN colors
+					thisText = thisText.replaceAll("^([^<]*<[^>]*)>","$1 style='color:#5A5;font-family:verajjab'>");
+				}
+				raw+= (dict < 2?"<b style=\"color:#5A5;font-family:verajjab\">"+entries[idx]+"</b>: ":"<a name=\""+entries[idx]+"\">")+thisText+(dict < 2?"<br/>":"<hr/>");
 				idx++;
 			}
 			
@@ -228,6 +233,7 @@ public class cped extends Activity {
 	@Override
 	public void onCreate (Bundle savedInstanceState) {
 		super.onCreate (savedInstanceState);
+
 		setContentView (R.layout.cped);
 		prefs = getPreferences (MODE_PRIVATE);
 		
@@ -285,12 +291,21 @@ public class cped extends Activity {
 		displayWebViewHtml (
 			prefs.getString (HTML_KEY, loadResToString (R.raw.index))
 		);
+
+		//~ String pass_query = this.getIntent().getStringExtra("QUERY");
+		//~ 
+		//~ if(pass_query != null) {
+			//~ lookup_text.setText(pass_query);
+			//~ lookupWord();
+		//~ }
+		
+			
 	}
 	
 	@Override
 	public boolean onCreateOptionsMenu (Menu menu) {
 		Menu sub = menu.addSubMenu(0,0,Menu.NONE,R.string.dict)
-			.setIcon (R.drawable.logo_96);
+			.setIcon (R.drawable.logo_48);
 
 		for (int idx = 0; idx < DICT_ARRAY_FULL.length; idx++) {
 			sub.add (1, idx, Menu.NONE, DICT_ARRAY_FULL[idx])

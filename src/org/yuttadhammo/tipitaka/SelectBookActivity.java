@@ -389,6 +389,11 @@ public class SelectBookActivity extends Activity {
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				break;
+			case (int)R.id.english_menu_item:
+				intent = new Intent(this, EnglishActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
+				break;
 			default:
 				return false;
 	    }

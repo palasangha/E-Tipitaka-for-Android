@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -41,17 +42,25 @@ import android.widget.Toast;
 
 import android.graphics.Typeface;
 
+import android.view.inputmethod.InputMethodManager;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.View.OnLongClickListener;
 
 import android.util.DisplayMetrics;
 
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
+import android.text.style.UnderlineSpan;
+import android.text.style.ClickableSpan;
+import android.text.method.LinkMovementMethod;
+import android.text.SpannableStringBuilder;
+import java.lang.CharSequence;
+
 
 public class ReadBookActivity extends Activity { //implements OnGesturePerformedListener {
-	private EditText textContent;
+	private TextView textContent;
 	//~ private TextView pageLabel;
 	//~ private TextView itemsLabel;
 	private TextView headerLabel;
@@ -96,11 +105,14 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	private BookmarkDBAdapter bookmarkDBAdapter = null;
 	private SearchDialog searchDialog = null;
 	
+	public int oldpage = 0;
+	public int newpage = 0;
+
 	//Gestures
 
-    private static final int SWIPE_MIN_LENGTH = 60;
-    private static final int SWIPE_MAX_OFF_PATH = 120;
-    private static final int SWIPE_THRESHOLD_VELOCITY = 50;
+    private static final int SWIPE_MIN_LENGTH = 10;
+    private static final int SWIPE_MAX_OFF_PATH = 200;
+    private static final int SWIPE_THRESHOLD_VELOCITY = 1;
     private GestureDetector gestureDetector;
 
     private String[] t_book;
@@ -493,11 +505,11 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		super.onOptionsItemSelected(item);
 		
 		//SharedPreferences.Editor editor = prefs.edit();
-		
+		Intent intent;
 		switch (item.getItemId()) {
 			case (int)R.id.goto_page:
 				gotoPage();
-				return true;
+				break;
 			//~ case R.id.goto_item:
 				//~ gotoItem();
 				//~ return true;
@@ -509,25 +521,31 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				//~ return true;
 			case (int)R.id.help_menu_item:
 				showHelpDialog();
-				return true;
+				break;
 			case (int)R.id.read_bookmark:
-				Intent intent = new Intent(ReadBookActivity.this, BookmarkPaliActivity.class);
+				intent = new Intent(ReadBookActivity.this, BookmarkPaliActivity.class);
 				Bundle dataBundle = new Bundle();
 				dataBundle.putString("LANG", lang);
 				intent.putExtras(dataBundle);
 				startActivity(intent);	
-				return true;
+				break;
 			case (int)R.id.memo:
 				memoItem();
-				return true;
+				break;
 			case (int)R.id.prefs_read:
-				Intent i = new Intent(this, SettingsActivity.class);
-				i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(i);
-				return true;
+				intent = new Intent(this, SettingsActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
+				break;
+			case (int)R.id.read_dict_menu_item:
+				intent = new Intent(this, cped.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
+				break;
 			default:
 				return false;
 	    }
+		return true;
 	}	
 		
 	private void setGalleryPages(int currentPage) {		
@@ -649,12 +667,46 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         	
         nitem = res.getIntArray(R.array.nitem);
         
-        textContent = (EditText) read.findViewById(R.id.main_text);
+        textContent = (TextView) read.findViewById(R.id.main_text);
 		textContent.setTypeface(font);
         SharedPreferences sizePref = getSharedPreferences("size", MODE_PRIVATE);
         textSize = Float.parseFloat(sizePref.getString("size", "16"));
         
 		textContent.setTextSize(textSize);
+
+		// hide virtual keyboard
+		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(textContent.getWindowToken(), 0);
+
+		textContent.setOnLongClickListener(new OnLongClickListener() {
+			@Override
+			public boolean onLongClick(View v) {
+				textContent.setCursorVisible(true);
+				Log.i("Tipitaka", "long click");
+				if(newpage != oldpage)
+					return true;
+				return false;
+			}
+		});
+
+		int api = Integer.parseInt(Build.VERSION.SDK);
+		
+		if (api >= 11) {
+			textContent.setTextIsSelectable(true);
+		}
+
+
+		//~ textContent.setOnLongClickListener(new OnLongClickListener() {
+//~ 
+			//~ @Override
+			//~ public boolean onLongClick(View v) {
+				//~ Log.i("Tipitaka", "long click");
+				//~ if(newpage != oldpage)
+					//~ return true;
+				//~ return false;
+			//~ }
+		//~ });
+
                 
         //~ pageLabel = (TextView) findViewById(R.id.page_label);
         //~ itemsLabel = (TextView) findViewById(R.id.items_label);
@@ -704,7 +756,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				// fade out
 				if(textContent.getVisibility() == View.VISIBLE) {
 					Animation anim = AnimationUtils.loadAnimation(ReadBookActivity.this, android.R.anim.fade_out);
-				anim.setAnimationListener(new Animation.AnimationListener()
+					anim.setAnimationListener(new Animation.AnimationListener()
 					{
 						public void onAnimationEnd(Animation animation)
 						{
@@ -728,14 +780,18 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			}
 			
 			private void changeItem(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-
+				
+				//ReadBookActivity.this.oldpage = arg2;
+				Log.i("Tipitaka","old/new: "+Integer.toString(oldpage)+" "+Integer.toString(newpage));
 				savedReadPages.add(selected_volume+":"+(arg2+1));
 				mainTipitakaDBAdapter.open();
 				Cursor cursor = mainTipitakaDBAdapter.getContent(selected_volume, arg2+1, lang);
 				cursor.moveToFirst();
-				Log.i ("Tipitaka","db cursor length: "+cursor.getCount());
+				//Log.i ("Tipitaka","db cursor length: "+cursor.getCount());
 				String title = cursor.getString(2);
 				String content = cursor.getString(1);
+
+				//~ content = "<u>"+content.replaceAll(" +", "</u> <u>")+"</u>";
 				
 				// highlight keywords (yellow)
 				if(keywords.trim().length() > 0) {
@@ -745,18 +801,11 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 					Collections.reverse(Arrays.asList(tokens));
 					int count = 0;
 					for(String token: tokens) {
-						content = content.replace(token, String.format("<font color='#f9f109'><b>-:*%d*:-</b></font>", count));
-						count++;
+						content = content.replace(token, "<font color='#f9f109'><b>"+token+"</b></font>");
 					}
-					
-					count = 0;
-					for(String token: tokens) {
-						content = content.replace(String.format("-:*%d*:-", count), token);						
-						count++;
-					}
-				}				
+				}
 				
-				content = content.replaceAll("\\[[ 0-9]+\\]", "");
+				content = content.replaceAll("\\[[0-9]+\\]", "");
 
 				// highlight items numbers (orange)
 				//content = content.replaceAll(getString(R.string.regex_item), "<font color='#EE9A00'><b>$0</b></font>");
@@ -765,15 +814,43 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				content = content.replaceAll("\\^eb\\^", "</b>");
 				
 				content = content.replaceAll("\\^a\\^[^^]+\\^ea\\^", "");
-
-				content = content.replaceAll("\\{([^}]+)\\}", "<i><font color=\"#7D7D7D\">[$1]</font></i>");
 				
+				
+				content = content.replaceAll("\\{([^}]+)\\}", "<i><font color=\"#7D7D7D\">[$1]</font></i>");
+
 				title = title.replaceAll("\\^+", "^");
 				title = title.replaceAll("^\\^", "");
 				title = title.replaceAll("\\^$", "");
 				title = title.replaceAll("\\^", ", ");
 				
-				textContent.setText(Html.fromHtml("<font color='#f9f109'><b>"+title+"</b></font><br/><br/>"+content.replace("\n", "<br/>")));
+				content = "<font color='#f9f109'><b>"+title+"</b></font><br/><br/>"+content.replace("\n", "<br/>");
+				textContent.setText(Html.fromHtml(content));
+
+				//~ // linkify!
+//~ 
+				//~ CharSequence sequence = Html.fromHtml(content);
+				//~ SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
+				//~ UnderlineSpan[] underlines = strBuilder.getSpans(0, strBuilder.length(), UnderlineSpan.class);
+
+				//~ for(UnderlineSpan span : underlines) {
+				   //~ int start = strBuilder.getSpanStart(span);
+				   //~ int end = strBuilder.getSpanEnd(span);
+				   //~ int flags = strBuilder.getSpanFlags(span);
+				   //~ final String thisSpan = span.toString();
+				   //~ Log.i("Tipitaka","Underlining word: "+thisSpan);
+				   //~ ClickableSpan myActivityLauncher = new ClickableSpan() {
+					 //~ public void onClick(View view) {
+						//~ Intent intent = new Intent(ReadBookActivity.this, cped.class);
+						//~ intent.putExtra("QUERY", thisSpan);
+						//~ intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						//~ startActivity(intent);					 }
+				   //~ };
+//~ 
+				   //~ strBuilder.setSpan(myActivityLauncher, start, end, flags);
+				//~ }
+//~ 
+				//~ textContent.setText(strBuilder);
+				//~ textContent.setMovementMethod(LinkMovementMethod.getInstance());
 				
 				//~ pageLabel.setText(res.getString(R.string.th_page_label) + "  " + 
 						//~ Utils.arabic2thai(Integer.toString(arg2+1), getResources()));
@@ -841,7 +918,25 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 
 				// fade in
 
-				textContent.startAnimation(AnimationUtils.loadAnimation(ReadBookActivity.this, android.R.anim.fade_in));
+				Animation anim = AnimationUtils.loadAnimation(ReadBookActivity.this, android.R.anim.fade_in);
+				anim.setAnimationListener(new Animation.AnimationListener()
+				{
+					public void onAnimationEnd(Animation animation)
+					{
+						newpage = oldpage;
+					}
+
+					public void onAnimationRepeat(Animation animation)
+					{
+						// Do nothing!
+					}
+
+					public void  onAnimationStart(Animation animation)
+					{
+						// Do nothing!
+					}
+				});
+				textContent.startAnimation(anim);
 				textContent.setVisibility(View.VISIBLE);
 
 			}
@@ -856,11 +951,13 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		
         // Set the touch listener for the main view to be our custom gesture listener
         textContent.setOnTouchListener(new View.OnTouchListener() {
-            public boolean onTouch(View v, MotionEvent event) {
-                if (gestureDetector.onTouchEvent(event)) {
-                    return true;
-                }
-                return false;
+            public boolean onTouch(View v, MotionEvent ev) {
+					return gestureDetector.onTouchEvent(ev);
+
+                //~ if (gestureDetector.onTouchEvent(event)) {
+                    //~ return true;
+                //~ }
+                //~ return false;
             }
 				/*
 				// multi-touch zoom in and zoom out
@@ -878,20 +975,23 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
     class MyGestureDetector extends SimpleOnGestureListener {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+			textContent.clearFocus();
+			//super.onFling(e1, e2, velocityX,velocityY);
 			Log.i("Tipitaka", "flinging");
             if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
                 return false;
             }
 			Log.i("Tipitaka", "on path");
-			DisplayMetrics displaymetrics = new DisplayMetrics();
-			getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-			int width = displaymetrics.widthPixels;
+			//~ DisplayMetrics displaymetrics = new DisplayMetrics();
+			//~ getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+			//~ int width = displaymetrics.widthPixels;
 
 
             if(e1.getX() - e2.getX() > SWIPE_MIN_LENGTH && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 				Log.i("Tipitaka", "left to right");
 			// left to right swipe
 				readNext();
+				return true;
             }  
             else if (e2.getX() - e1.getX() > SWIPE_MIN_LENGTH && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
 				Log.i("Tipitaka", "right to left");
@@ -902,24 +1002,36 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 					//~ R.anim.slide_in_left, 
 					//~ R.anim.slide_out_right
 				//~ );
+				return true;
             }
- 
-            return false;
+			return false;
         }
  
-        // It is necessary to return true from onDown for the onFling event to register
         @Override
         public boolean onDown(MotionEvent e) {
-				//Log.i("Tipitaka", "down click");
-	        	return true;
+			//Log.i("Tipitaka", "down click");
+			return super.onDown(e);
+	        //return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+			return true;
+        }
+        @Override
+        public void onLongPress(MotionEvent e) {
+			//super.onLongPress(e);
+			//Log.i("Tipitaka", "long click");
         }
     }
-
-	@Override
-	public boolean dispatchTouchEvent(MotionEvent ev){
-		super.dispatchTouchEvent(ev);    
-		return gestureDetector.onTouchEvent(ev); 
-	}
+//~ 
+	//~ @Override
+	//~ public boolean dispatchTouchEvent(MotionEvent ev){
+		//~ 
+		//~ //int action = ev.getAction();
+		//~ //Log.i("Tipitaka","Action: "+Integer.toString(action));
+		//~ return gestureDetector.onTouchEvent(ev);
+	//~ }
 
 
 
@@ -955,6 +1067,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	private void readNext() {
 		int pos = gPage.getSelectedItemPosition();
 		if(pos+1 < gPage.getCount()) {
+			newpage = oldpage+1;
 			gPage.setSelection(pos+1);
 		}		
 	}
@@ -962,6 +1075,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	private void readBack() {
 		int pos = gPage.getSelectedItemPosition();
 		if(pos-1 >= 0) {
+			newpage = oldpage-1;
 			gPage.setSelection(pos-1);
 		}		
 	}

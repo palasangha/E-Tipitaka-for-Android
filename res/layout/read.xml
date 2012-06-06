@@ -72,42 +72,26 @@
 		android:layout_below="@id/relative_layout01"
 		android:layout_height="2dp"/>
 		
-	<android.gesture.GestureOverlayView
-	    android:id="@+id/gestures"
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	    android:gestureColor="#00ffffff"
-		android:uncertainGestureColor="#00ffffff"
-		android:fadeEnabled="false"	        
-	    android:gestureStrokeType="multiple"
-	    android:eventsInterceptionEnabled="true"
+	<ScrollView
+		android:id="@+id/scrollview"
+		android:scrollbars="vertical"
+		android:layout_width="match_parent"
 	    android:layout_below="@id/read_divider"
-	    android:orientation="vertical">
-		<ScrollView
-	  		android:id="@+id/scrollview"
-			android:scrollbars="vertical"
-	  		android:layout_width="match_parent"
-	  		android:layout_height="match_parent">
-	  			<RelativeLayout
-	  				android:layout_width="match_parent"
-					android:id="@+id/main_text_container"
-	  				android:layout_height="match_parent">
-					<EditText style="?android:attr/textViewStyle"
-						android:editable="false"
-						android:background="@null" 
-						android:textColor="@android:color/white"
-						android:id="@+id/main_text"
-						android:layout_width="match_parent"
-						android:layout_height="match_parent"
-						android:layout_marginBottom="20dp"
-						android:cursorVisible="true"
-						android:padding="10dp"
-						android:textSize="16dp"
-						android:lineSpacingExtra="2dip"
-						android:bufferType="spannable"					
-					/>
-				</RelativeLayout>
-		</ScrollView>
-	</android.gesture.GestureOverlayView>
+		android:layout_height="match_parent">
+			<TextView style="?android:attr/textViewStyle"
+				android:cursorVisible="true"
+				android:editable="false"
+				android:background="@android:color/black" 
+				android:textColor="@android:color/white"
+				android:textColorHighlight="#999900"
+				android:id="@+id/main_text"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_marginBottom="20dp"
+				android:padding="10dp"
+				android:textSize="16dp"
+				android:lineSpacingExtra="2dip"
+			/>
+	</ScrollView>
 	
 </RelativeLayout>

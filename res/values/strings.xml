@@ -17,6 +17,7 @@
     <string name="th_tipitaka_book">Tipitaka Vol.</string>
     <string name="search_hint">Enter search term</string>
     <string name="read_page">Read the Tipitaka</string>
+    <string name="english_page">English Tipitaka</string>
     <string name="search_page">Search Results</string>
     <string name="not_found">Term not found</string>
     <string name="goto_page">Go to section</string>
@@ -81,6 +82,7 @@
 	<string name="export_info">Move database to SD card</string>
 	<string name="error_found">Error found</string>
 	<string name="db_not_found">Database not found</string>
+	<string name="ati_not_found">Download Archive</string>
 	<string name="cannot_write">Unable to write database</string>
 	<string name="export_success">Database moved to internal storage</string>
 	<string name="import_success">Database moved to SD card</string>
@@ -107,11 +109,14 @@
 	<string name="recall_freq">Recall frequency</string>
 	<string name="data_not_found">Data not found</string>
 	<string name="please_search_again">Please search again</string>
-	<string name="confirm_download">Do you want to download the database?</string>
+	<string name="confirm_download">The database is either missing or out-of-date.  Do you want to download the latest database?</string>
+	<string name="confirm_download_ati">Do you want to download the latest AccessToInsight archive?  If you already have it, put the ati_website directory in your sdcard and retry.</string>
 	<string name="internet_not_connected">No connection to the Internet</string>
 	<string name="check_your_connection">Please check your data connection and try again.</string>
 	<string name="unzipping_db">Unzipping the database...</string>
+	<string name="unzipping_ati">Unzipping the archive...</string>
 	<string name="unzipped">Database unzipped</string>
+	<string name="unzipped_ati">Archive unzipped</string>
 	<string name="limitation">Program Limitations</string>
 	<string name="caution">
 		จำนวนพระสูตรที่แสดงในผลลัพธ์การค้นหาเป็น การประมาณเพียงเพื่อให้เห็นภาพโดยรวมของ ปริมาณพระสูตร
@@ -149,8 +154,9 @@
 	<string name="goto_result_position">Go to result position</string>
 	<string name="duplicated_item">Item already saved</string>
 	<string name="swap_lang">Switch language</string>
-	<string name="note_top">Letter order of saved item</string>
+	<string name="note_top">Alphabetical Order</string>
 	<string name="volume_page">number,volume-section</string>
+	<string name="url_sort">By URL Location</string>
 	<string name="sorting">Sorting</string>
 	<string name="marked">Star</string>
 	<string name="unmarked">Unstar</string>	
@@ -161,6 +167,7 @@
 	<string name="volumes">volumes</string>
 	<string name="sections">sections</string>
 	<string name="in">in</string>
+	<string name="english">English</string>
 	<string name="preferences">Preferences</string>
 	<string name="dictionary">Dictionary</string>
 	

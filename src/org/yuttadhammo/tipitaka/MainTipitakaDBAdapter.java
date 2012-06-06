@@ -43,9 +43,9 @@ public class MainTipitakaDBAdapter {
 			//db.setVersion(pversion);
 			int version = db.getVersion();
 
-			Log.i("Tipitaka","package version: "+pversion);
-			Log.i("Tipitaka","db version: "+version);
-			if(version < pversion)
+			//Log.i("Tipitaka","package version: "+pversion);
+			//Log.i("Tipitaka","db version: "+version);
+			if(version < 9)
 				db = null;
         } else {
         	db = null;
