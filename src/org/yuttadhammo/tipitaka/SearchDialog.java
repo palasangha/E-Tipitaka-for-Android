@@ -43,6 +43,9 @@ public class SearchDialog extends Dialog {
 	private boolean b2;
 	private boolean b3;
 	private boolean b4;
+	private boolean b5;
+	private boolean b6;
+	private boolean b7;
 
 	private EditText searchText;
 	private EditText codeText;
@@ -153,7 +156,7 @@ public class SearchDialog extends Dialog {
 					} else {
 						output += String.format("<font color='#FF4500'>%s</font>  ", s);
 					}
-				} else if(s.startsWith(context.getString(R.string.ss_abhidum))) {
+				} else if(s.startsWith(context.getString(R.string.ss_abhi))) {
 					if(s.endsWith(context.getString(R.string.zero_zero))) {
 						output += s + "  ";
 					} else {
@@ -292,6 +295,11 @@ public class SearchDialog extends Dialog {
 				b2 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_suttan)).isChecked();
 				b3 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_abhidham)).isChecked();
 				b4 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_etc)).isChecked();
+				
+				b5 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_mul)).isChecked();
+				b6 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_att)).isChecked();
+				b7 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_tik)).isChecked();
+				
 				if(query.trim().length() > 0) {
 	        		query = query.replace("aa", "ā").replace("ii", "ī").replace("uu", "ū").replace(".t", "ṭ").replace(".d", "ḍ").replace("\"n", "ṅ").replace(".n", "ṇ").replace(".m", "ṃ").replace("~n", "ñ").replace(".l", "ḷ");
 	        		Intent intent = new Intent(context, SearchActivity.class);
@@ -302,6 +310,9 @@ public class SearchDialog extends Dialog {
 	        		dataBundle.putBoolean("b2", b2);
 	        		dataBundle.putBoolean("b3", b3);
 	        		dataBundle.putBoolean("b4", b4);
+	        		dataBundle.putBoolean("b5", b5);
+	        		dataBundle.putBoolean("b6", b6);
+	        		dataBundle.putBoolean("b7", b7);
 	        		intent.putExtras(dataBundle);
 	        		context.startActivity(intent);
 	        		//SearchDialog.this.dismiss();

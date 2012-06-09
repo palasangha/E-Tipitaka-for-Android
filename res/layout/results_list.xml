@@ -57,28 +57,37 @@
 			<TextView 
 			    android:background="@drawable/back"
 				android:id="@+id/vinai_label"
-				android:text="@string/s_vinai" 
+				android:text="V" 
 				android:textColor="#1e90ff"				
 				android:textSize="18dp" 
-				android:width="85dp"
+				android:width="50dp"
 				android:gravity="center"
 				android:layout_gravity="center"/>
 			<TextView
 			    android:background="@drawable/back"			 
 				android:id="@+id/suttan_label"
-				android:text="@string/s_suttan" 				
+				android:text="S" 				
 				android:textColor="#ff4500"
 				android:textSize="18dp"
-				android:width="85dp"
+				android:width="50dp"
 				android:gravity="center"				 
 				android:layout_gravity="center"/>
 			<TextView 
 			    android:background="@drawable/back"			
-				android:id="@+id/abhidum_label"
-				android:text="@string/s_abhidum" 
+				android:id="@+id/abhi_label"
+				android:text="A" 
 				android:textColor="#A020F0"
 				android:textSize="18dp"
-				android:width="85dp"
+				android:width="50dp"
+				android:gravity="center"				 
+				android:layout_gravity="center"/>
+			<TextView 
+			    android:background="@drawable/back"			
+				android:id="@+id/etc_label"
+				android:text="E" 
+				android:textColor="#FFFFFF"
+				android:textSize="18dp"
+				android:width="50dp"
 				android:gravity="center"				 
 				android:layout_gravity="center"/>
 		</TableRow>
@@ -98,6 +107,11 @@
 				android:text="" 
 				android:textSize="16dp" 
 				android:layout_gravity="center"/>
+			<TextView 
+				android:id="@+id/npage4" 
+				android:text="" 
+				android:textSize="16dp" 
+				android:layout_gravity="center"/>
 		</TableRow>
 		<TableRow>
 			<TextView 
@@ -110,6 +124,10 @@
 				android:layout_gravity="center"/>
 			<TextView 
 				android:id="@+id/nsutt3" 
+				android:textSize="16dp" 
+				android:layout_gravity="center"/>
+			<TextView 
+				android:id="@+id/nsutt4" 
 				android:textSize="16dp" 
 				android:layout_gravity="center"/>
 		</TableRow>		

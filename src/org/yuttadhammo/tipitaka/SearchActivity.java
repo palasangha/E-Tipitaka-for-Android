@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.Arrays;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -67,15 +68,15 @@ public class SearchActivity extends Activity {
 	private TableLayout table;
 	private int pVinai = 0;
 	private int pSuttan = 0;
-	private int pAbhidhum = 0;
+	private int pAbhi = 0;
 	private int pEtc = 0;
 	private int suVinai = 0;
 	private int suSuttan = 0;
-	private int suAbhidhum = 0;
+	private int suAbhi = 0;
 	private int suEtc = 0;
 	private int firstPosVinai = Integer.MAX_VALUE;
 	private int firstPosSuttan = Integer.MAX_VALUE;
-	private int firstPosAbhidhum = Integer.MAX_VALUE;
+	private int firstPosAbhi = Integer.MAX_VALUE;
 	private int firstPosEtc = Integer.MAX_VALUE;
 	private Intent intent;
 	private Dialog cateDialog;
@@ -95,15 +96,28 @@ public class SearchActivity extends Activity {
 	private static final int SHOW_READBOOK_ACTIVITY = 1;
 	private static final int SHOW_BOOKMARK_ACTIVITY = 2;
 	
-	private static final int V_BOOKS = 19;
-	private static final int S_BOOKS = 101;
-	private static final int A_BOOKS = 28;
-	private static final int E_BOOKS = 11;
+	private static final int V_BOOKS_M = 6;
+	private static final int S_BOOKS_M = 43;
+	private static final int A_BOOKS_M = 14;
+	private static final int E_BOOKS_M = 9;
+	
+	private static final int V_BOOKS_A = 6;
+	private static final int S_BOOKS_A = 36;
+	private static final int A_BOOKS_A = 7;
+	private static final int E_BOOKS_A = 2;
+	
+	private static final int V_BOOKS_T = 7;
+	private static final int S_BOOKS_T = 22;
+	private static final int A_BOOKS_T = 7;
+	private static final int E_BOOKS_T = 0;
 
 	private boolean b1;
 	private boolean b2;
 	private boolean b3;
 	private boolean b4;
+	private boolean b5;
+	private boolean b6;
+	private boolean b7;
 	
 	private String [] readPages = null;
 
@@ -117,7 +131,7 @@ public class SearchActivity extends Activity {
 		private ArrayList<Integer> checkMarked = new ArrayList<Integer>();
 		private int posVinai = Integer.MAX_VALUE;
 		private int posSuttan = Integer.MAX_VALUE;
-		private int posAbhidhum = Integer.MAX_VALUE;
+		private int posAbhi = Integer.MAX_VALUE;
 		private Context context;
 		
 		public SpecialCursorAdapter(Context context, int layout, Cursor c,
@@ -174,13 +188,13 @@ public class SearchActivity extends Activity {
 				topLayout.setBackgroundColor(Color.rgb(25, 25, 90));
 			}
 			
-			if(position >= posVinai && position < posSuttan && position < posAbhidhum) {				
+			if(position >= posVinai && position < posSuttan && position < posAbhi) {				
 				line2.setTextColor(Color.argb(255, 30, 144, 255));
 				//Log.i("VI",Integer.toString(position));
-			} else if(position >= posSuttan && position < posAbhidhum) {
+			} else if(position >= posSuttan && position < posAbhi) {
 				line2.setTextColor(Color.argb(255, 255, 69, 0));
 				//Log.i("SU",Integer.toString(position));
-			} else if(position >= posAbhidhum) {
+			} else if(position >= posAbhi) {
 				line2.setTextColor(Color.argb(255, 160, 32, 240));
 				//Log.i("AB",Integer.toString(position));
 			}
@@ -286,8 +300,8 @@ public class SearchActivity extends Activity {
 			posSuttan = position;
 		}		
 
-		public void setAbhidhumPosition(int position) {
-			posAbhidhum = position;
+		public void setAbhiPosition(int position) {
+			posAbhi = position;
 		}
 		
 	}
@@ -325,55 +339,59 @@ public class SearchActivity extends Activity {
         
         adapter.setVinaiPosition(firstPosVinai);
         adapter.setSuttanPosition(firstPosSuttan);
-        adapter.setAbhidhumPosition(firstPosAbhidhum);
+        adapter.setAbhiPosition(firstPosAbhi);
         
         TextView p1 = (TextView) findViewById(R.id.npage1);
         TextView p2 = (TextView) findViewById(R.id.npage2);
         TextView p3 = (TextView) findViewById(R.id.npage3);
+        TextView p4 = (TextView) findViewById(R.id.npage4);
         
-        p1.setText(Utils.arabic2thai(Integer.toString(pVinai), getResources())+" "+getString(R.string.sections));
-        p2.setText(Utils.arabic2thai(Integer.toString(pSuttan), getResources())+" "+getString(R.string.sections));
-        p3.setText(Utils.arabic2thai(Integer.toString(pAbhidhum), getResources())+" "+getString(R.string.sections));
+        p1.setText(Integer.toString(pVinai));
+        p2.setText(Integer.toString(pSuttan));
+        p3.setText(Integer.toString(pAbhi));
+        p4.setText(Integer.toString(pEtc));
         
         TextView s1 = (TextView) findViewById(R.id.nsutt1);
         TextView s2 = (TextView) findViewById(R.id.nsutt2);
         TextView s3 = (TextView) findViewById(R.id.nsutt3);
+        TextView s4 = (TextView) findViewById(R.id.nsutt4);
         
-        s1.setText(Utils.arabic2thai(Integer.toString(suVinai), getResources())+" "+getString(R.string.volumes));
-        s2.setText(Utils.arabic2thai(Integer.toString(suSuttan), getResources())+" "+getString(R.string.volumes));
-        s3.setText(Utils.arabic2thai(Integer.toString(suAbhidhum), getResources())+" "+getString(R.string.volumes));
+        s1.setText(Integer.toString(suVinai));
+        s2.setText(Integer.toString(suSuttan));
+        s3.setText(Integer.toString(suAbhi));
+        s4.setText(Integer.toString(suEtc));
 
         // save search history
         if(isSaved) {
-            String tmp = Utils.arabic2thai(""+(pVinai+pSuttan+pAbhidhum), getResources()) + " " + getString(R.string.sections);
-            tmp += " " + Utils.arabic2thai(""+(suVinai+suSuttan+suAbhidhum), getResources()) + " " + getString(R.string.volumes);
+            String tmp = ""+(pVinai+pSuttan+pAbhi+pEtc) + " " + getString(R.string.sections);
+            tmp += " " + ""+(suVinai+suSuttan+suAbhi+suEtc) + " " + getString(R.string.volumes);
             String line1 = String.format("(%s)", tmp);
 
             String line2 = "";
             if(selCate.charAt(0) == '1') {
             	line2 += String.format("%s(%s/%s)  ", 
             			getString(R.string.ss_vinai), 
-            			Utils.arabic2thai(pVinai+"", getResources()), 
-            			Utils.arabic2thai(suVinai+"", getResources()));
+            			pVinai+"", 
+            			suVinai+"");
             			
             }
             if(selCate.charAt(1) == '1') {
             	line2 += String.format("%s(%s/%s)  ", 
             			getString(R.string.ss_suttan), 
-            			Utils.arabic2thai(pSuttan+"", getResources()),
-            			Utils.arabic2thai(suSuttan+"", getResources()));
+            			pSuttan+"",
+            			suSuttan+"");
             }
             if(selCate.charAt(2) == '1') {
             	line2 += String.format("%s(%s/%s)", 
-            			getString(R.string.ss_abhidum), 
-            			Utils.arabic2thai(pAbhidhum+"", getResources()), 
-            			Utils.arabic2thai(suAbhidhum+"", getResources()));
+            			getString(R.string.ss_abhi), 
+            			pAbhi+"", 
+            			suAbhi+"");
             }
             line2 = line2.trim();    	        
             
             
             searchHistoryDBAdapter.open();
-    	    SearchHistoryItem item1 = new SearchHistoryItem(lang, keywords, pVinai+pSuttan+pAbhidhum, suVinai+suSuttan+suAbhidhum, selCate, line1, line2);
+    	    SearchHistoryItem item1 = new SearchHistoryItem(lang, keywords, pVinai+pSuttan+pAbhi+pEtc, suVinai+suSuttan+suAbhi+suEtc, selCate, line1, line2);
     	    if(!searchHistoryDBAdapter.isDuplicated(item1)) {
     	    	searchHistoryDBAdapter.insertEntry(item1);
     	    }
@@ -391,8 +409,8 @@ public class SearchActivity extends Activity {
 	        	String marked = Utils.toStringBase64(adapter.getMarked());
 	        	
 		        SearchResultsItem item2 = new SearchResultsItem(lang, keywords, 
-		        		pVinai+":"+pSuttan+":"+pAbhidhum,
-		        		suVinai+":"+suSuttan+":"+suAbhidhum,selCate, content);
+		        		pVinai+":"+pSuttan+":"+pAbhi+":"+pEtc,
+		        		suVinai+":"+suSuttan+":"+suAbhi+":"+suEtc,selCate, content);
 		        if(!searchResultsDBAdapter.isDuplicated(item2)) {
 			        item2.setPrimaryClicked(pClicked);
 			        item2.setSecondaryClicked(sClicked);
@@ -435,19 +453,16 @@ public class SearchActivity extends Activity {
         }
         
         String slang = "";
-        if(lang.equals("thai"))
-        	slang = getString(R.string.th_lang);
-        else if(lang.equals("pali"))
-        	slang = getString(R.string.pl_lang);
+		slang = getString(R.string.th_lang);
         
-        searchText.setText("\"" + keywords + "\" (" + slang + ") ");
+        searchText.setText("\"" + keywords + "\"");
 		
 		if(_resultList.size() > 0) {
 			statusText.setText(getString(R.string.th_found) + 
-					" " + Utils.arabic2thai(Integer.toString(_resultList.size()), getResources()) + 
+					" " + Integer.toString(_resultList.size()) + 
 					" " + getString(R.string.sections) + 
 					" " + getString(R.string.in) + 
-					" " + Utils.arabic2thai(Integer.toString(suVinai+suSuttan+suAbhidhum), getResources()) +
+					" " + Integer.toString(suVinai+suSuttan+suAbhi+suEtc) +
 					" " + getString(R.string.volumes));
 		} else {
 			statusText.setText(getString(R.string.not_found));
@@ -480,21 +495,30 @@ public class SearchActivity extends Activity {
 		private boolean abhidham = true;
 		private boolean etc = true;
 		
+		private boolean mul = true;
+		private boolean att = true;
+		private boolean tik = true;
+		
 		public QueryAllThread(String query, ArrayList<String> resultList) {
 			this.query = query;
 			this.resultList = resultList;
 		}
 
-		public QueryAllThread(String query, ArrayList<String> resultList, boolean vinai, boolean suttan, boolean abhidham, boolean etc) {
+		public QueryAllThread(String query, ArrayList<String> resultList, boolean vinai, boolean suttan, boolean abhidham, boolean etc, boolean mul, boolean att, boolean tik) {
 			this.query = query;
 			this.resultList = resultList;
 			this.vinai = vinai;
 			this.suttan = suttan;
 			this.abhidham = abhidham;
 			this.etc = etc;
+			
+			this.mul = mul;
+			this.att = att;
+			this.tik = tik;
 		}
 		
-		private void search(int vol) {
+		private void search(String vols) {
+			int vol = Integer.parseInt(vols);
 			mainTipitakaDBAdapter.open();
     		Cursor cursor = mainTipitakaDBAdapter.search(vol, this.query, lang);    		
     		cursor.moveToFirst();
@@ -509,24 +533,85 @@ public class SearchActivity extends Activity {
 		
 		@Override
 		public void run() {
+			final Resources res = getResources();
+
+			String [] volumes;
+
 			if(vinai) {
-				for(int i=1; i<=V_BOOKS; i++) {
-					search(i);
-				} 
+				if(mul) {
+					volumes = res.getStringArray(R.array.vin_m_list);
+					for(int i=0; i<volumes.length; i++) {
+						search(volumes[i]);
+					} 
+				}
+				if(att) {
+					volumes = res.getStringArray(R.array.vin_a_list);
+					for(int i=0; i<volumes.length; i++) {
+						search(volumes[i]);
+					} 
+				}
+				if(tik) {
+					volumes = res.getStringArray(R.array.vin_t_list);
+					for(int i=0; i<volumes.length; i++) {
+						search(volumes[i]);
+					} 
+				}
 			}
 			if(suttan) {
-				for(int i=V_BOOKS+1; i<=V_BOOKS+S_BOOKS; i++) {
-					search(i);
+				if(mul) {
+					volumes = res.getStringArray(R.array.sut_m_list);
+					for(int i=0; i<volumes.length; i++) {
+						search(volumes[i]);
+					} 
+				}
+				if(att) {
+					volumes = res.getStringArray(R.array.sut_a_list);
+					for(int i=0; i<volumes.length; i++) {
+						search(volumes[i]);
+					} 
+				}
+				if(tik) {
+					volumes = res.getStringArray(R.array.sut_t_list);
+					for(int i=0; i<volumes.length; i++) {
+						search(volumes[i]);
+					} 
 				}
 			}
 			if(abhidham) {
-				for(int i=V_BOOKS+S_BOOKS+1; i<=V_BOOKS+S_BOOKS+A_BOOKS; i++) {
-					search(i);
+				if(mul) {
+					volumes = res.getStringArray(R.array.abhi_m_list);
+					for(int i=0; i<volumes.length; i++) {
+						search(volumes[i]);
+					} 
+				}
+				if(att) {
+					volumes = res.getStringArray(R.array.abhi_a_list);
+					for(int i=0; i<volumes.length; i++) {
+						search(volumes[i]);
+					} 
+				}
+				if(tik) {
+					volumes = res.getStringArray(R.array.abhi_t_list);
+					for(int i=0; i<volumes.length; i++) {
+						search(volumes[i]);
+					} 
 				}
 			}
 			if(etc) {
-				for(int i=V_BOOKS+S_BOOKS+A_BOOKS+1; i<=V_BOOKS+S_BOOKS+A_BOOKS+E_BOOKS; i++) {
-					search(i);
+				if(mul) {
+					volumes = res.getStringArray(R.array.etc_m_list);
+					for(int i=0; i<volumes.length; i++) {
+						search(volumes[i]);
+					} 
+				}
+				if(att) {
+					volumes = res.getStringArray(R.array.etc_a_list);
+					for(int i=0; i<volumes.length; i++) {
+						search(volumes[i]);
+					} 
+				}
+				if(tik) {
+
 				}
 			}
     	}
@@ -545,7 +630,7 @@ public class SearchActivity extends Activity {
 				newCursor.addRow(new Object[] { rowId++, cursor.getString(0), cursor.getString(1)});
 			} else if(sFlag && line2.startsWith(getString(R.string.suttan_full))) {
 				newCursor.addRow(new Object[] { rowId++, cursor.getString(0), cursor.getString(1)});
-			} else if(aFlag && line2.startsWith(getString(R.string.abhidum_full))) {
+			} else if(aFlag && line2.startsWith(getString(R.string.abhi_full))) {
 				newCursor.addRow(new Object[] { rowId++, cursor.getString(0), cursor.getString(1)});
 			}
 			cursor.moveToNext();
@@ -557,18 +642,18 @@ public class SearchActivity extends Activity {
 	private MatrixCursor convertToCursor(ArrayList<String> results) {
 		final String [] matrix = { "_id", "line1", "line2" };
 		MatrixCursor cursor = new MatrixCursor(matrix);
-		Resources res = this.getResources();
+		final Resources res = this.getResources();
 		pVinai = 0;
 		pSuttan = 0;
-		pAbhidhum = 0;
+		pAbhi = 0;
 		pEtc = 0;
 		suVinai = 0;
 		suSuttan = 0;
-		suAbhidhum = 0;
+		suAbhi = 0;
 		suEtc = 0;
 		firstPosVinai = Integer.MAX_VALUE;
 		firstPosSuttan = Integer.MAX_VALUE;
-		firstPosAbhidhum = Integer.MAX_VALUE;
+		firstPosAbhi = Integer.MAX_VALUE;
 		firstPosEtc = Integer.MAX_VALUE;
 		
 		ArrayList<String> al_tmp = new ArrayList<String>();
@@ -587,39 +672,40 @@ public class SearchActivity extends Activity {
 		for (Iterator<String> it = results.iterator(); it.hasNext();) {
 			String item = it.next();
 			String [] tokens = item.split(":");
-			int vol = Integer.parseInt(tokens[1]);
-			vol++;
-			if(vol >= 1 && vol <= V_BOOKS) {
+			String vol = tokens[1];
+			int voli = Integer.parseInt(tokens[1]);
+			
+			
+			if(Arrays.asList(res.getStringArray(R.array.vin_m_list)).contains(vol) || Arrays.asList(res.getStringArray(R.array.vin_a_list)).contains(vol) || Arrays.asList(res.getStringArray(R.array.vin_t_list)).contains(vol)) {
 				pVinai++;
+				if(!vFound) {
+					vFound = true;
+					firstPosVinai = key;				
+				}
 			}
-			else if(vol >V_BOOKS && vol <= S_BOOKS+V_BOOKS) {
+			else if(Arrays.asList(res.getStringArray(R.array.sut_m_list)).contains(vol) || Arrays.asList(res.getStringArray(R.array.sut_a_list)).contains(vol) || Arrays.asList(res.getStringArray(R.array.sut_t_list)).contains(vol)) {
 				pSuttan++;
+				if(!sFound) {
+					sFound = true;
+					firstPosSuttan = key;				
+				}
 			}
-			else if(vol > S_BOOKS+V_BOOKS && vol <= S_BOOKS+V_BOOKS+A_BOOKS){
-				pAbhidhum++;
+			else if(Arrays.asList(res.getStringArray(R.array.abhi_m_list)).contains(vol) || Arrays.asList(res.getStringArray(R.array.abhi_a_list)).contains(vol) || Arrays.asList(res.getStringArray(R.array.abhi_t_list)).contains(vol)) {
+				pAbhi++;
+				if(!aFound) {
+					aFound = true;
+					firstPosAbhi = key;				
+				}
 			}
-			else if(vol > S_BOOKS+V_BOOKS+A_BOOKS){
+			else if(Arrays.asList(res.getStringArray(R.array.etc_m_list)).contains(vol) || Arrays.asList(res.getStringArray(R.array.etc_a_list)).contains(vol) || Arrays.asList(res.getStringArray(R.array.etc_t_list)).contains(vol)) {
 				pEtc++;
-			}
-		
-			if(!vFound && vol >= 1 && vol <= V_BOOKS) {
-				vFound = true;
-				firstPosVinai = key;
-			}
-			else if(!sFound && vol > V_BOOKS && vol <= S_BOOKS+V_BOOKS) {
-				sFound = true;
-				firstPosSuttan = key;
-			}
-			else if(!aFound && vol > S_BOOKS+V_BOOKS && vol <= S_BOOKS+V_BOOKS+A_BOOKS) {
-				aFound = true;
-				firstPosAbhidhum = key;
-			}
-			else if(!eFound && vol > S_BOOKS+V_BOOKS+A_BOOKS) {
-				eFound = true;
-				firstPosEtc = key;
+				if(!eFound) {
+					eFound = true;
+					firstPosEtc = key;				
+				}
 			}
 			
-			String sVol = Integer.toString(vol);
+			String sVol = Integer.toString(voli+1);
 			int page = Integer.parseInt(tokens[2]);
 			String sPage = Integer.toString(page+1);
 			String slang = null;
@@ -628,25 +714,23 @@ public class SearchActivity extends Activity {
 			for(String sut : tokens[1].split("\\s+")) {
 				if(! al_tmp.contains(sVol+":"+sut)) {
 					al_tmp.add(sVol+":"+sut);
-					if(vol >= 1 && vol <= V_BOOKS) {
+					if(Arrays.asList(res.getStringArray(R.array.vin_m_list)).contains(vol) || Arrays.asList(res.getStringArray(R.array.vin_a_list)).contains(vol) || Arrays.asList(res.getStringArray(R.array.vin_t_list)).contains(vol)) {
 						suVinai++;
 					}
-					else if(vol > V_BOOKS && vol <= V_BOOKS+S_BOOKS) {
+					else if(Arrays.asList(res.getStringArray(R.array.sut_m_list)).contains(vol) || Arrays.asList(res.getStringArray(R.array.sut_a_list)).contains(vol) || Arrays.asList(res.getStringArray(R.array.sut_t_list)).contains(vol)) {
 						suSuttan++;
 					}
-					else {
-						suAbhidhum++;
+					else if(Arrays.asList(res.getStringArray(R.array.abhi_m_list)).contains(vol) || Arrays.asList(res.getStringArray(R.array.abhi_a_list)).contains(vol) || Arrays.asList(res.getStringArray(R.array.abhi_t_list)).contains(vol)) {
+						suAbhi++;
 					}
+					else if(Arrays.asList(res.getStringArray(R.array.etc_m_list)).contains(vol) || Arrays.asList(res.getStringArray(R.array.etc_a_list)).contains(vol) || Arrays.asList(res.getStringArray(R.array.etc_t_list)).contains(vol)) {
+						suEtc++;
+					}
+					// count only one time 
 				}
-				// count only one time 
 				break;
 			}
 			
-			if (lang.equals("thai"))
-				slang = getString(R.string.th);
-			else if (lang.equals("pali")) {
-				slang = getString(R.string.pl);
-			}
 			String line1 =  Integer.toString(key+1) + ". " +  
 					getString(R.string.th_tipitaka_label) + " "  +
 					getString(R.string.th_book_label) + " " +
@@ -669,7 +753,7 @@ public class SearchActivity extends Activity {
 			int count = 0;
 			
 			
-			for(String t: bnames[vol-1].trim().split("\\s+")) {
+			for(String t: bnames[voli+1].trim().split("\\s+")) {
 				if(count==4)
 					break;
 				tmp = tmp + t + " ";
@@ -744,24 +828,44 @@ public class SearchActivity extends Activity {
 		}
 
 		
-		Thread searchThread = new Thread(new QueryAllThread(savedQuery, resultList, b1 ,b2, b3, b4));
+		Thread searchThread = new Thread(new QueryAllThread(savedQuery, resultList, b1 ,b2, b3, b4,b5, b6, b7));
 		searchThread.start();
 		
 		int maxSearch = 0;
 
 		if(b1) {
-			maxSearch += V_BOOKS;
+			if(b5)
+				maxSearch += V_BOOKS_M;
+			if(b6)
+				maxSearch += V_BOOKS_A;
+			if(b7)
+				maxSearch += V_BOOKS_T;
 		}
 		if(b2) {
-			maxSearch += S_BOOKS;
+			if(b5)
+				maxSearch += S_BOOKS_M;
+			if(b6)
+				maxSearch += S_BOOKS_A;
+			if(b7)
+				maxSearch += S_BOOKS_T;
 		}
 		if(b3) {
-			maxSearch += A_BOOKS;
+			if(b5)
+				maxSearch += A_BOOKS_M;
+			if(b6)
+				maxSearch += A_BOOKS_A;
+			if(b7)
+				maxSearch += A_BOOKS_T;
 		}
 		if(b4) {
-			maxSearch += E_BOOKS;
+			if(b5)
+				maxSearch += E_BOOKS_M;
+			if(b6)
+				maxSearch += E_BOOKS_A;
+			if(b7)
+				maxSearch += E_BOOKS_T;
 		}
-		
+		Log.i("Tipitaka", "maxSearch: "+maxSearch);
 		pdialog.setMax(maxSearch);
 		if(maxSearch > 0) {
 			pdialog.show();
@@ -945,9 +1049,9 @@ public class SearchActivity extends Activity {
 		}
 		
 		//~ TextView sub_title = (TextView)memoDialog.findViewById(R.id.memo_sub_title);
-		//~ String title2 = getString(R.string.th_book_label) + " " + Utils.arabic2thai(Integer.toString(volume), getResources());
-		//~ title2 = title2 + " " + getString(R.string.th_page_label) + " " + Utils.arabic2thai(Integer.toString(page), getResources());
-		//~ title2 = title2 + " " + getString(R.string.th_items_label) + " " + Utils.arabic2thai(Integer.toString(item), getResources());
+		//~ String title2 = getString(R.string.th_book_label) + " " + Integer.toString(volume);
+		//~ title2 = title2 + " " + getString(R.string.th_page_label) + " " + Integer.toString(page);
+		//~ title2 = title2 + " " + getString(R.string.th_items_label) + " " + Integer.toString(item);
 		//~ sub_title.setText(title2);
 		memoDialog.setTitle(title1);
 		memoDialog.show();		
@@ -1049,35 +1153,70 @@ public class SearchActivity extends Activity {
 		});
         
         
-        TextView abhidumLabel = (TextView) findViewById(R.id.abhidum_label);
-        abhidumLabel.setOnClickListener(new View.OnClickListener() {
+        TextView abhiLabel = (TextView) findViewById(R.id.abhi_label);
+        abhiLabel.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if(firstPosAbhidhum != Integer.MAX_VALUE) {
+				if(firstPosAbhi != Integer.MAX_VALUE) {
 					resultView.setSelected(true);
-					resultView.setSelection(firstPosAbhidhum);
+					resultView.setSelection(firstPosAbhi);
 				}
 			}
 		});
 
-        TextView abhidumLabel2 = (TextView) findViewById(R.id.npage3);
-        abhidumLabel2.setOnClickListener(new View.OnClickListener() {
+        TextView abhiLabel2 = (TextView) findViewById(R.id.npage3);
+        abhiLabel2.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if(firstPosAbhidhum != Integer.MAX_VALUE) {
+				if(firstPosAbhi != Integer.MAX_VALUE) {
 					resultView.setSelected(true);
-					resultView.setSelection(firstPosAbhidhum);
+					resultView.setSelection(firstPosAbhi);
 				}
 			}
 		});
 
-        TextView abhidumLabel3 = (TextView) findViewById(R.id.nsutt3);
-        abhidumLabel3.setOnClickListener(new View.OnClickListener() {
+        TextView abhiLabel3 = (TextView) findViewById(R.id.nsutt3);
+        abhiLabel3.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if(firstPosAbhidhum != Integer.MAX_VALUE) {
+				if(firstPosAbhi != Integer.MAX_VALUE) {
 					resultView.setSelected(true);
-					resultView.setSelection(firstPosAbhidhum);
+					resultView.setSelection(firstPosAbhi);
+				}
+			}
+		});        
+        
+        
+        
+        TextView etcLabel = (TextView) findViewById(R.id.etc_label);
+        etcLabel.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(firstPosEtc != Integer.MAX_VALUE) {
+					resultView.setSelected(true);
+					resultView.setSelection(firstPosEtc);
+				}
+			}
+		});
+
+        TextView etcLabel2 = (TextView) findViewById(R.id.npage4);
+        etcLabel2.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(firstPosEtc != Integer.MAX_VALUE) {
+					resultView.setSelected(true);
+					resultView.setSelection(firstPosEtc);
+				}
+			}
+		});
+
+        TextView etcLabel3 = (TextView) findViewById(R.id.nsutt4);
+        etcLabel3.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(firstPosEtc != Integer.MAX_VALUE) {
+					resultView.setSelected(true);
+					resultView.setSelection(firstPosEtc);
 				}
 			}
 		});        
@@ -1241,8 +1380,11 @@ public class SearchActivity extends Activity {
 			b2 = dataBundle.getBoolean("b2");
 			b3 = dataBundle.getBoolean("b3");
 			b4 = dataBundle.getBoolean("b4");
+			b5 = dataBundle.getBoolean("b5");
+			b6 = dataBundle.getBoolean("b6");
+			b7 = dataBundle.getBoolean("b7");
 			
-			if(b1 | b2 | b3 | b4) {
+			if((b1 | b2 | b3 | b4) && (b5 | b6 | b7)) {
 				doSearch(query, lang);						
 			}
 

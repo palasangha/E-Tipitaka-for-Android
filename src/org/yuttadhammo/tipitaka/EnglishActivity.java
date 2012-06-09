@@ -340,30 +340,6 @@ public class EnglishActivity extends Activity {
     	builder.show();
 	}
 
-    private String getTextContent(String fileName) {
-		//*Don't* hardcode "/sdcard"
-		File sdcard = Environment.getExternalStorageDirectory();
-
-		//Get the text file
-		File file = new File(sdcard,fileName);
-
-		//Read text from file
-		String text = "";
-
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(file));
-			String line;
-
-			while ((line = br.readLine()) != null) {
-				text+=line+"\n";
-			}
-		}
-		catch (IOException e) {
-			//You'll need to add proper error handling here
-		}
-		return text;
-	}
-
     private String getUrlContent(String url) {
 
         // Create client and set our specific user-agent string
@@ -494,7 +470,7 @@ public class EnglishActivity extends Activity {
 	}
 	
 	@Override
-	public void onCreate (Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate (savedInstanceState);
 
 		infoFile = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "ati_website" + File.separator + "saveinfo.txt";

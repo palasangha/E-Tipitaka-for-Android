@@ -7,6 +7,8 @@
   		  android:title="@string/bookmark" />          
   	<item android:id="@+id/read_dict_menu_item"
   		  android:title="@string/dictionary" />          
+  	<item android:id="@+id/english_menu_item"
+  		  android:title="@string/english" />          
 	<item android:id="@+id/goto_page"
           android:title="@string/goto_page" />
 <!--

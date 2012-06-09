@@ -62,7 +62,6 @@ public class SelectBookActivity extends Activity {
 	private TextView textHeader;
 	private TextView textHeaderLang;
 	private Button readBtn;
-	private Button searchBtn;
 	public String lang = "pali";
     private Gallery gCate; //= (Gallery) findViewById(R.id.gallery_cate);
     private Gallery gNCate;// = (Gallery) findViewById(R.id.gallery_ncate);
@@ -378,8 +377,9 @@ public class SelectBookActivity extends Activity {
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				break;
-			case (int)R.id.about_menu_item:
-				showAboutDialog();
+			case (int)R.id.search_menu_item:
+				searchDialog = new SearchDialog(SelectBookActivity.this, lang);
+				searchDialog.show();
 				break;
 			case (int)R.id.help_menu_item:
 				showHelpDialog();
@@ -548,7 +548,6 @@ public class SelectBookActivity extends Activity {
         //textHeader = (TextView) findViewById(R.id.tipitaka_label);
         //textHeaderLang = (TextView) findViewById(R.id.tipitaka_lang_label);
         readBtn = (Button) main.findViewById(R.id.read_btn);
-        searchBtn = (Button) main.findViewById(R.id.search_btn);
         
         gCate = (Gallery) main.findViewById(R.id.gallery_cate);
         gNCate = (Gallery) main.findViewById(R.id.gallery_ncate);
@@ -701,57 +700,56 @@ public class SelectBookActivity extends Activity {
 
 			@Override
 			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				int[] bookIA = res.getIntArray(R.array.vin_m_list);
+				String[] bookIA = res.getStringArray(R.array.vin_m_list);
 				switch(selectedCate) {
 					case 1:
 						switch(hierC) {
 							case 0:
-								bookIA = res.getIntArray(R.array.vin_m_list);
 								break;
 							case 1:
-								bookIA = res.getIntArray(R.array.vin_a_list);
+								bookIA = res.getStringArray(R.array.vin_a_list);
 								break;
 							case 2:
-								bookIA = res.getIntArray(R.array.vin_t_list);
+								bookIA = res.getStringArray(R.array.vin_t_list);
 								break;
 						}
 						break;
 					case 2:
 						switch(hierC) {
 							case 0:
-								bookIA = res.getIntArray(R.array.sut_m_list);
+								bookIA = res.getStringArray(R.array.sut_m_list);
 								break;
 							case 1:
-								bookIA = res.getIntArray(R.array.sut_a_list);
+								bookIA = res.getStringArray(R.array.sut_a_list);
 								break;
 							case 2:
-								bookIA = res.getIntArray(R.array.sut_t_list);
+								bookIA = res.getStringArray(R.array.sut_t_list);
 								break;
 						}
 						break;
 					case 3:
 						switch(hierC) {
 							case 0:
-								bookIA = res.getIntArray(R.array.abhi_m_list);
+								bookIA = res.getStringArray(R.array.abhi_m_list);
 								break;
 							case 1:
-								bookIA = res.getIntArray(R.array.abhi_a_list);
+								bookIA = res.getStringArray(R.array.abhi_a_list);
 								break;
 							case 2:
-								bookIA = res.getIntArray(R.array.abhi_t_list);
+								bookIA = res.getStringArray(R.array.abhi_t_list);
 								break;
 						}
 						break;
 					case 4:
 						switch(hierC) {
 							case 0:
-								bookIA = res.getIntArray(R.array.etc_m_list);
+								bookIA = res.getStringArray(R.array.etc_m_list);
 								break;
 							case 1:
-								bookIA = res.getIntArray(R.array.etc_a_list);
+								bookIA = res.getStringArray(R.array.etc_a_list);
 								break;
 							case 2:
-								bookIA = res.getIntArray(R.array.etc_t_list);
+								bookIA = res.getStringArray(R.array.etc_t_list);
 								break;
 						}
 						break;
@@ -759,7 +757,7 @@ public class SelectBookActivity extends Activity {
 						break;
 				}
 				
-				selectedBook = bookIA[arg2]+1;
+				selectedBook = Integer.parseInt(bookIA[arg2])+1;
 				
 				//~ String header = getString(R.string.th_tipitaka_book).trim() + " " + Integer.toString(selectedBook);
 				//~ if(lang == "thai")
@@ -783,20 +781,6 @@ public class SelectBookActivity extends Activity {
         	
         });
         
-        searchBtn.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				Thread thread = new Thread(new Runnable() {					
-					@Override
-					public void run() {
-						Instrumentation instrumentation = new Instrumentation();
-						instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_SEARCH);
-					}
-				});
-				thread.start();
-			}
-		});
         
         readBtn.setOnClickListener(new View.OnClickListener() {
 

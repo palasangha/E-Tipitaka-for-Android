@@ -98,17 +98,6 @@
 				android:textSize="16dp"
 				android:layout_marginRight="40dp"
 			/>
-			<Button
-				android:id="@+id/search_btn"
-				android:text="@string/th_search"
-				android:layout_toRightOf="@id/read_btn"
-				android:layout_width="85dp" 
-				android:layout_height="wrap_content"
-				android:gravity="center_vertical|center_horizontal"
-				android:layout_gravity="center_vertical|center_horizontal|center"
-				android:textStyle="bold"
-				android:textSize="16dp"
-			/>
 		</RelativeLayout>
 	</LinearLayout>
 </ScrollView>

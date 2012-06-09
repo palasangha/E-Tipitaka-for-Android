@@ -15,6 +15,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Html;
@@ -34,7 +35,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Gallery;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -58,6 +59,8 @@ import android.text.method.LinkMovementMethod;
 import android.text.SpannableStringBuilder;
 import java.lang.CharSequence;
 
+import java.io.BufferedReader;
+import java.io.File;
 
 public class ReadBookActivity extends Activity { //implements OnGesturePerformedListener {
 	private TextView textContent;
@@ -122,6 +125,15 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	
 	// save read pages for highlighting in the results list
 	private ArrayList<String> savedReadPages = null;
+
+    private static final int[] DN_RANGE = {0,2};
+    private static final int[] MN_RANGE = {3,5};
+    private static final int[] SN_RANGE = {6,10};
+    private static final int[] AN_RANGE = {11,21};
+    private static final int[] KN_RANGE = {22,42};
+
+
+	public Resources res;
 
     @Override
     public boolean onSearchRequested() {
@@ -503,6 +515,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    // Handle item selection
 		super.onOptionsItemSelected(item);
+		Bundle dataBundle = new Bundle();
 		
 		//SharedPreferences.Editor editor = prefs.edit();
 		Intent intent;
@@ -524,7 +537,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				break;
 			case (int)R.id.read_bookmark:
 				intent = new Intent(ReadBookActivity.this, BookmarkPaliActivity.class);
-				Bundle dataBundle = new Bundle();
 				dataBundle.putString("LANG", lang);
 				intent.putExtras(dataBundle);
 				startActivity(intent);	
@@ -539,6 +551,16 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				break;
 			case (int)R.id.read_dict_menu_item:
 				intent = new Intent(this, cped.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
+				break;
+			case (int)R.id.english_menu_item:
+				intent = new Intent(this, EnglishActivity.class);
+				String url = getTrans();
+				if(url != null) {
+					dataBundle.putString("url", url);
+					intent.putExtras(dataBundle);
+				}
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				break;
@@ -660,12 +682,13 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         bookmarkDBAdapter = new BookmarkDBAdapter(this);
         //bookmarkDBAdapter.open();
         
-        final Resources res = getResources();
+        res = getResources();
         
     	npage_thai = res.getIntArray(R.array.npage_thai);   
     	npage_pali = res.getIntArray(R.array.npage_pali);
         	
         nitem = res.getIntArray(R.array.nitem);
+        
         
         textContent = (TextView) read.findViewById(R.id.main_text);
 		textContent.setTypeface(font);
@@ -781,8 +804,9 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			
 			private void changeItem(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				
+				
 				//ReadBookActivity.this.oldpage = arg2;
-				Log.i("Tipitaka","old/new: "+Integer.toString(oldpage)+" "+Integer.toString(newpage));
+				//Log.i("Tipitaka","old/new: "+Integer.toString(oldpage)+" "+Integer.toString(newpage));
 				savedReadPages.add(selected_volume+":"+(arg2+1));
 				mainTipitakaDBAdapter.open();
 				Cursor cursor = mainTipitakaDBAdapter.getContent(selected_volume, arg2+1, lang);
@@ -938,7 +962,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				});
 				textContent.startAnimation(anim);
 				textContent.setVisibility(View.VISIBLE);
-
+				
 			}
 
 			@Override
@@ -1084,6 +1108,26 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		final Dialog helpDialog = new Dialog(this, android.R.style.Theme_NoTitleBar);
 		helpDialog.setContentView(R.layout.help_dialog);
 		helpDialog.show();
+	}
+
+	public String getTrans() {
+		String vols = Integer.toString(selected_volume-1);
+		String[] list = res.getStringArray(R.array.sut_m_list);
+		if(!Arrays.asList(list).contains(vols))
+			return null;
+		int i;
+		for(i = 0; i < list.length; i++) {
+			if(list[i].equals(vols)) {
+				break;
+			}
+		}
+		String[] names = res.getStringArray(R.array.sut_m_names);
+		String name = names[i];
+
+		char nik = name.charAt(0);
+
+		return "file://"+Environment.getExternalStorageDirectory()+"/ati_website/html/tipitaka/"+nik+"n/index.html";
+		
 	}
 	
 	/*
