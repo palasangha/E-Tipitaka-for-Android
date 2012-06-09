@@ -16,7 +16,7 @@
     		android:layout_centerVertical="true"
     		android:layout_alignParentTop="true"
     		android:layout_alignParentBottom="true"
-    		android:src="@drawable/star_big_on"
+    		android:src="@android:drawable/btn_star_big_on"
     	/>		  	
 	     <TextView android:id="@+id/line1"
 	         android:textSize="12sp"

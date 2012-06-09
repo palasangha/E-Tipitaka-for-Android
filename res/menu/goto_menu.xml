@@ -2,25 +2,24 @@
 <menu
   	xmlns:android="http://schemas.android.com/apk/res/android">
   	<item android:id="@+id/memo"
+  		  android:icon="@drawable/ic_menu_save"
   		  android:title="@string/memo" />          
   	<item android:id="@+id/read_bookmark"
+  		  android:icon="@drawable/ic_menu_archive"
   		  android:title="@string/bookmark" />          
   	<item android:id="@+id/read_dict_menu_item"
+  		  android:icon="@android:drawable/ic_menu_sort_alphabetically"
   		  android:title="@string/dictionary" />          
   	<item android:id="@+id/english_menu_item"
-  		  android:title="@string/english" />          
+  		  android:icon="@drawable/ati"
+  		  android:title="@string/english"/>          
 	<item android:id="@+id/goto_page"
+  		  android:icon="@drawable/ic_menu_goto"
           android:title="@string/goto_page" />
-<!--
-    <item android:id="@+id/goto_item"
-          android:title="@string/goto_item" />  
-	<item android:id="@+id/compare"
-          android:title="@string/compare" />
-   	<item android:id="@+id/swap"
-   		  android:title="@string/swap_lang"/>
--->
   	<item android:id="@+id/prefs_read"
+  		  android:icon="@android:drawable/ic_menu_manage"
 		  android:title="@string/preferences" />
   	<item android:id="@+id/help_menu_item"
+  		  android:icon="@android:drawable/ic_menu_help"
 		  android:title="@string/help" />
 </menu>
