@@ -63,6 +63,7 @@ public class SelectBookActivity extends Activity {
 	private TextView textHeaderLang;
 	private Button readBtn;
 	public String lang = "pali";
+	public String thisTitle;
     private Gallery gCate; //= (Gallery) findViewById(R.id.gallery_cate);
     private Gallery gNCate;// = (Gallery) findViewById(R.id.gallery_ncate);
     private Gallery gHier;
@@ -767,10 +768,10 @@ public class SelectBookActivity extends Activity {
 				//~ textHeader.setText(header);
 				//changeHeader();
 				
-				String info = t_book[selectedBook-1].trim();
+				thisTitle = t_book[selectedBook-1].trim();
 				
 				//Log.i ("Tipitaka","book title: "+info);
-				textInfo.setText(info);
+				textInfo.setText(thisTitle);
 				textInfo.setTypeface(font);				
 			}
 
@@ -809,6 +810,7 @@ public class SelectBookActivity extends Activity {
         		dataBundle.putInt("VOL", selectedBook);
         		dataBundle.putInt("PAGE", 1);
         		dataBundle.putString("LANG", lang);
+        		dataBundle.putString("TITLE", thisTitle);
         		intent.putExtras(dataBundle);
         		startActivity(intent);				
 			}

@@ -2,6 +2,7 @@ package org.yuttadhammo.tipitaka;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Collections;
 
 import android.app.Activity;
@@ -35,9 +36,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Gallery;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ScrollView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -67,7 +70,12 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	//~ private TextView pageLabel;
 	//~ private TextView itemsLabel;
 	private TextView headerLabel;
+	private String headerText;
 	private Gallery gPage;
+	private ListView idxList;
+	private ScrollView scrollview;
+	
+	private ImageButton idxBtn;
 	
 	private MainTipitakaDBAdapter mainTipitakaDBAdapter;
 	
@@ -97,7 +105,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	private String [] found_pages;
 	private String lang = "pali";
 	private float textSize = 0f;
-	private ScrollView scrollview;
 	//private boolean isZoom = false;
 	private boolean searchCall = false;
 	private String bmLang;
@@ -132,6 +139,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
     private static final int[] AN_RANGE = {11,21};
     private static final int[] KN_RANGE = {22,42};
 
+	private boolean firstPage = true;
 
 	public Resources res;
 
@@ -325,25 +333,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		} else {
 			memoAt(selected_volume, Integer.parseInt(items[0]), selected_page, lang);
 		}		
-	}
-	
-	private void swap() {
-		int scrollPosition = scrollview.getScrollY();		
-		selected_page = gPage.getSelectedItemPosition() + 1;
-		saveReadingState(lang, selected_page, scrollPosition);
-		
-		if(lang.equals("thai")) {
-			lang = "pali";
-		} else if(lang.equals("pali")) {
-			lang = "thai";
-		}
-		
-		selected_page = prefs.getInt(lang+":PAGE", 1);
-		toPosition = prefs.getInt(lang+":POSITION", 0);
-		isJump = true;
-		
-		setGalleryPages(selected_page);
-		
 	}
 	
 	private void compare() {
@@ -574,21 +563,16 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		String [] t_pages = null;
 		int n = 0;
 				
-		if(lang.equals("thai")) {
-			t_pages = new String[npage_thai[selected_volume-1]];
-			n = npage_thai[selected_volume-1];
-		} else if(lang.equals("pali")) {
-			t_pages = new String[npage_pali[selected_volume-1]];
-			n = npage_pali[selected_volume-1];
-		}
+		t_pages = new String[npage_pali[selected_volume-1]];
+		n = npage_pali[selected_volume-1];
 		
         for(int i=1; i<=n; i++) {
-        	t_pages[i-1] = Utils.arabic2thai(Integer.toString(i), getResources());
+        	t_pages[i-1] = Integer.toString(i);
         }        
         
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.my_gallery_item_2, t_pages);        
         gPage.setAdapter(adapter);
-        gPage.setSelection(currentPage-1);
+		gPage.setSelection(currentPage-1);
 	}
 	
 	private Runnable mHideButtons = new Runnable() {
@@ -688,14 +672,34 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
     	npage_pali = res.getIntArray(R.array.npage_pali);
         	
         nitem = res.getIntArray(R.array.nitem);
-        
-        
+
         textContent = (TextView) read.findViewById(R.id.main_text);
+      
 		textContent.setTypeface(font);
         SharedPreferences sizePref = getSharedPreferences("size", MODE_PRIVATE);
         textSize = Float.parseFloat(sizePref.getString("size", "16"));
         
 		textContent.setTextSize(textSize);
+       
+        // index button
+
+        idxBtn = (ImageButton) read.findViewById(R.id.idx_btn);
+        idxList = (ListView) read.findViewById(R.id.index_list);
+        scrollview = (ScrollView) read.findViewById(R.id.text_scrollview);
+
+		idxBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(idxList.getVisibility() == 0) {
+					idxList.setVisibility(View.INVISIBLE);
+					scrollview.setVisibility(View.VISIBLE);
+				}
+				else {
+					scrollview.setVisibility(View.INVISIBLE);
+					idxList.setVisibility(View.VISIBLE);
+				}
+			}
+		});
 
 		// hide virtual keyboard
 		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -733,11 +737,11 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
                 
         //~ pageLabel = (TextView) findViewById(R.id.page_label);
         //~ itemsLabel = (TextView) findViewById(R.id.items_label);
-        headerLabel = (TextView) findViewById(R.id.header);
+        //headerLabel = (TextView) findViewById(R.id.header);
        // gotoBtn = (Button) findViewById(R.id.gotobtn);
         
-		scrollview = (ScrollView)read.findViewById(R.id.scrollview);
-		scrollview.setSmoothScrollingEnabled(false);
+		//scrollview = (ScrollView)read.findViewById(R.id.scrollview);
+		//scrollview.setSmoothScrollingEnabled(false);
 
 	        
 		//gotoBtn.setVisibility(View.INVISIBLE);
@@ -753,6 +757,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			int vol = dataBundle.getInt("VOL");
 			int page = dataBundle.getInt("PAGE");
 			lang = dataBundle.getString("LANG");
+			headerText = dataBundle.getString("TITLE");
 			savedReadPages.clear();
 			
 			if (dataBundle.containsKey("QUERY")) {
@@ -765,6 +770,38 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			}
 
 			selected_volume = vol;
+
+			// create index
+			
+			mainTipitakaDBAdapter.open();
+			Cursor cursor = mainTipitakaDBAdapter.getContent(vol);
+
+			cursor.moveToFirst();
+			List<String> titles = new ArrayList<String>();
+
+			while (!cursor.isAfterLast()) {
+				String title = cursor.getString(1);
+				titles.add(formatTitle(title));
+				cursor.moveToNext();
+			}
+			// Make sure to close the cursor
+			cursor.close();
+
+			MenuItemAdapter adapter = new MenuItemAdapter(this,
+					android.R.layout.simple_list_item_1, titles);			
+			
+			idxList.setAdapter(adapter);
+			idxList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+			  @Override
+			  public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+				  gPage.setSelection(position);
+			  }
+			});
+
+			
+			// go to page
+			
 			setGalleryPages(page);
 		}
 		
@@ -772,10 +809,21 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 
 			@Override
 			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				if(firstPage) {
+					firstPage = false;
+					return;
+				}
+					
 				final AdapterView<?> a0 = arg0;
 				final View a1 = arg1;
 				final int a2 = arg2;
 				final long a3 = arg3;
+
+				// hide index
+
+				idxList.setVisibility(View.INVISIBLE);
+				scrollview.setVisibility(View.VISIBLE);
+
 				// fade out
 				if(textContent.getVisibility() == View.VISIBLE) {
 					Animation anim = AnimationUtils.loadAnimation(ReadBookActivity.this, android.R.anim.fade_out);
@@ -841,13 +889,10 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				
 				
 				content = content.replaceAll("\\{([^}]+)\\}", "<i><font color=\"#7D7D7D\">[$1]</font></i>");
-
-				title = title.replaceAll("\\^+", "^");
-				title = title.replaceAll("^\\^", "");
-				title = title.replaceAll("\\^$", "");
-				title = title.replaceAll("\\^", ", ");
 				
-				content = "<font color='#f9f109'><b>"+title+"</b></font><br/><br/>"+content.replace("\n", "<br/>");
+				title = formatTitle(title);
+				
+				content = "<font color='#f9f109'><b>"+headerText+", " + title+"</b></font><br/><br/>"+content.replace("\n", "<br/>");
 				textContent.setText(Html.fromHtml(content));
 
 				//~ // linkify!
@@ -896,11 +941,10 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				//~ itemsLabel.setText(Html.fromHtml("<pre>"+tmp+"</pre>"));
 				
 				t_book = res.getStringArray(R.array.thaibook);
-				String header = t_book[selected_volume-1].trim();
 
-				headerLabel.setTypeface(font);
+				//headerLabel.setTypeface(font);
 
-				headerLabel.setText(header);
+				//headerLabel.setText(header);
 				
 				String i_tmp = "";
 				if(searchCall) {
@@ -1128,6 +1172,14 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 
 		return "file://"+Environment.getExternalStorageDirectory()+"/ati_website/html/tipitaka/"+nik+"n/index.html";
 		
+	}
+
+	public String formatTitle(String title) {
+		title = title.replaceAll("\\^+", "^");
+		title = title.replaceAll("^\\^", "");
+		title = title.replaceAll("\\^$", "");
+		title = title.replaceAll("\\^", ", ");
+		return title;
 	}
 	
 	/*

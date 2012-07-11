@@ -4,7 +4,7 @@
 	android:id="@+id/layout" android:orientation="vertical"
 	android:layout_width="match_parent" android:layout_height="match_parent">
 	
-	<WebView android:id="@+id/webview"
+	<WebView android:id="@+id/ewv"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:layout_weight="1" /> 

@@ -4,9 +4,11 @@ package org.yuttadhammo.tipitaka;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -29,6 +31,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -70,6 +73,14 @@ import java.io.InputStream;
 
 
 public class EnglishActivity extends Activity {
+	private float ewvscale = 1f;
+	private View english;
+	
+	private SharedPreferences zoomPref;
+	private float zoom;
+	
+	private boolean firstPage = true;
+
 	private static final String	HTML_KEY	= "html";
     private static final int HTTP_STATUS_OK = 200;
     private static byte[] sBuffer = new byte[512];
@@ -99,7 +110,7 @@ public class EnglishActivity extends Activity {
     
     private int hierC = 0;
 
-	private WebView ewv;
+	public WebView ewv;
     
     
     private String infoFile;
@@ -141,6 +152,7 @@ public class EnglishActivity extends Activity {
 					public void run() {
 						if(unzipProgressDialog.isShowing()) {
 							unzipProgressDialog.dismiss();
+							replaceCSS();
 							Toast.makeText(EnglishActivity.this, getString(R.string.unzipped_ati), Toast.LENGTH_SHORT).show();
 							showActivity();
 						}
@@ -468,7 +480,71 @@ public class EnglishActivity extends Activity {
 			forward.setVisible(true);
 	    return true;
 	}
-	
+
+	private void replaceCSS() {
+		String newFile = getTextContent("ati_website/html/css/screen.css");
+
+		if(newFile == null)
+			return;
+
+		// backup file
+		File src = new File(Environment.getExternalStorageDirectory(), "ati_website/html/css/screen.css" );
+		File dest = new File(Environment.getExternalStorageDirectory(), "ati_website/html/css/screen.css.bkp" );
+		src.renameTo(dest);
+		
+		
+			
+		newFile = newFile.replaceAll("width:680px;","");
+		newFile = newFile.replaceAll("width:660px;","max-width: 660px");
+		
+		try{
+			Log.i("Tipitaka","Modifying CSS");
+			src = new File(Environment.getExternalStorageDirectory(), "ati_website/html/css/screen.css" );
+
+			FileOutputStream osr = new FileOutputStream(src);
+			OutputStreamWriter osw = new OutputStreamWriter(osr); 
+
+			// Write the string to the file
+			osw.write(newFile);
+
+			/* ensure that everything is
+			* really written out and close */
+			osw.flush();
+			osw.close();
+			Log.i("Tipitaka","CSS Modified");
+		}
+		catch(IOException ex) {
+			Log.e("Tipitaka","Error modifying CSS: " + ex.toString());
+		}
+
+
+	}
+
+    private String getTextContent(String fileName) {
+
+		File sdcard = Environment.getExternalStorageDirectory();
+
+		//Get the text file
+		File file = new File(sdcard,fileName);
+
+		//Read text from file
+		String text = "";
+
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			String line;
+
+			while ((line = br.readLine()) != null) {
+				text+=line+"\n";
+			}
+		}
+		catch (IOException e) {
+			Log.i("Tipitaka","get text error: " + e.toString());
+			return null;
+		}
+		return text;
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate (savedInstanceState);
@@ -492,13 +568,15 @@ public class EnglishActivity extends Activity {
 			}
 			return;
 		}
-		
+		//replaceCSS(); manual replace
 		showActivity();
 
 	}
 
 	public void showActivity() {
-        ewv  = new WebView(this);
+        english =  View.inflate(this, R.layout.english, null);
+
+        ewv  = (WebView) english.findViewById(R.id.ewv);
 
         ewv.getSettings().setJavaScriptEnabled(true); // enable javascript
 
@@ -519,6 +597,13 @@ public class EnglishActivity extends Activity {
 			url = dataBundle.getString("url");
 		}
 
+        zoomPref = getSharedPreferences("english_zoom", MODE_PRIVATE);
+        zoom = zoomPref.getFloat("english_zoom", 1f);
+		
+		Log.d("Tipitaka", "Initial Zoom"+zoom);
+        
+        ewv.setInitialScale((int)(100*zoom));
+		
 		ewv.loadUrl(url);
 		
 		//~ ewv.loadDataWithBaseURL("", 
@@ -526,7 +611,7 @@ public class EnglishActivity extends Activity {
             //~ "text/html", 
             //~ "utf-8", 
             //~ null);
-        setContentView(ewv);
+        setContentView(english);
 		ebookmarkDBAdapter = new eBookmarkDBAdapter(this);
 	}
 
@@ -539,11 +624,23 @@ public class EnglishActivity extends Activity {
 			view.loadUrl(url);
 			return true;
 		}
-        @Override
-        public void onPageFinished(WebView view, String url) {
-            EnglishActivity.this.lastTitle = view.getTitle();
-            EnglishActivity.this.lastUrl = view.getUrl();
-        }
+		@Override
+		public void onPageFinished(WebView view, String url) {
+			float scale = view.getScale();
+			if(firstPage)
+				firstPage = false;
+			else
+				view.setInitialScale((int)(100*scale));
+			
+			if(zoom != scale) {
+				zoom = scale;
+				zoomPref.edit().putFloat("english_zoom", scale).commit();
+			}
+			Log.d("Tipitaka", "This Zoom"+zoom);
+
+			EnglishActivity.this.lastTitle = view.getTitle();
+			EnglishActivity.this.lastUrl = view.getUrl();
+		}
 	}
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -553,4 +650,16 @@ public class EnglishActivity extends Activity {
 		}
 		return super.onKeyDown(keyCode, event);
 	}
+	
+	@Override
+	public void onDestroy() {
+		zoomPref.edit().putFloat("english_zoom", ewv.getScale()).commit();
+		super.onDestroy();
+	}
+	@Override
+	public void onPause(){
+		zoomPref.edit().putFloat("english_zoom", ewv.getScale()).commit();
+		super.onPause();
+	}
+	
 }

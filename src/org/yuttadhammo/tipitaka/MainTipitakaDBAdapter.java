@@ -63,6 +63,23 @@ public class MainTipitakaDBAdapter {
     	return db == null ? false : true;
     }	
 	
+    public Cursor getContent(int volume) {
+ 		volume--;
+ 		//Log.i ("Tipitaka","db lookup: volume: "+volume+", page: "+page);
+
+    	String selection = String.format("volume = '%s'", volume);
+ 		
+    	final Cursor cursor = this.db.query(
+    			"pali", 
+    			new String[] {"_id","title","item"}, 
+    			selection,
+    			null, 
+    			null, 
+    			null, 
+    			"_id");
+    	return cursor;    	
+    }    
+
     public Cursor getContent(int volume, int page, String lang) {
  		page--;
  		volume--;

@@ -1,94 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
+<LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
+  android:fillViewport="true"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:orientation="vertical">
-    <LinearLayout
-    	android:id="@+id/top_bar"
-    	android:orientation="vertical"
-    	android:layout_marginTop="2dp"
-    	android:layout_alignParentTop="true"
-    	android:layout_height="wrap_content"
-    	android:layout_width="match_parent">
-    	<ImageView
-    		android:layout_width="wrap_content"
-    		android:layout_height="wrap_content"
-    		android:layout_gravity="center"
-    		android:src="@drawable/triangle2s"
-    	/>
-	  	<Gallery 
-			android:id="@+id/gallery_page" 
-			android:layout_width="match_parent" 
-			android:layout_height="wrap_content"
-			android:layout_gravity="center"
-			android:gravity="center"
-			android:layout_marginBottom="5dp"
-			android:spacing="25dp"
-			android:textSize="24dp"
-		/>	
-			
-		<View 
-			android:id="@+id/short_divider"
-			android:background="@drawable/black_white_gradient"
-			android:layout_gravity="center"
-			android:layout_width="50dp"
-			android:layout_marginBottom="5dp"
-			android:layout_height="2dp"/>
-						
-<!--     	<ImageView
-    		android:layout_marginTop="3dp"
-    		android:layout_marginBottom="2dp"
-    		android:layout_width="wrap_content"
-    		android:layout_height="wrap_content"
-    		android:layout_gravity="center"
-    		android:src="@drawable/triangle1s"
-    	/>  -->
+	<LinearLayout
+		android:id="@+id/top_area"
+		android:orientation="horizontal"
+		android:layout_marginTop="2dp"
+		android:layout_alignParentTop="true"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent">
 
-    </LinearLayout>
-	<RelativeLayout
-		android:id="@+id/relative_layout01"
+		<ImageButton
+			android:id="@+id/idx_btn"
+			android:src="@drawable/logo_48"
+			android:layout_width="wrap_content"
+			android:layout_alignParentTop="true"
+			android:layout_height="wrap_content"/>
+		<LinearLayout
+			android:id="@+id/top_bar"
+			android:orientation="vertical"
+			android:layout_marginTop="2dp"
+			android:layout_alignParentTop="true"
+			android:layout_height="wrap_content"
+			android:layout_width="match_parent">
+			<ImageView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:src="@drawable/triangle2s"
+			/>
+			<Gallery 
+				android:id="@+id/gallery_page" 
+				android:layout_width="match_parent" 
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:gravity="center"
+				android:layout_marginBottom="5dp"
+				android:spacing="25dp"
+				android:textSize="24dp"
+			/>	
+				
+			<View 
+				android:id="@+id/short_divider"
+				android:background="@drawable/black_white_gradient"
+				android:layout_gravity="center"
+				android:layout_width="match_parent"
+				android:layout_marginBottom="5dp"
+				android:layout_height="2dp"/>
+							
+	<!--     	<ImageView
+				android:layout_marginTop="3dp"
+				android:layout_marginBottom="2dp"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:src="@drawable/triangle1s"
+			/>  -->
+		</LinearLayout>
+	</LinearLayout>
+<!--
+	<TextView
+		android:id="@+id/header"
+		android:layout_height="wrap_content"
 		android:layout_width="match_parent"
- 		android:layout_height="wrap_content"
- 		android:layout_below="@id/top_bar"> 		
- 		<TextView
- 			android:id="@+id/header"
- 			android:layout_height="wrap_content"
- 			android:layout_width="match_parent"
- 			android:gravity="center"
- 			android:layout_alignParentTop="true"
- 			android:textSize="16dp"
- 			android:textColor="@android:color/primary_text_dark_nodisable"
- 		/>
-	</RelativeLayout>
+		android:gravity="center"
+		android:layout_alignParentTop="true"
+		android:textSize="16dp"
+		android:textColor="@android:color/primary_text_dark_nodisable"
+	/>
 	<View 
 		android:id="@+id/read_divider"
 		android:background="@drawable/black_white_gradient"
 		android:layout_width="match_parent"
 		android:layout_marginTop="5dp"
 		android:layout_marginBottom="5dp"
-		android:layout_below="@id/relative_layout01"
 		android:layout_height="2dp"/>
-	<ScrollView
-		android:id="@+id/scrollview"
-		android:scrollbars="vertical"
-		android:layout_width="match_parent"
-	    android:layout_below="@id/read_divider"
-		android:layout_height="match_parent">
-		<TextView style="?android:attr/textViewStyle"
-			android:cursorVisible="true"
-			android:editable="false"
-			android:background="@android:color/black" 
-			android:textColor="@android:color/white"
-			android:textColorHighlight="#999900"
-			android:id="@+id/main_text"
+-->
+	<RelativeLayout
+		android:id="@+id/main_area"
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent">
+		<ListView
+		  android:layout_width="match_parent"
+		  android:layout_height="match_parent"
+		  android:textColor="@android:color/white"
+		  android:background="@android:color/black" 
+		  android:id="@+id/index_list"/>
+		<ScrollView
+			android:id="@+id/text_scrollview"
+			android:visibility="invisible"
+			android:scrollbars="vertical"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:layout_marginBottom="20dp"
-			android:padding="10dp"
-			android:textSize="16dp"
-			android:lineSpacingExtra="2dip"
-		/>
-	</ScrollView>
-</RelativeLayout>
+			android:layout_height="match_parent">
+			<TextView style="?android:attr/textViewStyle"
+				android:cursorVisible="true"
+				android:editable="false"
+				android:background="@android:color/black" 
+				android:textColor="@android:color/white"
+				android:textColorHighlight="#999900"
+				android:id="@+id/main_text"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:layout_marginBottom="20dp"
+				android:padding="10dp"
+				android:textSize="16dp"
+				android:lineSpacingExtra="2dip"
+			/>
+		</ScrollView>
+	</RelativeLayout>
+</LinearLayout>
