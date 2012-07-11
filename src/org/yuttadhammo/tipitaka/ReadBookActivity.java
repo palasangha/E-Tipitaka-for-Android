@@ -34,6 +34,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Gallery;
 import android.widget.ImageButton;
@@ -70,12 +71,12 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	//~ private TextView pageLabel;
 	//~ private TextView itemsLabel;
 	private TextView headerLabel;
-	private String headerText;
+	private String headerText = "";
 	private Gallery gPage;
 	private ListView idxList;
 	private ScrollView scrollview;
 	
-	private ImageButton idxBtn;
+	private CheckBox idxBtn;
 	
 	private MainTipitakaDBAdapter mainTipitakaDBAdapter;
 	
@@ -683,9 +684,12 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
        
         // index button
 
-        idxBtn = (ImageButton) read.findViewById(R.id.idx_btn);
+        idxBtn = (CheckBox) read.findViewById(R.id.idx_btn);
         idxList = (ListView) read.findViewById(R.id.index_list);
         scrollview = (ScrollView) read.findViewById(R.id.text_scrollview);
+        
+        View idx_header = (View)getLayoutInflater().inflate(R.layout.index_header,null);
+		idxList.addHeaderView(idx_header);
 
 		idxBtn.setOnClickListener(new OnClickListener() {
 			@Override
@@ -755,9 +759,17 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		if(ReadBookActivity.this.getIntent().getExtras() != null) {
 			Bundle dataBundle = ReadBookActivity.this.getIntent().getExtras();
 			int vol = dataBundle.getInt("VOL");
-			int page = dataBundle.getInt("PAGE");
+			t_book = res.getStringArray(R.array.thaibook);
+			headerText = t_book[vol-1].trim();
+
+			int page = page = dataBundle.getInt("PAGE");
+			
+			if (!dataBundle.containsKey("FIRSTPAGE"))
+				firstPage = false;
+			
 			lang = dataBundle.getString("LANG");
-			headerText = dataBundle.getString("TITLE");
+			
+			
 			savedReadPages.clear();
 			
 			if (dataBundle.containsKey("QUERY")) {
@@ -809,17 +821,23 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 
 			@Override
 			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				if(firstPage) {
-					firstPage = false;
-					return;
-				}
 					
 				final AdapterView<?> a0 = arg0;
 				final View a1 = arg1;
 				final int a2 = arg2;
 				final long a3 = arg3;
 
+				// show index
+
+				if(firstPage) {
+					idxBtn.setChecked(true);
+					firstPage = false;
+					changeItem(a0,a1,a2,a3);
+					return;
+				}
+
 				// hide index
+				idxBtn.setChecked(false);
 
 				idxList.setVisibility(View.INVISIBLE);
 				scrollview.setVisibility(View.VISIBLE);

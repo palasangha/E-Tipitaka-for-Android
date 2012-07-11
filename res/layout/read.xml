@@ -14,11 +14,10 @@
 		android:layout_height="wrap_content"
 		android:layout_width="match_parent">
 
-		<ImageButton
+		<CheckBox
 			android:id="@+id/idx_btn"
-			android:src="@drawable/logo_48"
+			android:button="@drawable/index_button"
 			android:layout_width="wrap_content"
-			android:layout_alignParentTop="true"
 			android:layout_height="wrap_content"/>
 		<LinearLayout
 			android:id="@+id/top_bar"

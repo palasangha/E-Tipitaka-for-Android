@@ -811,6 +811,7 @@ public class SelectBookActivity extends Activity {
         		dataBundle.putInt("PAGE", 1);
         		dataBundle.putString("LANG", lang);
         		dataBundle.putString("TITLE", thisTitle);
+        		dataBundle.putString("FIRSTPAGE", "TRUE");
         		intent.putExtras(dataBundle);
         		startActivity(intent);				
 			}
