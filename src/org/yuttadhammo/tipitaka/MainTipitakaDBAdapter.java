@@ -139,7 +139,7 @@ public class MainTipitakaDBAdapter {
     
     public Cursor search(int volume, String query, String lang) {
  		query = toUni(query);
- 		volume--;
+ 		//volume--;
     	String selection = "";
     	
     	String[] tokens = query.split("\\s+");

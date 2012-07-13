@@ -4,7 +4,7 @@
   	android:id="@+id/main_menu">
       
 	<item android:id="@+id/bookmark_menu_item"
-  		  android:icon="@android:drawable/ic_menu_slideshow"
+  		  android:icon="@drawable/ic_menu_archive"
           android:title="@string/bookmark" />
 	<item android:id="@+id/dict_menu_item"
   		  android:icon="@android:drawable/ic_menu_sort_alphabetically"

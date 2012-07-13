@@ -753,7 +753,7 @@ public class SearchActivity extends Activity {
 			int count = 0;
 			
 			
-			for(String t: bnames[voli+1].trim().split("\\s+")) {
+			for(String t: bnames[voli].trim().split("\\s+")) {
 				if(count==4)
 					break;
 				tmp = tmp + t + " ";

@@ -429,6 +429,10 @@ public class EnglishActivity extends Activity {
 		super.onOptionsItemSelected(item);	
 		Intent intent;
 		switch (item.getItemId()) {
+			case (int)R.id.pali:
+				intent = new Intent(this, SelectBookActivity.class);
+				startActivity(intent);	
+				break;
 			case (int)R.id.memo:
 				memoItem();
 				break;

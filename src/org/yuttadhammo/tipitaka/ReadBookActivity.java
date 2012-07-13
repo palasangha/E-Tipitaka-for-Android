@@ -798,6 +798,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			}
 			// Make sure to close the cursor
 			cursor.close();
+			mainTipitakaDBAdapter.close();
 
 			MenuItemAdapter adapter = new MenuItemAdapter(this,
 					android.R.layout.simple_list_item_1, titles);			
@@ -906,6 +907,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				content = content.replaceAll("\\^a\\^[^^]+\\^ea\\^", "");
 				
 				
+				content = content.replaceAll("([AIUEOKGCJTDNPBMYRLVSHaiueokgcjtdnpbmyrlvshāīūṭḍṅṇṁṃñḷĀĪŪṬḌṄṆṀṂÑḶ])0", "$1.");
 				content = content.replaceAll("\\{([^}]+)\\}", "<i><font color=\"#7D7D7D\">[$1]</font></i>");
 				
 				title = formatTitle(title);
