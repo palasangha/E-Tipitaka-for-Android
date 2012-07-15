@@ -3,6 +3,8 @@
     <string name="app_name">Android Pali Tipitaka</string>
     <string name="th_searching">Searching</string>
     <string name="th_found">Found in</string>
+    <string name="collection">Collection</string>
+    <string name="hier">Hierarchy</string>
     <string name="th_page">Sections</string>
     <string name="th_search">Search</string>
     <string name="th_book_label">Volume</string>

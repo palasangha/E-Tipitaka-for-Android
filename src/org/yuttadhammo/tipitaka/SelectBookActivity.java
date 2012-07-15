@@ -58,7 +58,7 @@ public class SelectBookActivity extends Activity {
 	private int selectedCate = 0;
 	private View main;
 	private int selectedBook = 0;
-	private TextView textInfo;
+	private Button textInfo;
 	private TextView textHeader;
 	private TextView textHeaderLang;
 	private Button readBtn;
@@ -546,7 +546,7 @@ public class SelectBookActivity extends Activity {
         final String [] hnames = res.getStringArray(R.array.hnames);
         
         
-        textInfo = (TextView) main.findViewById(R.id.text_info);
+        textInfo = (Button) main.findViewById(R.id.read_btn);
         //textHeader = (TextView) findViewById(R.id.tipitaka_label);
         //textHeaderLang = (TextView) findViewById(R.id.tipitaka_lang_label);
         readBtn = (Button) main.findViewById(R.id.read_btn);
@@ -584,6 +584,8 @@ public class SelectBookActivity extends Activity {
 					textview.setTextColor(Color.argb(255, 255, 69, 0));					
 				else if(arg2 == 2)
 					textview.setTextColor(Color.argb(255, 160, 32, 240));
+				else if(arg2 == 3)
+					textview.setTextColor(Color.argb(255, 173, 255, 49));
 
 				selectedCate = arg2+1;
 				

@@ -11,23 +11,25 @@
 		android:orientation="horizontal"
 		android:layout_marginTop="2dp"
 		android:layout_height="wrap_content"
+		android:background="#000000"
 		android:layout_width="match_parent">
 
-		<CheckBox
+		<ImageButton
+			android:background="#000000"
 			android:id="@+id/idx_btn"
-			android:button="@drawable/index_button"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"/>
+			android:src="@drawable/logo"
+			android:scaleType="center"
+			android:layout_width="80dp"
+			android:layout_height="match_parent"/>
 		<LinearLayout
 			android:id="@+id/top_bar"
 			android:orientation="vertical"
 			android:layout_marginTop="2dp"
-			android:layout_alignParentTop="true"
 			android:layout_height="wrap_content"
 			android:layout_width="match_parent">
 			<ImageView
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
+				android:layout_height="match_parent"
 				android:layout_gravity="center"
 				android:src="@drawable/triangle2s"
 			/>
@@ -38,18 +40,8 @@
 				android:layout_gravity="center"
 				android:gravity="center"
 				android:layout_marginBottom="5dp"
-				android:spacing="25dp"
-				android:textSize="24dp"
+				android:textSize="30dp"
 			/>	
-				
-			<View 
-				android:id="@+id/short_divider"
-				android:background="@drawable/black_white_gradient"
-				android:layout_gravity="center"
-				android:layout_width="match_parent"
-				android:layout_marginBottom="5dp"
-				android:layout_height="2dp"/>
-							
 	<!--     	<ImageView
 				android:layout_marginTop="3dp"
 				android:layout_marginBottom="2dp"
@@ -60,6 +52,13 @@
 			/>  -->
 		</LinearLayout>
 	</LinearLayout>
+	<View 
+		android:id="@+id/short_divider"
+		android:background="@drawable/black_white_gradient"
+		android:layout_gravity="center"
+		android:layout_width="match_parent"
+		android:layout_marginBottom="5dp"
+		android:layout_height="2dp"/>
 	<RelativeLayout
 		android:id="@+id/main_area"
 		android:layout_height="match_parent"

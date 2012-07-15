@@ -305,7 +305,7 @@ public class cped extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu (Menu menu) {
 		Menu sub = menu.addSubMenu(0,0,Menu.NONE,R.string.dict)
-			.setIcon (R.drawable.logo_48);
+			.setIcon (R.drawable.logo);
 
 		for (int idx = 0; idx < DICT_ARRAY_FULL.length; idx++) {
 			sub.add (1, idx, Menu.NONE, DICT_ARRAY_FULL[idx])

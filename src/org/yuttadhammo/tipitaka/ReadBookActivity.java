@@ -35,6 +35,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Gallery;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -63,7 +64,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	private ListView idxList;
 	private ScrollView scrollview;
 	
-	private CheckBox idxBtn;
+	private ImageButton idxBtn;
 	
 	private MainTipitakaDBAdapter mainTipitakaDBAdapter;
 	
@@ -665,21 +666,28 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
        
         // index button
 
-        idxBtn = (CheckBox) read.findViewById(R.id.idx_btn);
+        idxBtn = (ImageButton) read.findViewById(R.id.idx_btn);
         idxList = (ListView) read.findViewById(R.id.index_list);
         scrollview = (ScrollView) read.findViewById(R.id.text_scrollview);
         
-        View idx_header = (View)getLayoutInflater().inflate(R.layout.index_header,null);
-		idxList.addHeaderView(idx_header);
+        TextView idx_header = new TextView(context);
+        idx_header.setText("Contents");
+        idx_header.setTypeface(font);
+        idx_header.setGravity(0x11);
+        idx_header.setTextSize(1,24);
+        
+        idxList.addHeaderView(idx_header);
 
 		idxBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if(idxList.getVisibility() == 0) {
+					idxBtn.setImageResource(R.drawable.logo_grey);
 					idxList.setVisibility(View.INVISIBLE);
 					scrollview.setVisibility(View.VISIBLE);
 				}
 				else {
+					idxBtn.setImageResource(R.drawable.logo);
 					scrollview.setVisibility(View.INVISIBLE);
 					idxList.setVisibility(View.VISIBLE);
 				}
@@ -742,6 +750,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			int vol = dataBundle.getInt("VOL");
 			t_book = res.getStringArray(R.array.thaibook);
 			headerText = t_book[vol-1].trim();
+			idx_header.setText(t_book[vol-1].trim()+ "\ncontents");
 
 			int page = dataBundle.getInt("PAGE");
 			
@@ -812,14 +821,12 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				// show index
 
 				if(firstPage) {
-					idxBtn.setChecked(true);
 					firstPage = false;
 					changeItem(a0,a1,a2,a3);
 					return;
 				}
 
 				// hide index
-				idxBtn.setChecked(false);
 
 				idxList.setVisibility(View.INVISIBLE);
 				scrollview.setVisibility(View.VISIBLE);
