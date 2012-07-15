@@ -280,9 +280,9 @@ public class EnglishActivity extends Activity {
     
     @Override
     public boolean onSearchRequested() {
-    	searchDialog = new SearchDialog(EnglishActivity.this, lang);
-    	searchDialog.show();
-		
+		Intent intent = new Intent(this, SearchDialog.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(intent);
     	return true;
     }
 	private void showAboutDialog() {

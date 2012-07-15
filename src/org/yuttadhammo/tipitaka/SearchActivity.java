@@ -91,7 +91,7 @@ public class SearchActivity extends Activity {
 	private SearchResultsItem savedResultsItem;
 	private long savedResultsItemPosition;
 	
-	public String lang = "thai";
+	public String lang = "pali";
 	
 	private static final int SHOW_READBOOK_ACTIVITY = 1;
 	private static final int SHOW_BOOKMARK_ACTIVITY = 2;

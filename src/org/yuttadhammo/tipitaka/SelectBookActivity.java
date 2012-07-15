@@ -233,9 +233,9 @@ public class SelectBookActivity extends Activity {
     
     @Override
     public boolean onSearchRequested() {
-    	searchDialog = new SearchDialog(SelectBookActivity.this, lang);
-    	searchDialog.show();
-		
+		Intent intent = new Intent(this, SearchDialog.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(intent);
     	return true;
     }
     
@@ -379,8 +379,9 @@ public class SelectBookActivity extends Activity {
 				startActivity(intent);
 				break;
 			case (int)R.id.search_menu_item:
-				searchDialog = new SearchDialog(SelectBookActivity.this, lang);
-				searchDialog.show();
+				intent = new Intent(this, SearchDialog.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
 				break;
 			case (int)R.id.help_menu_item:
 				showHelpDialog();

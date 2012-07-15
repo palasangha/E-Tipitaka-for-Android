@@ -10,7 +10,6 @@
 		android:id="@+id/top_area"
 		android:orientation="horizontal"
 		android:layout_marginTop="2dp"
-		android:layout_alignParentTop="true"
 		android:layout_height="wrap_content"
 		android:layout_width="match_parent">
 
@@ -61,27 +60,9 @@
 			/>  -->
 		</LinearLayout>
 	</LinearLayout>
-<!--
-	<TextView
-		android:id="@+id/header"
-		android:layout_height="wrap_content"
-		android:layout_width="match_parent"
-		android:gravity="center"
-		android:layout_alignParentTop="true"
-		android:textSize="16dp"
-		android:textColor="@android:color/primary_text_dark_nodisable"
-	/>
-	<View 
-		android:id="@+id/read_divider"
-		android:background="@drawable/black_white_gradient"
-		android:layout_width="match_parent"
-		android:layout_marginTop="5dp"
-		android:layout_marginBottom="5dp"
-		android:layout_height="2dp"/>
--->
 	<RelativeLayout
 		android:id="@+id/main_area"
-		android:layout_height="wrap_content"
+		android:layout_height="match_parent"
 		android:layout_width="match_parent">
 		<ListView
 		  android:layout_width="match_parent"
@@ -96,14 +77,12 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent">
 			<TextView style="?android:attr/textViewStyle"
-				android:cursorVisible="true"
-				android:editable="false"
 				android:background="@android:color/black" 
 				android:textColor="@android:color/white"
 				android:textColorHighlight="#999900"
 				android:id="@+id/main_text"
 				android:layout_width="match_parent"
-				android:layout_height="match_parent"
+				android:layout_height="wrap_content"
 				android:layout_marginBottom="20dp"
 				android:padding="10dp"
 				android:textSize="16dp"

@@ -57,8 +57,9 @@
 	<string name="select_item_compare">Select item to compare</string>
 	<string name="select_item_memo">Select item to bookmark</string>
 	<string name="all">all</string>
-	<string name="ok">ok</string>
-	<string name="select_cate">Select category to search</string>
+	<string name="ok">OK</string>
+	<string name="cancel">Cancel</string>
+		<string name="select_cate">Select category to search</string>
 	<string name="clear_history">Clear history</string>
 	<string name="yes">yes</string>
 	<string name="no">no</string>
@@ -193,5 +194,6 @@
     <string name="text_button_resume">Resume Download</string>
     <string name="text_button_cancel">Cancel</string>
     <string name="text_button_cancel_verify">Cancel Verification</string>
+    <string name="enter_query">Enter search query</string>
 
 </resources>

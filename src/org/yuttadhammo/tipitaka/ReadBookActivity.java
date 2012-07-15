@@ -5,9 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Collections;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,7 +17,6 @@ import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.util.Log;
@@ -28,7 +27,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -37,11 +35,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Gallery;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ScrollView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,25 +47,17 @@ import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnLongClickListener;
 
-import android.util.DisplayMetrics;
 
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
-import android.text.style.UnderlineSpan;
-import android.text.style.ClickableSpan;
-import android.text.method.LinkMovementMethod;
-import android.text.SpannableStringBuilder;
-import java.lang.CharSequence;
 
-import java.io.BufferedReader;
-import java.io.File;
+
 
 public class ReadBookActivity extends Activity { //implements OnGesturePerformedListener {
 	private TextView textContent;
 	//~ private TextView pageLabel;
 	//~ private TextView itemsLabel;
-	private TextView headerLabel;
 	private String headerText = "";
 	private Gallery gPage;
 	private ListView idxList;
@@ -90,7 +77,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	//private int jumpLine = 0;
 	
 	//private Button gotoBtn;
-	private Handler mHandler = new Handler();
 	private View read;
 	private String keywords = "";
 	private Dialog dialog;
@@ -102,7 +88,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	private int [] npage_thai;
 	private int [] npage_pali;
 	private int [] nitem;
-	private final int autoHideTime = 2000;
 	private String [] found_pages;
 	private String lang = "pali";
 	private float textSize = 0f;
@@ -134,11 +119,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	// save read pages for highlighting in the results list
 	private ArrayList<String> savedReadPages = null;
 
-    private static final int[] DN_RANGE = {0,2};
-    private static final int[] MN_RANGE = {3,5};
-    private static final int[] SN_RANGE = {6,10};
-    private static final int[] AN_RANGE = {11,21};
-    private static final int[] KN_RANGE = {22,42};
 
 	private boolean firstPage = true;
 
@@ -146,9 +126,9 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 
     @Override
     public boolean onSearchRequested() {
-    	searchDialog = new SearchDialog(ReadBookActivity.this, lang);
-    	searchDialog.show();
-		
+		Intent intent = new Intent(this, SearchDialog.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		startActivity(intent);
     	return true;
     }
     
@@ -278,7 +258,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			public void onClick(View v) {
 				bookmarkDBAdapter.open();
 				BookmarkItem bookmarkItem = new BookmarkItem(bmLang, bmVolume, bmPage, bmItem, memoText.getText().toString(),"");
-				long row = bookmarkDBAdapter.insertEntry(bookmarkItem);
+				bookmarkDBAdapter.insertEntry(bookmarkItem);
 				bookmarkDBAdapter.close();
 				Toast.makeText(ReadBookActivity.this, getString(R.string.memo_set), Toast.LENGTH_SHORT).show();
 				memoDialog.dismiss();
@@ -635,6 +615,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         Toast.makeText(this, Integer.toString(p), Toast.LENGTH_SHORT).show();*/
 	}
 	
+	@SuppressLint("NewApi")
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -762,7 +743,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			t_book = res.getStringArray(R.array.thaibook);
 			headerText = t_book[vol-1].trim();
 
-			int page = page = dataBundle.getInt("PAGE");
+			int page = dataBundle.getInt("PAGE");
 			
 			if (!dataBundle.containsKey("FIRSTPAGE"))
 				firstPage = false;
@@ -1063,13 +1044,14 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
     class MyGestureDetector extends SimpleOnGestureListener {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			textContent.clearFocus();
 			//super.onFling(e1, e2, velocityX,velocityY);
+			textContent.clearFocus();
 			Log.i("Tipitaka", "flinging");
             if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
                 return false;
             }
-			Log.i("Tipitaka", "on path");
+
+            Log.i("Tipitaka", "on path");
 			//~ DisplayMetrics displaymetrics = new DisplayMetrics();
 			//~ getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
 			//~ int width = displaymetrics.widthPixels;

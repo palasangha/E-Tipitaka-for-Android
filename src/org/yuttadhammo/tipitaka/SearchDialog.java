@@ -1,5 +1,6 @@
 package org.yuttadhammo.tipitaka;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -37,7 +38,7 @@ import android.widget.CheckBox;
 
 import android.graphics.Typeface;
 
-public class SearchDialog extends Dialog {
+public class SearchDialog extends Activity {
 
 	private boolean b1;
 	private boolean b2;
@@ -176,14 +177,7 @@ public class SearchDialog extends Dialog {
 		}
 	}
 	
-	public SearchDialog(Context _context, String _lang) {
-		super(_context, R.style.searchDialogStyle);
-		context = _context;
-		lang = _lang;
-		this.setContentView(R.layout.search_dialog);
-		// TODO Auto-generated constructor stub
-	}
-		
+	
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 	    if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -194,10 +188,7 @@ public class SearchDialog extends Dialog {
 	    		codeText.setText("");
 	    		numberText.setText("");
 	    		return true;
-	    	}  else {
-	    		this.dismiss();
-	    		return true;
-	    	}
+	    	}  
 	    } else if(keyCode == KeyEvent.KEYCODE_MENU) {
 	    	// hide keyboard
             imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -270,22 +261,23 @@ public class SearchDialog extends Dialog {
 			});
             sortDialog.show();
 	    }
-	    return super.onKeyDown(keyCode, event);
+	    return super.onKeyUp(keyCode, event);
 	}	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-    	//Toast.makeText(context, "Create", Toast.LENGTH_SHORT).show();
+    	super.onCreate(savedInstanceState);
+        setContentView(R.layout.search_dialog);
+        
+        context = this;
 		
-		prefs =  PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
+		prefs =  PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		sortKey = prefs.getString("SORT_KEY", SearchHistoryDBAdapter.KEY_KEYWORDS);
 		isDesc = prefs.getBoolean("IS_DESC", false);
-    	searchHistoryDBAdapter = new SearchHistoryDBAdapter(context);
-    	searchResultsDBAdapter = new SearchResultsDBAdapter(context);
-		this.setCancelable(true);
-		this.setCanceledOnTouchOutside(true);
+    	searchHistoryDBAdapter = new SearchHistoryDBAdapter(this);
+    	searchResultsDBAdapter = new SearchResultsDBAdapter(this);
 		
-		Button queryBtn = (Button) SearchDialog.this.findViewById(R.id.query_btn);
+		Button queryBtn = (Button) findViewById(R.id.query_btn);
 		queryBtn.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
@@ -304,7 +296,7 @@ public class SearchDialog extends Dialog {
 	        		query = query.replace("aa", "ā").replace("ii", "ī").replace("uu", "ū").replace(".t", "ṭ").replace(".d", "ḍ").replace("\"n", "ṅ").replace(".n", "ṇ").replace(".m", "ṃ").replace("~n", "ñ").replace(".l", "ḷ");
 	        		Intent intent = new Intent(context, SearchActivity.class);
 	        		Bundle dataBundle = new Bundle();
-	        		dataBundle.putString("LANG", lang);
+	        		dataBundle.putString("LANG", "pali");
 	        		dataBundle.putString("QUERY", query);
 	        		dataBundle.putBoolean("b1", b1);
 	        		dataBundle.putBoolean("b2", b2);
@@ -314,9 +306,7 @@ public class SearchDialog extends Dialog {
 	        		dataBundle.putBoolean("b6", b6);
 	        		dataBundle.putBoolean("b7", b7);
 	        		intent.putExtras(dataBundle);
-	        		context.startActivity(intent);
-	        		//SearchDialog.this.dismiss();
-	        		//updateHistoryList(lang, searchText.getText().toString().trim());
+	        		startActivity(intent);
 				}
 			}
 		});
@@ -393,7 +383,7 @@ public class SearchDialog extends Dialog {
 		});
 		
 		//show keyboard
-        imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 	    imm.toggleSoftInput(0, 0);		
 		
         historyList = (ListView) this.findViewById(R.id.search_history_listview);
@@ -830,14 +820,6 @@ public class SearchDialog extends Dialog {
 	
 	}
 	
-	@Override
-	public void dismiss() {
-		//Toast.makeText(context, "Dismiss", Toast.LENGTH_SHORT).show();
-		if(searchHistoryDBAdapter != null) {
-			searchHistoryDBAdapter.close();
-		}
-		super.dismiss();
-	}
 
 	private void updateHistoryList(String _lang, String text, int position) {
 		String code = codeText.getText().toString();
@@ -847,7 +829,7 @@ public class SearchDialog extends Dialog {
 			savedCursor.close();
 		}
 		savedCursor = searchHistoryDBAdapter.getEntries(_lang, text, sortKey, isDesc, code, number);
-        historyAdapter = new ResultsCursorAdapter(context, R.layout.history_item, savedCursor, 
+        historyAdapter = new ResultsCursorAdapter(this, R.layout.history_item, savedCursor, 
         		new String[] {  SearchHistoryDBAdapter.KEY_KEYWORDS,
         						SearchHistoryDBAdapter.KEY_LINE1, 
         						SearchHistoryDBAdapter.KEY_LINE2, 
@@ -887,7 +869,7 @@ public class SearchDialog extends Dialog {
 			savedCursor.close();
 		}
 		savedCursor = searchHistoryDBAdapter.getEntries(_lang, "", sortKey, isDesc, code, number);
-        historyAdapter = new ResultsCursorAdapter(context, R.layout.history_item, savedCursor, 
+        historyAdapter = new ResultsCursorAdapter(this, R.layout.history_item, savedCursor, 
         		new String[] {  SearchHistoryDBAdapter.KEY_KEYWORDS,
         						SearchHistoryDBAdapter.KEY_LINE1, 
         						SearchHistoryDBAdapter.KEY_LINE2, 
