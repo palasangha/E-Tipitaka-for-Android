@@ -64,11 +64,12 @@
 		android:layout_height="match_parent"
 		android:layout_width="match_parent">
 		<ListView
-		  android:layout_width="match_parent"
-		  android:layout_height="match_parent"
-		  android:textColor="@android:color/white"
-		  android:background="@android:color/black" 
-		  android:id="@+id/index_list"/>
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:textColor="@android:color/white"
+			android:background="@android:color/black"
+			android:choiceMode="singleChoice" 
+	  		android:id="@+id/index_list"/>
 		<ScrollView
 			android:id="@+id/text_scrollview"
 			android:visibility="invisible"

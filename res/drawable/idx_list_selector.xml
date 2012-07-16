@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+	android:top = "3dp"
+>
+    <gradient
+     			android:height="100dp"
+     			android:dither="true"
+     			android:thickness="4dp"
+     			android:antialias="true"
+                android:startColor="#FFFF00"
+                android:endColor="#CCFF00"
+                android:angle="270"/>
+</shape> 

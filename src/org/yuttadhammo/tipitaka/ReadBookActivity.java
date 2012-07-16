@@ -663,7 +663,9 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         textSize = Float.parseFloat(sizePref.getString("size", "16"));
         
 		textContent.setTextSize(textSize);
-       
+
+        gPage = (Gallery) read.findViewById(R.id.gallery_page);
+		
         // index button
 
         idxBtn = (ImageButton) read.findViewById(R.id.idx_btn);
@@ -690,6 +692,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 					idxBtn.setImageResource(R.drawable.logo);
 					scrollview.setVisibility(View.INVISIBLE);
 					idxList.setVisibility(View.VISIBLE);
+					//idxList.setSelection(gPage.getSelectedItemPosition());
 				}
 			}
 		});
@@ -740,8 +743,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		//gotoBtn.setVisibility(View.INVISIBLE);
 		
 		read.requestLayout();
-        
-        gPage = (Gallery) read.findViewById(R.id.gallery_page);
         
         //final int [] npage = res.getIntArray(R.array.npage);
                 
