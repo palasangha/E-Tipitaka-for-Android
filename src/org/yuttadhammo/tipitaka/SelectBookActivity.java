@@ -17,26 +17,20 @@ import android.util.Log;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.Instrumentation;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.text.Html;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,8 +41,6 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Gallery;
-import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import android.graphics.Typeface;
@@ -59,8 +51,6 @@ public class SelectBookActivity extends Activity {
 	private View main;
 	private int selectedBook = 0;
 	private Button textInfo;
-	private TextView textHeader;
-	private TextView textHeaderLang;
 	private Button readBtn;
 	public String lang = "pali";
 	public String thisTitle;
@@ -69,7 +59,6 @@ public class SelectBookActivity extends Activity {
     private Gallery gHier;
     private SharedPreferences prefs;  
     private SearchHistoryDBAdapter searchHistoryDBAdapter;
-    private SearchResultsDBAdapter searchResultsDBAdapter;
     private BookmarkDBAdapter bookmarkDBAdapter;
     private ProgressDialog downloadProgressDialog;
     private ProgressDialog unzipProgressDialog;
@@ -286,7 +275,6 @@ public class SelectBookActivity extends Activity {
 		bookmarkDBAdapter.open();
 		String line;
 		String [] tokens;
-		int count=0;
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(infoFile));
 			while ((line = br.readLine()) != null) { 
@@ -295,7 +283,6 @@ public class SelectBookActivity extends Activity {
 					try {
 						SearchHistoryItem item = new SearchHistoryItem(tokens[1]);
 						if(!searchHistoryDBAdapter.isDuplicated(item)) {
-							count++;
 							searchHistoryDBAdapter.insertEntry(item);
 						}
 					} catch (Exception e) {
@@ -305,7 +292,6 @@ public class SelectBookActivity extends Activity {
 					try {
 						BookmarkItem item = new BookmarkItem(tokens[1]);
 						if(!bookmarkDBAdapter.isDuplicated(item)) {
-							count++;
 							bookmarkDBAdapter.insertEntry(item);
 						}
 					} catch (Exception e) {
@@ -333,29 +319,10 @@ public class SelectBookActivity extends Activity {
 		bookmarkDBAdapter.close();		
 	}
 	
-	private void showAboutDialog() {
-		final Dialog aboutDialog = new Dialog(this, android.R.style.Theme_NoTitleBar);
-		aboutDialog.setContentView(R.layout.about_dialog);
-		try {
-			PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_META_DATA);
-			((TextView)aboutDialog.findViewById(R.id.about_text_2)).setText("Version "+ pInfo.versionName);
-		} catch (NameNotFoundException e) {
-			e.printStackTrace();
-		}
-		aboutDialog.show();
-	}
 	private void showHelpDialog() {
 		final Dialog helpDialog = new Dialog(this, android.R.style.Theme_NoTitleBar);
 		helpDialog.setContentView(R.layout.help_dialog);
 		helpDialog.show();
-	}
-	
-	private void showLimitationDialog() {
-		final Dialog limitationDialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar);
-		limitationDialog.setContentView(R.layout.limitation_dialog);
-		TextView cautionText = (TextView)limitationDialog.findViewById(R.id.caution);
-		cautionText.setText(Html.fromHtml(getString(R.string.caution)));
-		limitationDialog.show();
 	}
 	
 	@Override
@@ -492,7 +459,7 @@ public class SelectBookActivity extends Activity {
 	protected void onRestart() {
 		super.onRestart();
 		//changeHeader();
-        int pos1 = prefs.getInt("Position1", 0);      
+        int pos1 = 0;      
         gCate.setSelection(pos1);
 		gCate.refreshDrawableState();
 		gNCate.refreshDrawableState();
@@ -521,7 +488,6 @@ public class SelectBookActivity extends Activity {
         setContentView(main);
         
         searchHistoryDBAdapter = new SearchHistoryDBAdapter(SelectBookActivity.this);
-        searchResultsDBAdapter = new SearchResultsDBAdapter(SelectBookActivity.this);
         bookmarkDBAdapter = new BookmarkDBAdapter(SelectBookActivity.this);
                 
         Context context = getApplicationContext();
@@ -577,15 +543,6 @@ public class SelectBookActivity extends Activity {
         gCate.setOnItemSelectedListener(new OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				TextView textview = (TextView)arg1.findViewById(android.R.id.text1);
-				if(arg2 == 0)
-					textview.setTextColor(Color.argb(255, 30, 144, 255));
-				else if(arg2 == 1)
-					textview.setTextColor(Color.argb(255, 255, 69, 0));					
-				else if(arg2 == 2)
-					textview.setTextColor(Color.argb(255, 160, 32, 240));
-				else if(arg2 == 3)
-					textview.setTextColor(Color.argb(255, 173, 255, 49));
 
 				selectedCate = arg2+1;
 				
@@ -615,21 +572,6 @@ public class SelectBookActivity extends Activity {
 				//Log.i("Tipitaka","item selected: "+arg2);		
 				ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(SelectBookActivity.this, R.layout.my_gallery_item_1, t_ncate);        
 		        gNCate.setAdapter(adapter2);
-
-		        int childPos = 0;
-		        switch(arg2) {
-		        	case 0:
-			        	childPos = prefs.getInt("VPosition", 0);          
-		        		break;
-		        	case 1:
-			        	childPos = prefs.getInt("SPosition", 0);          
-		        		break;
-		        	case 2:
-			        	childPos = prefs.getInt("APosition", 0);          
-		        		break;
-		        }
-		        
-		        gNCate.setSelection(childPos);
 		        		        
 			}
 
@@ -642,13 +584,6 @@ public class SelectBookActivity extends Activity {
         gHier.setOnItemSelectedListener(new OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				TextView textview = (TextView)arg1.findViewById(android.R.id.text1);
-				if(arg2 == 0)
-					textview.setTextColor(Color.argb(255, 30, 144, 255));
-				else if(arg2 == 1)
-					textview.setTextColor(Color.argb(255, 255, 69, 0));					
-				else if(arg2 == 2)
-					textview.setTextColor(Color.argb(255, 160, 32, 240));
 
 				hierC = arg2;
 				
@@ -676,22 +611,6 @@ public class SelectBookActivity extends Activity {
 				}
 				ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(SelectBookActivity.this, R.layout.my_gallery_item_1, t_ncate);        
 		        gNCate.setAdapter(adapter2);
-
-		        int childPos = 0;
-		        switch(selectedCate) {
-		        	case 1:
-			        	childPos = prefs.getInt("VPosition", 0);          
-		        		break;
-		        	case 2:
-			        	childPos = prefs.getInt("SPosition", 0);          
-		        		break;
-		        	case 3:
-			        	childPos = prefs.getInt("APosition", 0);          
-		        		break;
-		        }
-		        
-		        gNCate.setSelection(childPos);
-		        		        
 			}
 
 			@Override
@@ -821,7 +740,7 @@ public class SelectBookActivity extends Activity {
         	
         });
         
-        int pos1 = prefs.getInt("Position1", 0);      
+        int pos1 = 0;      
         gCate.setSelection(pos1);
         
     }

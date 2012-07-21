@@ -1,7 +1,5 @@
 package  org.yuttadhammo.tipitaka;
 
-import android.util.Log;
-
 public class eBookmarkItem {
 	private String title;
 	private String url;

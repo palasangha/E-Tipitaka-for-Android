@@ -2,7 +2,6 @@ package  org.yuttadhammo.tipitaka;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.os.Bundle;

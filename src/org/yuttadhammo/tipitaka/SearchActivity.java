@@ -3,7 +3,6 @@ package org.yuttadhammo.tipitaka;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.ListIterator;
 import java.util.Arrays;
 
 import android.app.Activity;
@@ -12,7 +11,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -33,7 +31,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -79,7 +76,6 @@ public class SearchActivity extends Activity {
 	private int firstPosAbhi = Integer.MAX_VALUE;
 	private int firstPosEtc = Integer.MAX_VALUE;
 	private Intent intent;
-	private Dialog cateDialog;
 	private float line1Size = 12f;
 	private float line2Size = 12f;
 	private SharedPreferences prefs;	
@@ -132,12 +128,9 @@ public class SearchActivity extends Activity {
 		private int posVinai = Integer.MAX_VALUE;
 		private int posSuttan = Integer.MAX_VALUE;
 		private int posAbhi = Integer.MAX_VALUE;
-		private Context context;
-		
 		public SpecialCursorAdapter(Context context, int layout, Cursor c,
 				String[] from, int[] to) {
 			super(context, layout, c, from, to);
-			this.context = context;
 		}
 		
 		@Override
@@ -452,8 +445,7 @@ public class SearchActivity extends Activity {
 	        searchResultsDBAdapter.close();    	        
         }
         
-        String slang = "";
-		slang = getString(R.string.th_lang);
+        getString(R.string.th_lang);
         
         searchText.setText("\"" + keywords + "\"");
 		
@@ -708,9 +700,6 @@ public class SearchActivity extends Activity {
 			String sVol = Integer.toString(voli+1);
 			int page = Integer.parseInt(tokens[2]);
 			String sPage = Integer.toString(page+1);
-			String slang = null;
-			
-
 			for(String sut : tokens[1].split("\\s+")) {
 				if(! al_tmp.contains(sVol+":"+sut)) {
 					al_tmp.add(sVol+":"+sut);

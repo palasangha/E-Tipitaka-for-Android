@@ -1,7 +1,5 @@
 package  org.yuttadhammo.tipitaka;
 
-import android.util.Log;
-
 public class SearchHistoryItem {
 	private String lang;
 	private String keywords;

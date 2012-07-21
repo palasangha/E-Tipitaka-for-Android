@@ -23,8 +23,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -52,7 +50,6 @@ public class SearchDialog extends Activity {
 	private EditText codeText;
 	private EditText numberText;
 	private InputMethodManager imm;
-	private Spinner langSpinner;
 	private ListView historyList;
 	private Context context;
 	private String lang = "thai";

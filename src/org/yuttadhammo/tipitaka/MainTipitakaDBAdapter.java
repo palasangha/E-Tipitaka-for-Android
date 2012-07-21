@@ -7,9 +7,6 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
-import android.util.Log;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 
 public class MainTipitakaDBAdapter {
 	private static final String DATABASE_NAME = "atipitaka.db";
@@ -18,9 +15,6 @@ public class MainTipitakaDBAdapter {
 	private SQLiteDatabase db = null;
 	private final Context context;
 	//private MainTipitakaDBHelper dbHelper;
-	
-	private PackageInfo pi;
-	private int pversion;
 	
 	public MainTipitakaDBAdapter(Context _context) {
 		//dbHelper = new MainTipitakaDBHelper(DATABASE_PATH + File.separator + DATABASE_NAME);
@@ -33,13 +27,7 @@ public class MainTipitakaDBAdapter {
 			//db = SQLiteDatabase.openDatabase(DATABASE_PATH + File.separator + DATABASE_NAME, null, SQLiteDatabase.OPEN_READWRITE);
 			db = SQLiteDatabase.openDatabase(DATABASE_PATH + File.separator + DATABASE_NAME, null, SQLiteDatabase.OPEN_READONLY);
 			// version check
-			try {
-				pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-				pversion = pi.versionCode;
-			}
-			catch(NameNotFoundException ex) {
-				pversion = 0;
-			}
+
 			//db.setVersion(pversion);
 			int version = db.getVersion();
 

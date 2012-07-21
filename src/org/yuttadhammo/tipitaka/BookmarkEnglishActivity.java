@@ -14,7 +14,6 @@ import android.database.MatrixCursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -45,7 +44,6 @@ public class BookmarkEnglishActivity extends Activity {
 	private float bmLine1Size=16f;
 	private float bmLine2Size=14f;
 	private float bmLine3Size=12f;
-	private String keywords = "";
 	private ArrayList<String> removedItems = new ArrayList<String>(); 
 	boolean isDesc;
 	String sortKey;
@@ -249,7 +247,7 @@ public class BookmarkEnglishActivity extends Activity {
 		bookmarkDBAdapter = new eBookmarkDBAdapter(this);
 		//bookmarkDBAdapter.open();
 		
-		Bundle dataBundle = getIntent().getExtras(); 
+		getIntent().getExtras(); 
 		
 		updateItemList();
 

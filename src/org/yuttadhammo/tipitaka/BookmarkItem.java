@@ -1,7 +1,5 @@
 package  org.yuttadhammo.tipitaka;
 
-import android.util.Log;
-
 public class BookmarkItem {
 	private String lang;
 	private int volumn;

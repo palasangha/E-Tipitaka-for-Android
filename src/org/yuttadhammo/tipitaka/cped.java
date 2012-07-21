@@ -3,9 +3,7 @@ package org.yuttadhammo.tipitaka;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Build;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -14,22 +12,16 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.webkit.WebSettings;
 import android.widget.TextView;
 import android.widget.Button;
 import android.database.DatabaseUtils;
-import android.database.sqlite.SQLiteDatabase;
 import android.content.ContentValues;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
-import java.util.List;
-import android.os.Message;
 
 
 public class cped extends Activity {
@@ -101,10 +93,6 @@ public class cped extends Activity {
 
 	private static final String	LOOKUP_TEXT_KEY	= "lookup_text";
 
-	private static final int	MENU_RAND	= 0;
-	
-	private static final int	MENU_DICT	= 1;
-
 	private static final String	WORD_KEY	= "word";
 	
 	private static final String	DICT_KEY	= "dict";  // 0 = CPED, 1 = DPPN, 2 = PED
@@ -123,8 +111,6 @@ public class cped extends Activity {
 	private SharedPreferences prefs;
 	private WebView wv;
 	
-	private boolean insearch = false;
-	
 	private void displayLoadingPage () {
 		displayWebViewHtml (loadResToString (R.raw.searching));
 		setTitleWithMessage (null);
@@ -135,7 +121,6 @@ public class cped extends Activity {
 		displayWebViewHtml (htmlout);
 		lookup_text.setText (word);
 		setTitleWithMessage (word);
-		insearch = true;
 		wv.requestFocus ();
 	}
 	
@@ -409,8 +394,6 @@ public class cped extends Activity {
 
 			BufferedReader r = new BufferedReader(new InputStreamReader(is));
 
-			int tlno = 0;
-			int ttno = 0;
 			String line;
 
 			Log.i ("cped", tno.length+" entries found");

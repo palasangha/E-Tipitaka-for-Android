@@ -4,12 +4,10 @@ package org.yuttadhammo.tipitaka;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -19,7 +17,6 @@ import android.util.Log;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.Instrumentation;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -28,17 +25,12 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.Resources;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteException;
-import android.graphics.Bitmap;
-import android.graphics.Color;
+
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.text.Html;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -46,12 +38,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
+
 import android.widget.Button;
 import android.widget.Gallery;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -59,7 +48,6 @@ import android.widget.Toast;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import android.graphics.Typeface;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -68,12 +56,10 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+
 
 
 public class EnglishActivity extends Activity {
-	private float ewvscale = 1f;
 	private View english;
 	
 	private SharedPreferences zoomPref;
@@ -81,40 +67,18 @@ public class EnglishActivity extends Activity {
 	
 	private boolean firstPage = true;
 
-	private static final String	HTML_KEY	= "html";
-    private static final int HTTP_STATUS_OK = 200;
+	private static final int HTTP_STATUS_OK = 200;
     private static byte[] sBuffer = new byte[512];
 	
-	private int selectedCate = 0;
-	private View main;
-	private int selectedBook = 0;
-	private TextView textInfo;
-	private TextView textHeader;
-	private TextView textHeaderLang;
-	private Button readBtn;
-	private Button searchBtn;
 	public String lang = "pali";
-    private Gallery gCate; //= (Gallery) findViewById(R.id.gallery_cate);
-    private Gallery gNCate;// = (Gallery) findViewById(R.id.gallery_ncate);
-    private Gallery gHier;
-    private SharedPreferences prefs;  
-    private SearchHistoryDBAdapter searchHistoryDBAdapter;
-    private SearchResultsDBAdapter searchResultsDBAdapter;
     private eBookmarkDBAdapter ebookmarkDBAdapter;
     private ProgressDialog downloadProgressDialog;
     private ProgressDialog unzipProgressDialog;
 	private Handler handler = new Handler();
     private int totalDowloadSize;
     private int downloadedSize;
-    private SearchDialog searchDialog = null;
+    public WebView ewv;
     
-    private int hierC = 0;
-
-	public WebView ewv;
-    
-    
-    private String infoFile;
-
     
     // copy from http://www.chrisdadswell.co.uk/android-coding-example-checking-for-the-presence-of-an-internet-connection-on-an-android-device/
     private boolean isInternetOn() {
@@ -400,7 +364,7 @@ public class EnglishActivity extends Activity {
 			public void onClick(View v) {
 				ebookmarkDBAdapter.open();
 				eBookmarkItem bookmarkItem = new eBookmarkItem(memoText.getText().toString(), lastUrl);
-				long row = ebookmarkDBAdapter.insertEntry(bookmarkItem);
+				ebookmarkDBAdapter.insertEntry(bookmarkItem);
 				ebookmarkDBAdapter.close();
 				Toast.makeText(EnglishActivity.this, getString(R.string.memo_set), Toast.LENGTH_SHORT).show();
 				memoDialog.dismiss();
@@ -553,8 +517,6 @@ public class EnglishActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate (savedInstanceState);
 
-		infoFile = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "ati_website" + File.separator + "saveinfo.txt";
-
 		if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
 			Log.d("Tipitaka", "No SDCARD");
 			return;
@@ -584,8 +546,7 @@ public class EnglishActivity extends Activity {
 
         ewv.getSettings().setJavaScriptEnabled(true); // enable javascript
 
-		//String htmlContent = getTextContent("ati_website/html/index.html");
-		String htmlContent = "<a href='file://"+Environment.getExternalStorageDirectory()+"/ati_website/html/index.html'>ati</a><br/><a href='http://www.google.com/'>google</a>";
+		
 
 		//Log.i("Tipitaka","Loading URL: file://"+Environment.getExternalStorageDirectory()+"/ati_website/start.html");
 

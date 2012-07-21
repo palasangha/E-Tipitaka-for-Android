@@ -32,7 +32,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Gallery;
 import android.widget.ImageButton;
@@ -799,7 +798,13 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 
 			  @Override
 			  public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-				  gPage.setSelection(position);
+				  if(gPage.getSelectedItemPosition() != position-1)
+					  gPage.setSelection(position-1);
+				  else {
+					idxList.setVisibility(View.INVISIBLE);
+					scrollview.setVisibility(View.VISIBLE);
+				  }
+
 			  }
 			});
 
@@ -828,10 +833,9 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				}
 
 				// hide index
-
 				idxList.setVisibility(View.INVISIBLE);
-				scrollview.setVisibility(View.VISIBLE);
-
+				scrollview.setVisibility(View.VISIBLE);			
+				
 				// fade out
 				if(textContent.getVisibility() == View.VISIBLE) {
 					Animation anim = AnimationUtils.loadAnimation(ReadBookActivity.this, android.R.anim.fade_out);
@@ -840,6 +844,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 						public void onAnimationEnd(Animation animation)
 						{
 							changeItem(a0,a1,a2,a3);
+
 						}
 
 						public void onAnimationRepeat(Animation animation)
@@ -856,10 +861,10 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				}
 				else
 					changeItem(a0,a1,a2,a3);
+
 			}
 			
 			private void changeItem(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				
 				
 				//ReadBookActivity.this.oldpage = arg2;
 				//Log.i("Tipitaka","old/new: "+Integer.toString(oldpage)+" "+Integer.toString(newpage));
@@ -879,7 +884,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 					String [] tokens = keywords.split("\\s+");
 					Arrays.sort(tokens, new StringLengthComparator());
 					Collections.reverse(Arrays.asList(tokens));
-					int count = 0;
 					for(String token: tokens) {
 						content = content.replace(token, "<font color='#f9f109'><b>"+token+"</b></font>");
 					}
@@ -937,17 +941,13 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				cursor.close();
 				mainTipitakaDBAdapter.close();
 				String [] tokens = savedItems.split("\\s+");
-				String t_items = "";
 				if(tokens.length > 1) {
-					t_items = String.format("%s-%s", 
+					String.format("%s-%s", 
 							Utils.arabic2thai(tokens[0], getResources()), 
 							Utils.arabic2thai(tokens[tokens.length-1], getResources()));
 				} else {
-					t_items = Utils.arabic2thai(tokens[0], getResources());
+					Utils.arabic2thai(tokens[0], getResources());
 				}
-				
-				String tmp = res.getString(R.string.th_items_label).trim() + " " + t_items;
-				//~ itemsLabel.setText(Html.fromHtml("<pre>"+tmp+"</pre>"));
 				
 				t_book = res.getStringArray(R.array.thaibook);
 
