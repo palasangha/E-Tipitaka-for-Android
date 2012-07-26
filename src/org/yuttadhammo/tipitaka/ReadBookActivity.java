@@ -107,8 +107,8 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	//Gestures
 
     private static final int SWIPE_MIN_LENGTH = 10;
-    private static final int SWIPE_MAX_OFF_PATH = 200;
-    private static final int SWIPE_THRESHOLD_VELOCITY = 1;
+    private static final int SWIPE_MAX_OFF_PATH = 100;
+    private static final int SWIPE_THRESHOLD_VELOCITY = 0;
     private GestureDetector gestureDetector;
 
     private String[] t_book;
@@ -962,7 +962,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				} else {
 					i_tmp = "[" + Utils.arabic2thai(Integer.toString(jumpItem), getResources()) + "]";
 				}
-								
+
 				if(isJump && toPosition == -1) {
 					isJump = false;
 					int offset =  textContent.getText().toString().indexOf(i_tmp);
@@ -1000,6 +1000,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				{
 					public void onAnimationEnd(Animation animation)
 					{
+						scrollview.scrollTo(0, 0);
 						newpage = oldpage;
 					}
 
@@ -1027,7 +1028,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		});
 		
         // Set the touch listener for the main view to be our custom gesture listener
-        textContent.setOnTouchListener(new View.OnTouchListener() {
+        scrollview.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent ev) {
 					return gestureDetector.onTouchEvent(ev);
 
@@ -1052,26 +1053,30 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
     class MyGestureDetector extends SimpleOnGestureListener {
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			//super.onFling(e1, e2, velocityX,velocityY);
-			textContent.clearFocus();
 			Log.i("Tipitaka", "flinging");
-            if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
-                return false;
-            }
+			if(textContent.getVisibility() != TextView.VISIBLE) {
+				Log.i("Tipitaka", "tv invisible");
+				return false;
+			}
 
-            Log.i("Tipitaka", "on path");
-			//~ DisplayMetrics displaymetrics = new DisplayMetrics();
-			//~ getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-			//~ int width = displaymetrics.widthPixels;
+			Log.i("Tipitaka", "fing velocity: "+velocityX+" "+velocityY);
 
+			boolean left = false;
+			boolean right = false;
+			if (velocityX == 8000 && Math.abs(velocityY) < 4000)
+				left = true;
+			else if (velocityX == -8000 && Math.abs(velocityY) < 4000)
+				right = true;
 
-            if(e1.getX() - e2.getX() > SWIPE_MIN_LENGTH && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+			textContent.clearFocus();
+
+            if(right) {
 				Log.i("Tipitaka", "left to right");
 			// left to right swipe
 				readNext();
 				return true;
             }  
-            else if (e2.getX() - e1.getX() > SWIPE_MIN_LENGTH && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+            else if (left) {
 				Log.i("Tipitaka", "right to left");
             // right to left swipe
 				readBack();
@@ -1082,7 +1087,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				//~ );
 				return true;
             }
-			return false;
+			return super.onFling(e1, e2, velocityX, velocityY);
         }
  
         @Override
@@ -1094,7 +1099,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-			return true;
+			return super.onScroll(e1, e2, distanceX, distanceY);
         }
         @Override
         public void onLongPress(MotionEvent e) {
@@ -1110,7 +1115,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		//~ //Log.i("Tipitaka","Action: "+Integer.toString(action));
 		//~ return gestureDetector.onTouchEvent(ev);
 	//~ }
-
 
 
 	@Override
