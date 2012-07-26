@@ -122,7 +122,7 @@ public class SelectBookActivity extends Activity {
     }
     
     // copy from http://www.androidsnippets.org/snippets/193/index.html
-    private void downloadFile(String urlText, String fileName) {
+    private void downloadFile(String urlText, final String fileName) {
     	try {    		
     		//set the download URL, a url that points to a file on the internet
     		//this is the file to be downloaded
@@ -135,38 +135,39 @@ public class SelectBookActivity extends Activity {
     		urlConnection.setRequestMethod("GET");
     		urlConnection.setDoOutput(true);
 
-    		//and connect!
-    		urlConnection.connect();
-
-    		//set the path where we want to save the file
-    		//in this case, going to save it on the root directory of the
-    		//sd card.
-    		final File SDCardRoot = Environment.getExternalStorageDirectory();
-    		//create a new file, specifying the path, and the filename
-    		//which we want to save the file as.
-    		final File file = new File(SDCardRoot,fileName);
-    		final String savedFileName = fileName;
-
-
-    		//this will be used in reading the data from the internet
-    		final InputStream inputStream = urlConnection.getInputStream();
-    		//this is the total size of the file
-    		totalDowloadSize = urlConnection.getContentLength();
-    		//variable to store total downloaded bytes
-    		downloadedSize = 0;
-
             downloadProgressDialog = new ProgressDialog(SelectBookActivity.this);
             downloadProgressDialog.setCancelable(false);
             downloadProgressDialog.setMessage(getString(R.string.downloading));
             downloadProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             downloadProgressDialog.setProgress(0);
-            downloadProgressDialog.setMax(totalDowloadSize);
     		
     		Thread thread = new Thread(new Runnable() {
 				@Override
 				public void run() {
 					try {					
-			    		//this will be used to write the downloaded data into the file we created
+			    		//and connect!
+			    		urlConnection.connect();
+
+			    		//set the path where we want to save the file
+			    		//in this case, going to save it on the root directory of the
+			    		//sd card.
+			    		final File SDCardRoot = Environment.getExternalStorageDirectory();
+			    		//create a new file, specifying the path, and the filename
+			    		//which we want to save the file as.
+			    		final File file = new File(SDCardRoot,fileName);
+			    		final String savedFileName = fileName;
+
+
+			    		//this will be used in reading the data from the internet
+			    		final InputStream inputStream = urlConnection.getInputStream();
+			    		//this is the total size of the file
+			    		totalDowloadSize = urlConnection.getContentLength();
+			    		//variable to store total downloaded bytes
+			    		downloadedSize = 0;
+
+			            downloadProgressDialog.setMax(totalDowloadSize);
+			            
+						//this will be used to write the downloaded data into the file we created
 			    		FileOutputStream fileOutput = new FileOutputStream(file);    		
 			    		//create a buffer...
 			    		byte[] buffer = new byte[1024];
