@@ -57,7 +57,8 @@ public class SelectBookActivity extends Activity {
     private Gallery gCate; //= (Gallery) findViewById(R.id.gallery_cate);
     private Gallery gNCate;// = (Gallery) findViewById(R.id.gallery_ncate);
     private Gallery gHier;
-    private SharedPreferences prefs;  
+
+	private SharedPreferences prefs;  
     private SearchHistoryDBAdapter searchHistoryDBAdapter;
     private BookmarkDBAdapter bookmarkDBAdapter;
     private ProgressDialog downloadProgressDialog;
@@ -460,11 +461,6 @@ public class SelectBookActivity extends Activity {
 	protected void onRestart() {
 		super.onRestart();
 		//changeHeader();
-        int pos1 = 0;      
-        gCate.setSelection(pos1);
-		gCate.refreshDrawableState();
-		gNCate.refreshDrawableState();
-		gHier.refreshDrawableState();
 		if(searchDialog != null) {
 			searchDialog.updateHistoryList();
 		}
@@ -473,12 +469,6 @@ public class SelectBookActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		//changeHeader();
-        //int pos1 = prefs.getInt("Position1", 0);
-        //int pos2= prefs.getInt("Position2", 0);        
-        //gCate.setSelection(pos1);
-        //gNCate.setSelection(pos2);
-		
 	}
 	
 	@Override
@@ -542,9 +532,9 @@ public class SelectBookActivity extends Activity {
         final String[] t_book = res.getStringArray(R.array.thaibook);
        
         gCate.setOnItemSelectedListener(new OnItemSelectedListener() {
+
 			@Override
 			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-
 				selectedCate = arg2+1;
 				
 				int[] ncate = ncate0;
@@ -624,7 +614,7 @@ public class SelectBookActivity extends Activity {
 
 			@Override
 			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				String[] bookIA = res.getStringArray(R.array.vin_m_list);
+	        	String[] bookIA = res.getStringArray(R.array.vin_m_list);
 				switch(selectedCate) {
 					case 1:
 						switch(hierC) {
@@ -740,10 +730,6 @@ public class SelectBookActivity extends Activity {
 			}
         	
         });
-        
-        int pos1 = 0;      
-        gCate.setSelection(pos1);
-        
     }
 
 }

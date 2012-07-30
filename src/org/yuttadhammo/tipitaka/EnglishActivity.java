@@ -40,7 +40,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 import android.widget.Button;
-import android.widget.Gallery;
 import android.widget.TextView;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -619,12 +618,14 @@ public class EnglishActivity extends Activity {
 	
 	@Override
 	public void onDestroy() {
-		zoomPref.edit().putFloat("english_zoom", ewv.getScale()).commit();
+		if(zoomPref != null)
+			zoomPref.edit().putFloat("english_zoom", ewv.getScale()).commit();
 		super.onDestroy();
 	}
 	@Override
 	public void onPause(){
-		zoomPref.edit().putFloat("english_zoom", ewv.getScale()).commit();
+		if(zoomPref != null)
+			zoomPref.edit().putFloat("english_zoom", ewv.getScale()).commit();
 		super.onPause();
 	}
 	

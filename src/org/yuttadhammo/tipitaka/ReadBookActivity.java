@@ -833,6 +833,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				}
 
 				// hide index
+				idxBtn.setImageResource(R.drawable.logo_grey);
 				idxList.setVisibility(View.INVISIBLE);
 				scrollview.setVisibility(View.VISIBLE);			
 				
