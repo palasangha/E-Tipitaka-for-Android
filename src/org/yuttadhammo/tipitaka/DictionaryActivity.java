@@ -2,11 +2,13 @@
 package org.yuttadhammo.tipitaka;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -24,9 +26,91 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 
 
-public class cped extends Activity {
+public class DictionaryActivity extends Activity {
 	//private DBHelper dbh;
 	private MainTipitakaDBAdapter db;
+
+	private static final String	HTML_KEY	= "html";
+	
+	static final String LOOKUP_TEXT_IS_FOCUSED_KEY = "lookup_textisFocused";
+
+	private static final String	LOOKUP_TEXT_KEY	= "lookup_text";
+
+	private static final String	WORD_KEY	= "word";
+	
+	private static final String	DICT_KEY	= "dict";  // 0 = CPED, 1 = DPPN, 2 = PED
+	
+	private static final String[] DICT_ARRAY = {"PED","CPED","CEPD","DPPN"};  // 0 = CPED, 1 = DPPN, 2 = PED
+	private static final String[] DICT_ARRAY_FULL = {"Full Pali-English","Concise Pali-English","Concise English-Pali","Pali Proper Names"};  // 0 = CPED, 1 = DPPN, 2 = PED
+	private static final String[] TABLE_ARRAY = {"ped","cped","cepd","dppn"};  // 0 = CPED, 1 = DPPN, 2 = PED
+	
+	private int dict = 0;  // 0 = CPED, 1 = DPPN, 2 = PED
+
+	private String html, word;
+	private TextView lookup_text;
+	private Button lookup_button;
+	
+	private SharedPreferences prefs;
+	private WebView wv;
+
+	
+	@Override
+	public void onCreate (Bundle savedInstanceState) {
+		super.onCreate (savedInstanceState);
+
+		setContentView (R.layout.cped);
+		prefs = getPreferences (MODE_PRIVATE);
+		
+		wv            = (WebView) findViewById (R.id.webview);
+		wv.getSettings().setBuiltInZoomControls(true);
+		wv.getSettings().setSupportZoom(true);
+		
+		lookup_text   = (TextView) findViewById (R.id.lookup_text);
+		lookup_button = (Button) findViewById (R.id.lookup_button);
+		
+		dict = prefs.getInt (DICT_KEY, 0); // default to PED
+
+		word = prefs.getString (WORD_KEY, "");
+		setTitleWithMessage (word);
+		
+		String text = prefs.getString (LOOKUP_TEXT_KEY, "");
+		//lookup_text.setText (text);
+		lookup_text.setOnKeyListener (new LookupTextKeyListener ());
+		if (prefs.getBoolean (LOOKUP_TEXT_IS_FOCUSED_KEY, true)) {
+			lookup_text.requestFocus ();
+		} else {
+			wv.requestFocus ();
+		}
+		
+		lookup_button.setOnClickListener (new LookupButtonClickListener ());
+		
+
+
+		displayWebViewHtml (
+			prefs.getString (HTML_KEY, loadResToString (R.raw.index))
+		);
+			
+	}
+	
+	
+	private void displayLoadingPage () {
+		displayWebViewHtml (loadResToString (R.raw.searching));
+		setTitleWithMessage (null);
+	}
+	
+	private void displayResult (String word, String htmlout ) {
+		
+		displayWebViewHtml (htmlout);
+		//lookup_text.setText (word);
+		setTitleWithMessage (word);
+		wv.requestFocus ();
+	}
+	
+	private void displayWebViewHtml (String html) {
+		this.html = html;
+    	wv.loadDataWithBaseURL ("", html, null, "utf-8", null);
+	}
+
 
 	private class LookupButtonClickListener implements OnClickListener {
 		@Override
@@ -38,17 +122,10 @@ public class cped extends Activity {
 	private class MenuButtonClickListener implements OnClickListener {
 		@Override
 		public void onClick (View v) {
-			cped.this.openOptionsMenu();
+			DictionaryActivity.this.openOptionsMenu();
 		}
 	}
 	
-	private class TopButtonClickListener implements OnClickListener {
-		@Override
-		public void onClick (View v) {
-			wv.scrollTo(0,0);
-		}
-	}
-
 	private class LookupTextKeyListener implements OnKeyListener {
 		@Override
 		public boolean onKey (View view, int keyCode, KeyEvent event) {
@@ -67,7 +144,7 @@ public class cped extends Activity {
 			int read;
 			byte[] buffer = new byte[4096];
 			ByteArrayOutputStream baos = new ByteArrayOutputStream ();
-			InputStream is = cped.this.getResources ().openRawResource (resId);
+			InputStream is = DictionaryActivity.this.getResources ().openRawResource (resId);
 
 			while (0 < (read = is.read (buffer))) {
 				baos.write (buffer, 0, read);
@@ -87,53 +164,6 @@ public class cped extends Activity {
 		}
 	}
 
-	private static final String	HTML_KEY	= "html";
-	
-	static final String LOOKUP_TEXT_IS_FOCUSED_KEY = "lookup_textisFocused";
-
-	private static final String	LOOKUP_TEXT_KEY	= "lookup_text";
-
-	private static final String	WORD_KEY	= "word";
-	
-	private static final String	DICT_KEY	= "dict";  // 0 = CPED, 1 = DPPN, 2 = PED
-	
-	private static final String[] DICT_ARRAY = {"CPED","CEPD","DPPN","PED"};  // 0 = CPED, 1 = DPPN, 2 = PED
-	private static final String[] DICT_ARRAY_FULL = {"Concise Pali-English","Concise English-Pali","Pali Proper Names","Full Pali-English"};  // 0 = CPED, 1 = DPPN, 2 = PED
-	private static final String[] TABLE_ARRAY = {"cped","cepd","dppn","ped"};  // 0 = CPED, 1 = DPPN, 2 = PED
-	
-	private int dict = 0;  // 0 = CPED, 1 = DPPN, 2 = PED
-
-	private String html, word;
-	private TextView lookup_text;
-	private Button lookup_button;
-	private Button menu_button;
-	
-	private SharedPreferences prefs;
-	private WebView wv;
-	
-	private void displayLoadingPage () {
-		displayWebViewHtml (loadResToString (R.raw.searching));
-		setTitleWithMessage (null);
-	}
-	
-	private void displayResult (String word, String htmlout ) {
-		
-		displayWebViewHtml (htmlout);
-		lookup_text.setText (word);
-		setTitleWithMessage (word);
-		wv.requestFocus ();
-	}
-	
-	private void displayWebViewHtml (String html) {
-		this.html = html;
-    	wv.loadDataWithBaseURL ("", html, null, "utf-8", null);
-	}
-	
-	private void displayWordNotFound () {
-		displayWebViewHtml (loadResToString (R.raw.word_not_found));
-	}
-	
-	
 	
 	private void lookupWord () {
 		lookupWord (lookup_text.getText ().toString ());
@@ -144,6 +174,9 @@ public class cped extends Activity {
 		if ((this.word != null && this.word.equals (word)) || word == "") {
 			return;
 		}
+		word = word.replaceAll("ā", "aa").replaceAll("ī", "ii").replaceAll("ū", "uu").replaceAll("ṭ", ".t").replaceAll("ḍ", ".d").replaceAll("ṅ", "\"n").replaceAll("ṇ", ".n").replaceAll("[ṃṁ]", ".m").replaceAll("ñ", "~n").replaceAll("ḷ", ".l").replaceAll("Ā", "AA").replaceAll("Ī", "II").replaceAll("Ū", "UU").replaceAll("Ṭ", ".T").replaceAll("Ḍ", ".D").replaceAll("Ṅ", "\"N").replaceAll("Ṇ", ".N").replaceAll("[ṂṀ]",".M").replaceAll("Ñ", "~N").replaceAll("Ḷ", ".L");
+		
+		word = word.toLowerCase();
 		
 		this.word = word;
 		
@@ -182,7 +215,7 @@ public class cped extends Activity {
 			
 			raw +="<div style=\"font-weight:bold; font-size:125%; margin-bottom:24px; font-family:verajjab\">"+count+" results for "+this.word+" in "+DICT_ARRAY[dict]+":</div><hr/>";
 			
-			if(dict > 1) {
+			if(dict == 0 || dict == 3) {
 				raw += "<table width=\"100%\"><tr><td valign=\"top\"><table>";
 				
 				idx=0;
@@ -196,10 +229,10 @@ public class cped extends Activity {
 			idx=0;
 			while(idx<entries.length) {
 				String thisText = texts[idx];
-				if(dict == 2) { // fudge for DPPN colors
+				if(dict == 3) { // fudge for DPPN colors
 					thisText = thisText.replaceAll("^([^<]*<[^>]*)>","$1 style='color:#5A5;font-family:verajjab'>");
 				}
-				raw+= (dict < 2?"<b style=\"color:#5A5;font-family:verajjab\">"+entries[idx]+"</b>: ":"<a name=\""+entries[idx]+"\">")+thisText+(dict < 2?"<br/>":"<hr/>");
+				raw+= ((dict == 1 || dict == 2)?"<b style=\"color:#5A5;font-family:verajjab\">"+entries[idx]+"</b>: ":"<a name=\""+entries[idx]+"\">")+thisText+((dict == 1 || dict == 2)?"<br/>":"<hr/>");
 				idx++;
 			}
 			
@@ -214,133 +247,69 @@ public class cped extends Activity {
 			return html;
 		}
     }
-	
-	@Override
-	public void onCreate (Bundle savedInstanceState) {
-		super.onCreate (savedInstanceState);
 
-		setContentView (R.layout.cped);
-		prefs = getPreferences (MODE_PRIVATE);
-		
-		wv            = (WebView) findViewById (R.id.webview);
-
-		//wv.getSettings().setBuiltInZoomControls(true);
-		//wv.getSettings().setSupportZoom(true);
-		
-		// pinch zoom
-		
-		//~ int api = Integer.parseInt(Build.VERSION.SDK);
-		//~ 
-		//~ if (api >= 11) {
-			//~ PackageManager pm = this.getPackageManager();
-			//~ boolean hasMultitouch = 
-				//~ pm.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH);
-			//~ if (hasMultitouch) {
-				//~ wv.getSettings().setBuiltInZoomControls(true);
-				//~ wv.getSettings().setDisplayZoomControls(false);
-			//~ } 
-		//~ }
-
-
-		lookup_text   = (TextView) findViewById (R.id.lookup_text);
-		lookup_button = (Button) findViewById (R.id.lookup_button);
-		menu_button = (Button) findViewById (R.id.menu_button);
-		
-		//lookup_text.setThreshold (4);
-		//lookup_text.setAdapter (new ArrayAdapter (this, R.layout.word_suggest_row, Words.WORDS));
-
-		word = prefs.getString (WORD_KEY, "");
-		setTitleWithMessage (word);
-
-		dict = prefs.getInt (DICT_KEY, 0); // default to CPED
-		
-		String text = prefs.getString (LOOKUP_TEXT_KEY, "");
-		lookup_text.setText (text);
-		lookup_text.setOnKeyListener (new LookupTextKeyListener ());
-		if (prefs.getBoolean (LOOKUP_TEXT_IS_FOCUSED_KEY, true)) {
-			lookup_text.requestFocus ();
-		} else {
-			wv.requestFocus ();
-		}
-		
-		lookup_button.setOnClickListener (new LookupButtonClickListener ());
-		
-		menu_button.setOnClickListener (new MenuButtonClickListener ());
-		
-        //~ dbh = new DBHelper(this);
-        //~ dbh.openDataBase();		
-		//~ dbh.getWritableDatabase();
-		//db = dbh.getWritableDatabase();
-        //dbh.importData(db);
-
-		displayWebViewHtml (
-			prefs.getString (HTML_KEY, loadResToString (R.raw.index))
-		);
-
-		//~ String pass_query = this.getIntent().getStringExtra("QUERY");
-		//~ 
-		//~ if(pass_query != null) {
-			//~ lookup_text.setText(pass_query);
-			//~ lookupWord();
-		//~ }
-		
-			
-	}
-	
 	@Override
 	public boolean onCreateOptionsMenu (Menu menu) {
-		Menu sub = menu.addSubMenu(0,0,Menu.NONE,R.string.dict)
-			.setIcon (R.drawable.logo);
-
-		for (int idx = 0; idx < DICT_ARRAY_FULL.length; idx++) {
-			sub.add (1, idx, Menu.NONE, DICT_ARRAY_FULL[idx])
-						.setChecked(dict == idx);
-		}
-		sub.setGroupCheckable(1,true, true);
-		
-		menu.add (0, 1, Menu.NONE, R.string.top)
-			.setIcon (android.R.drawable.ic_menu_upload);
-		menu.add (0, 2, Menu.NONE, R.string.plus)
-			.setIcon (android.R.drawable.ic_menu_zoom);
-		menu.add (0, 3, Menu.NONE, R.string.minus)
-			.setIcon (android.R.drawable.ic_menu_search);
-
-		return super.onCreateOptionsMenu (menu);
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.cped_menu, menu);
+	    
+	    Menu sub = menu.findItem(R.id.menu_dict).getSubMenu();
+	    sub.setGroupCheckable(R.id.group_dict, true, true);
+		sub.getItem(dict).setChecked(true);
+	    
+	    return true;
 	}
 
 
 
 	@Override
 	public boolean onOptionsItemSelected (MenuItem item) {
-		
 		if(item.isCheckable()) {
 			item.setChecked(true);
 			SharedPreferences.Editor ed = prefs.edit ();
-			dict = item.getItemId();
+			switch(item.getItemId()) {
+		        case R.id.menu_PED:
+					dict = 0;
+					break;
+				case R.id.menu_CPED:
+					dict = 1;
+					break;
+				case R.id.menu_CEPD:
+					dict = 2;
+					break;
+				case R.id.menu_DPPN:
+					dict = 3;
+					break;
+
+			}
+			this.word = null;
 			ed.putInt (DICT_KEY, dict);
 			ed.commit ();
-		
-			//~ boolean three = Integer.parseInt(android.os.Build.VERSION.SDK) >= 11;
-		//~ 
-			//~ if(three) {
-				//~ 
-				//~ wrapThree wrap = new wrapThree();
-				//~ 
-				//~ //invalidateOptionsMenu();
-				//~ wrap.invalidate(this);
-			//~ }
+
 		}
 		else {
-			switch(item.getItemId()) {
-				case 1:
+			switch (item.getItemId()) {
+		        case android.R.id.home:
+		            // app icon in action bar clicked; go home
+		        	Intent intent = new Intent(this, SelectBookActivity.class);
+		            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		            startActivity(intent);
+		            return true;
+				case R.id.menu_english:
+					intent = new Intent(this, EnglishActivity.class);
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					startActivity(intent);
+					break;
+	
+				case R.id.menu_top:
 					wv.scrollTo(0,0);
 					break;
-				case 2:
+/*				case R.id.menu_plus:
 					wv.zoomIn();
 					break;
-				case 3:
+				case R.id.menu_minus:
 					wv.zoomOut();
-					break;
+					break;*/
 			}
 		}
 		

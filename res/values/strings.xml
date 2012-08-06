@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Android Pali Tipitaka</string>
+    <string name="app_name">Android Tipitaka</string>
     <string name="th_searching">Searching</string>
     <string name="th_found">Found in</string>
     <string name="collection">Collection</string>
@@ -18,9 +18,10 @@
     <string name="th_tipitaka_label">Tipitaka</string>
     <string name="th_tipitaka_book">Tipitaka Vol.</string>
     <string name="search_hint">Enter search term</string>
-    <string name="read_page">Read the Tipitaka</string>
-    <string name="english_page">English Tipitaka</string>
-    <string name="search_page">Search Results</string>
+    <string name="read_page">Android Tipitaka - Reading</string>
+    <string name="english_page">Android Tipitaka - ATI</string>
+    <string name="search_page">Android Tipitaka - Search Results</string>
+    <string name="search_dialog">Android Tipitaka - Search</string>
     <string name="not_found">Term not found</string>
     <string name="goto_page">Go to section</string>
     <string name="goto_item">Go to paragraph</string>
@@ -184,6 +185,15 @@
     <string name="minus">Zoom Out</string>
     <string name="plus">Zoom In</string>
 
+	<string name="index">Index</string>
+
+	<string name="prefText">Text Preferences</string>
+	<string name="prefBaseSize">Tipitaka Font Size</string>
+		
+    <string name="PED">Full Pali-English</string>
+    <string name="CPED">Concise Pali-English</string>
+    <string name="CEPD">Concise English-Pali</string>
+    <string name="DPPN">Pali Proper Names</string>
 
     <string name="text_paused_cellular">Would you like to enable downloading over cellular connections? Depending on your data plan, this may cost you money.</string>
     <string name="text_paused_cellular_2">If you choose not to enable downloading over cellular connections, the download will automatically resume when wi-fi is available.</string>

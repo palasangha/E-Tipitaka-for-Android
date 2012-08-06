@@ -28,6 +28,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -51,6 +52,7 @@ import android.webkit.WebViewClient;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -74,9 +76,77 @@ public class EnglishActivity extends Activity {
     private ProgressDialog downloadProgressDialog;
     private ProgressDialog unzipProgressDialog;
 	private Handler handler = new Handler();
-    private int totalDowloadSize;
+    private int totalDownloadSize;
     private int downloadedSize;
     public WebView ewv;
+
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate (savedInstanceState);
+
+        zoomPref = getSharedPreferences("english_zoom", MODE_PRIVATE);
+		
+		if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+			Log.d("Tipitaka", "No SDCARD");
+			return;
+		}
+
+
+		File file = new File(Environment.getExternalStorageDirectory(), "ati_website/start.html" );
+		if (!file.exists()) {
+			file = new File(Environment.getExternalStorageDirectory(), "ATI.zip" );
+			if (file.exists()) {
+				uncompressFile("ATI.zip");
+			}
+			else {
+				startDownloader(true);
+			}
+			return;
+		}
+		//replaceCSS(); manual replace
+		showActivity();
+
+	}
+
+	public void showActivity() {
+        english =  View.inflate(this, R.layout.english, null);
+
+        ewv  = (WebView) english.findViewById(R.id.ewv);
+
+        ewv.getSettings().setJavaScriptEnabled(true); // enable javascript
+
+		//Log.i("Tipitaka","Loading URL: file://"+Environment.getExternalStorageDirectory()+"/ati_website/start.html");
+
+        ewv.setWebViewClient(new MyWebViewClient());
+
+		ewv.getSettings().setBuiltInZoomControls(true);
+		ewv.getSettings().setSupportZoom(true);
+		
+		String url = "file://"+Environment.getExternalStorageDirectory()+"/ati_website/html/index.html";
+
+		if(this.getIntent().getExtras() != null) {
+			Bundle dataBundle = this.getIntent().getExtras();
+			url = dataBundle.getString("url");
+		}
+
+        zoom = zoomPref.getFloat("english_zoom", 1f);
+		
+		//Log.d("Tipitaka", "Initial Zoom"+zoom);
+        
+        ewv.setInitialScale((int)(100*zoom));
+		
+		ewv.loadUrl(url);
+		
+		//~ ewv.loadDataWithBaseURL("", 
+            //~ htmlContent, 
+            //~ "text/html", 
+            //~ "utf-8", 
+            //~ null);
+        setContentView(english);
+		ebookmarkDBAdapter = new eBookmarkDBAdapter(this);
+	}
+
     
     
     // copy from http://www.chrisdadswell.co.uk/android-coding-example-checking-for-the-presence-of-an-internet-connection-on-an-android-device/
@@ -129,116 +199,129 @@ public class EnglishActivity extends Activity {
     }
     
     // copy from http://www.androidsnippets.org/snippets/193/index.html
-    private void downloadFile(String urlText, final String fileName) {
-    	try {    		
-			String bulk = getUrlContent(urlText);
-			
-			//what we need: http://www.accesstoinsight.org/tech/download/bulk/ati-2012.05.18.17.zip
-			//what we search for: URL=ati-2012.05.18.17.zip"
-    		
-    		bulk = bulk.replaceAll("[\n\r]","");
-    		String version = bulk.replaceAll(".*URL=([-a-z0-9.]*\\.zip).*","$1");
+    private void downloadFile(final String bulk, final String fileName) {
+        downloadProgressDialog = new ProgressDialog(EnglishActivity.this);
+        downloadProgressDialog.setCancelable(false);
+        downloadProgressDialog.setMessage(getString(R.string.downloading));
+        downloadProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        downloadProgressDialog.setProgress(0);
+		
+		Thread thread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {					
+					//what we need: http://www.accesstoinsight.org/tech/download/bulk/ati-2012.05.18.17.zip
+					//what we search for: URL=ati-2012.05.18.17.zip"
 
-    		Log.i("Tipitaka","File to download: "+version);
+			         // Create client and set our specific user-agent string
+			         HttpClient client = new DefaultHttpClient();
+			         HttpGet request = new HttpGet(bulk);
+			    	 HttpResponse response = client.execute(request);	    	 
+		            // Check if server response is valid
+		            StatusLine status = response.getStatusLine();
+		            if (status.getStatusCode() != HTTP_STATUS_OK) {
+						downloadProgressDialog.dismiss();
+						showDownloadError();
+						return;
+		            }
 
-			urlText = urlText.replace("bulk.html",version);
-    		
-    		Log.i("Tipitaka","Downloading "+urlText);
+		            // Pull content stream from response
+		            HttpEntity entity = response.getEntity();
+		            InputStream inputStream = entity.getContent();
 
-    		//set the download URL, a url that points to a file on the internet
-    		//this is the file to be downloaded
-    		final URL url = new URL(urlText);
+		            ByteArrayOutputStream content = new ByteArrayOutputStream();
 
-    		//create the new connection
-    		final HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+		            // Read response into a buffered stream
+		            int readBytes = 0;
+		            while ((readBytes = inputStream.read(sBuffer)) != -1) {
+		                content.write(sBuffer, 0, readBytes);
+		            }
+		            //rename to actual url
+		            String contentString = content.toString();
+		    		contentString = contentString.replaceAll("[\n\r]","");
+		    		String version = contentString.replaceAll(".*URL=([-a-z0-9.]*\\.zip).*","$1");
 
-    		//set up some things on the connection
-    		urlConnection.setRequestMethod("GET");
-    		urlConnection.setDoOutput(true);
+		    		Log.i("Tipitaka","File to download: "+version);
 
-            downloadProgressDialog = new ProgressDialog(EnglishActivity.this);
-            downloadProgressDialog.setCancelable(false);
-            downloadProgressDialog.setMessage(getString(R.string.downloading));
-            downloadProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            downloadProgressDialog.setProgress(0);
-    		
-    		Thread thread = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {					
-			    		//and connect!
-			    		urlConnection.connect();
+					String urlText = bulk.replace("bulk.html",version);
+		    		
+		    		Log.i("Tipitaka","Downloading "+urlText);
 
-			    		//set the path where we want to save the file
-			    		//in this case, going to save it on the root directory of the
-			    		//sd card.
-			    		final File SDCardRoot = Environment.getExternalStorageDirectory();
-			    		//create a new file, specifying the path, and the filename
-			    		//which we want to save the file as.
-			    		final File file = new File(SDCardRoot,fileName);
-			    		final String savedFileName = fileName;
+		    		//set the download URL, a url that points to a file on the internet
+		    		//this is the file to be downloaded
+		    		final URL url = new URL(urlText);
+
+		    		//create the new connection
+		    		final HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+
+		    		//set up some things on the connection
+		    		urlConnection.setRequestMethod("GET");
+		    		urlConnection.setDoOutput(true);
+		    		
+					//and connect!
+		    		urlConnection.connect();
+
+		    		//set the path where we want to save the file
+		    		//in this case, going to save it on the root directory of the
+		    		//sd card.
+		    		final File SDCardRoot = Environment.getExternalStorageDirectory();
+		    		//create a new file, specifying the path, and the filename
+		    		//which we want to save the file as.
+		    		final File file = new File(SDCardRoot,fileName);
+		    		final String savedFileName = fileName;
 
 
-			    		//this will be used in reading the data from the internet
-			    		final InputStream inputStream = urlConnection.getInputStream();
-			    		//this is the total size of the file
-			    		totalDowloadSize = urlConnection.getContentLength();
-			    		//variable to store total downloaded bytes
-			    		downloadedSize = 0;
+		    		//this will be used in reading the data from the internet
+		    		final InputStream inputStream1 = urlConnection.getInputStream();
+		    		//this is the total size of the file
+		    		totalDownloadSize = urlConnection.getContentLength();
+		    		//variable to store total downloaded bytes
+		    		downloadedSize = 0;
 
-			            downloadProgressDialog.setMax(totalDowloadSize);
-			            
-						//this will be used to write the downloaded data into the file we created
-			    		FileOutputStream fileOutput = new FileOutputStream(file);    		
-			    		//create a buffer...
-			    		byte[] buffer = new byte[1024];
-			    		int bufferLength = 0; //used to store a temporary size of the buffer
-			    		//now, read through the input buffer and write the contents to the file
-			    		while ( (bufferLength = inputStream.read(buffer)) > 0 ) {
-			    			//add the data in the buffer to the file in the file output stream (the file on the sd card
-			    			fileOutput.write(buffer, 0, bufferLength);
-			    			//add up the size so we know how much is downloaded
-			    			downloadedSize += bufferLength;
-			    			//this is where you would do something to report the prgress, like this maybe
-			    			//updateProgress(downloadedSize, totalSize);
-			    			handler.post(new Runnable() {
-								@Override
-								public void run() {
-									if(downloadedSize < totalDowloadSize) {
-										downloadProgressDialog.setProgress(downloadedSize);
-									} else {
-										if(downloadProgressDialog.isShowing()) {
-											downloadProgressDialog.setProgress(totalDowloadSize);
-											downloadProgressDialog.setMessage(getString(R.string.finish));
-											downloadProgressDialog.dismiss();
-											//start uncompress the zip file
-											uncompressFile(savedFileName);
-										}
+		            downloadProgressDialog.setMax(totalDownloadSize);
+		            
+					//this will be used to write the downloaded data into the file we created
+		    		FileOutputStream fileOutput = new FileOutputStream(file);    		
+		    		//create a buffer...
+		    		byte[] buffer = new byte[1024];
+		    		int bufferLength = 0; //used to store a temporary size of the buffer
+		    		//now, read through the input buffer and write the contents to the file
+		    		while ( (bufferLength = inputStream1.read(buffer)) > 0 ) {
+		    			//add the data in the buffer to the file in the file output stream (the file on the sd card
+		    			fileOutput.write(buffer, 0, bufferLength);
+		    			//add up the size so we know how much is downloaded
+		    			downloadedSize += bufferLength;
+		    			//this is where you would do something to report the prgress, like this maybe
+		    			//updateProgress(downloadedSize, totalSize);
+
+		    			handler.post(new Runnable() {
+							@Override
+							public void run() {
+								if(downloadedSize < totalDownloadSize) {
+									downloadProgressDialog.setProgress(downloadedSize);
+								} else {
+									if(downloadProgressDialog.isShowing()) {
+										downloadProgressDialog.setProgress(totalDownloadSize);
+										downloadProgressDialog.setMessage(getString(R.string.finish));
+										downloadProgressDialog.dismiss();
+										//start uncompress the zip file
+										uncompressFile(savedFileName);
 									}
 								}
-							});
-	
-			    		}
-			    		//close the output stream when done
-			    		fileOutput.close();
-					} catch (IOException e) {
-			    		Toast.makeText(EnglishActivity.this, e.toString(), Toast.LENGTH_LONG).show();
-			    		//e.printStackTrace();
-			    	}    	
-					
-				}
-			});
-    		thread.start();
-    		downloadProgressDialog.show();
+							}
+						});
 
-    	//catch some possible errors...
-    	} catch (MalformedURLException e) {
-    		Toast.makeText(EnglishActivity.this, e.toString(), Toast.LENGTH_LONG).show();
-    		//e.printStackTrace();
-    	} catch (IOException e) {
-    		Toast.makeText(EnglishActivity.this, e.toString(), Toast.LENGTH_LONG).show();
-    		//e.printStackTrace();
-    	}    	
+		    		}
+		    		//close the output stream when done
+		    		fileOutput.close();
+				} catch (IOException e) {
+		    		e.printStackTrace();
+		    	}    	
+				
+			}
+		});
+		thread.start();
+		downloadProgressDialog.show();
     }
     
     
@@ -316,40 +399,20 @@ public class EnglishActivity extends Activity {
     	builder.show();
 	}
 
-    private String getUrlContent(String url) {
-
-        // Create client and set our specific user-agent string
-        HttpClient client = new DefaultHttpClient();
-        HttpGet request = new HttpGet(url);
-
-        try {
-            HttpResponse response = client.execute(request);
-
-            // Check if server response is valid
-            StatusLine status = response.getStatusLine();
-            if (status.getStatusCode() != HTTP_STATUS_OK) {
-				return null;
-            }
-
-            // Pull content stream from response
-            HttpEntity entity = response.getEntity();
-            InputStream inputStream = entity.getContent();
-
-            ByteArrayOutputStream content = new ByteArrayOutputStream();
-
-            // Read response into a buffered stream
-            int readBytes = 0;
-            while ((readBytes = inputStream.read(sBuffer)) != -1) {
-                content.write(sBuffer, 0, readBytes);
-            }
-
-            // Return result from buffered stream
-            return new String(content.toByteArray());
-        } catch (IOException e) {
-			return null;
-        }
-    }
-
+	private void showDownloadError(){
+		AlertDialog.Builder builder = new AlertDialog.Builder(EnglishActivity.this);
+		builder.setTitle(getString(R.string.internet_not_connected));
+		builder.setMessage(getString(R.string.check_your_connection));
+		builder.setCancelable(false);
+		builder.setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				finish();
+			}
+		});
+		builder.show();
+	}
+	
 	private void memoItem() {
 
 		final Dialog memoDialog = new Dialog(EnglishActivity.this);
@@ -372,17 +435,7 @@ public class EnglishActivity extends Activity {
 		});
 		
 		memoDialog.setCancelable(true);
-		//~ String title1 = "";
-		//~ if(lang.equals("thai")) {
-			//~ title1 = getString(R.string.th_tipitaka_label) + " " + getString(R.string.th_lang);
-		//~ } else if(language.equals("pali")) {
-			//~ title1 = getString(R.string.th_tipitaka_label) + " " + getString(R.string.pl_lang);
-		//~ }
-		//~ TextView sub_title = (TextView)memoDialog.findViewById(R.id.memo_sub_title);
-		//~ String title2 = getString(R.string.th_book_label) + " " + Utils.arabic2thai(Integer.toString(volume), getResources());
-		//~ title2 = title2 + " " + getString(R.string.th_page_label) + " " + Utils.arabic2thai(Integer.toString(page), getResources());
-		//~ title2 = title2 + " " + getString(R.string.th_items_label) + " " + Utils.arabic2thai(Integer.toString(item), getResources());
-		//~ sub_title.setText(title2);
+
 		memoDialog.setTitle(getString(R.string.memoTitle));
 		memoDialog.show();
 	}
@@ -393,6 +446,12 @@ public class EnglishActivity extends Activity {
 		super.onOptionsItemSelected(item);	
 		Intent intent;
 		switch (item.getItemId()) {
+	        case android.R.id.home:
+	            // app icon in action bar clicked; go home
+	            intent = new Intent(this, SelectBookActivity.class);
+	            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+	            startActivity(intent);
+	            return true;
 			case (int)R.id.pali:
 				intent = new Intent(this, SelectBookActivity.class);
 				startActivity(intent);	
@@ -412,7 +471,7 @@ public class EnglishActivity extends Activity {
 				startDownloader(false);
 				break;
 			case (int)R.id.dict_menu_item:
-				intent = new Intent(this, cped.class);
+				intent = new Intent(this, DictionaryActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				break;
@@ -441,6 +500,8 @@ public class EnglishActivity extends Activity {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
+		if(ewv == null)
+			return true;
 		MenuItem forward = (MenuItem) menu.findItem(R.id.forward);
 		if (!ewv.canGoForward())
 			forward.setVisible(false);
@@ -513,73 +574,6 @@ public class EnglishActivity extends Activity {
 		return text;
 	}
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate (savedInstanceState);
-
-		if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-			Log.d("Tipitaka", "No SDCARD");
-			return;
-		}
-
-
-		File file = new File(Environment.getExternalStorageDirectory(), "ati_website/start.html" );
-		if (!file.exists()) {
-			file = new File(Environment.getExternalStorageDirectory(), "ATI.zip" );
-			if (file.exists()) {
-				uncompressFile("ATI.zip");
-			}
-			else {
-				startDownloader(true);
-			}
-			return;
-		}
-		//replaceCSS(); manual replace
-		showActivity();
-
-	}
-
-	public void showActivity() {
-        english =  View.inflate(this, R.layout.english, null);
-
-        ewv  = (WebView) english.findViewById(R.id.ewv);
-
-        ewv.getSettings().setJavaScriptEnabled(true); // enable javascript
-
-		
-
-		//Log.i("Tipitaka","Loading URL: file://"+Environment.getExternalStorageDirectory()+"/ati_website/start.html");
-
-        ewv.setWebViewClient(new MyWebViewClient());
-
-		ewv.getSettings().setBuiltInZoomControls(true);
-		ewv.getSettings().setSupportZoom(true);
-		
-		String url = "file://"+Environment.getExternalStorageDirectory()+"/ati_website/html/index.html";
-
-		if(this.getIntent().getExtras() != null) {
-			Bundle dataBundle = this.getIntent().getExtras();
-			url = dataBundle.getString("url");
-		}
-
-        zoomPref = getSharedPreferences("english_zoom", MODE_PRIVATE);
-        zoom = zoomPref.getFloat("english_zoom", 1f);
-		
-		Log.d("Tipitaka", "Initial Zoom"+zoom);
-        
-        ewv.setInitialScale((int)(100*zoom));
-		
-		ewv.loadUrl(url);
-		
-		//~ ewv.loadDataWithBaseURL("", 
-            //~ htmlContent, 
-            //~ "text/html", 
-            //~ "utf-8", 
-            //~ null);
-        setContentView(english);
-		ebookmarkDBAdapter = new eBookmarkDBAdapter(this);
-	}
-
 	public String lastTitle;
 	public String lastUrl;
 	
@@ -618,13 +612,13 @@ public class EnglishActivity extends Activity {
 	
 	@Override
 	public void onDestroy() {
-		if(zoomPref != null)
+		if(zoomPref != null && ewv != null)
 			zoomPref.edit().putFloat("english_zoom", ewv.getScale()).commit();
 		super.onDestroy();
 	}
 	@Override
 	public void onPause(){
-		if(zoomPref != null)
+		if(zoomPref != null && ewv != null)
 			zoomPref.edit().putFloat("english_zoom", ewv.getScale()).commit();
 		super.onPause();
 	}

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<PreferenceCategory android:title="@string/prefText">
+   		<EditTextPreference android:key="base_text_size"
+						android:title="@string/prefBaseSize"
+						android:shouldDisableView="true"
+						android:singleLine="true"/>
+    </PreferenceCategory>	                        
+</PreferenceScreen>

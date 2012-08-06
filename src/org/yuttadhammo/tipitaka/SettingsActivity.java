@@ -1,34 +1,46 @@
 package org.yuttadhammo.tipitaka;
 
-import android.content.SharedPreferences;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.app.Activity;
+
+import android.content.Context;
+
 import android.os.Bundle;
 
-public class SettingsActivity extends Activity {
-	private SharedPreferences sizePref;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.settings);
-        setTitle("Android Tipitaka: Settings");
-        final EditText settings_text = (EditText) SettingsActivity.this.findViewById(R.id.settings_text_edit);
+import android.preference.EditTextPreference;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.Preference.OnPreferenceChangeListener;
+import android.text.InputType;
+import android.widget.Toast;
 
-        sizePref = getSharedPreferences("size", MODE_PRIVATE);
-        String size = sizePref.getString("size", "16");
-        settings_text.setText(size);
-        
-        Button saveButton = (Button)this.findViewById(R.id.save_pref_btn);
 
-        saveButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				sizePref.edit().putString("size", settings_text.getText().toString()).commit();
-				finish();
+public class SettingsActivity extends PreferenceActivity {
+	
+	private Context context;
+	private Activity activity;
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		
+		super.onCreate(savedInstanceState);
+		
+		this.context = getApplicationContext();
+		this.activity = this;
+		addPreferencesFromResource(R.xml.preferences);
+		final EditTextPreference pref = (EditTextPreference)findPreference("base_text_size");
+		pref.getEditText().setInputType(InputType.TYPE_CLASS_NUMBER);
+		if(pref.getText() == "")
+			pref.setText("16");
+		pref.setSummary(pref.getText());
+		
+		pref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+
+			public boolean onPreferenceChange(Preference preference,
+					Object newValue) {
+				pref.setSummary((String)newValue);
+				return true;
 			}
+			
 		});
-    }
-
+	}
 }

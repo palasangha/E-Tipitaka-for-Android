@@ -104,6 +104,7 @@ public class SearchHistoryDBAdapter {
 				where, null, null, null, null).getCount();
 		
 		if(count > 0) {
+			Log.i("Tipitaka","duplicate history entry found");
 			return true;
 		} else {
 			return false;
@@ -144,7 +145,7 @@ public class SearchHistoryDBAdapter {
 	}	
 	
 	public Cursor getEntries(String _lang, String key, boolean isDesc) {
-		String where = KEY_LANG + "=" + "'" + _lang + "'";
+		String where = "";
 		String orderby;
 		if(isDesc) {
 			orderby = key + " DESC" + ", " + KEY_PRIORITY + " DESC";
@@ -154,11 +155,11 @@ public class SearchHistoryDBAdapter {
 		}
 		return db.query(DATABASE_TABLE, 
 				new String[] {KEY_ID, KEY_LANG, KEY_KEYWORDS, KEY_N_PAGE, KEY_N_SUT, KEY_SEL_CATE, KEY_LINE1, KEY_LINE2, KEY_FREQ, KEY_PRIORITY, KEY_CODE}, 
-				where, null, null, null, orderby);
+				null, null, null, null, orderby);
 	}		
 	
 	public Cursor getEntries(String _lang, String subText, String key, boolean isDesc) {
-		String where = KEY_LANG + " = " + "'" + _lang + "'" + " AND " + KEY_KEYWORDS + " LIKE " +  "'%" + subText + "%'";
+		String where = KEY_KEYWORDS + " LIKE " +  "'%" + subText + "%'";
 		String orderby;
 		if(isDesc) {
 			orderby = key + " DESC" + ", " + KEY_PRIORITY + " DESC";
@@ -172,8 +173,7 @@ public class SearchHistoryDBAdapter {
 	}
 
 	public Cursor getEntries(String _lang, String subText, String key, boolean isDesc, String code, String number) {
-		String where = KEY_LANG + " = " + "'" + _lang + "'" + 
-						" AND " + KEY_KEYWORDS + " LIKE " +  "'%" + subText + "%'" +
+		String where = KEY_KEYWORDS + " LIKE " +  "'%" + subText + "%'" +
 						" AND " + KEY_CODE + " LIKE " + "'" + code + "%'" +
 						" AND " + KEY_PRIORITY + " LIKE" + "'" + number + "%'";
 		String orderby;
@@ -190,8 +190,7 @@ public class SearchHistoryDBAdapter {
 	
 	
 	public Cursor getEntries(String _lang, String keywords, String sCate, String key, boolean isDesc) {
-		String where = KEY_LANG + "=" + "'" + _lang + "'" + 
-			" AND " + KEY_KEYWORDS + "=" + "'" + keywords + "'" +
+		String where = KEY_KEYWORDS + "=" + "'" + keywords + "'" +
 			" AND " + KEY_SEL_CATE + "=" + "'" + sCate + "'";
 		String orderby;
 		if(isDesc) {
@@ -222,6 +221,8 @@ public class SearchHistoryDBAdapter {
 	}
 	
 	public long insertEntry(SearchHistoryItem item) {
+		Log.i("Tipitaka","inserting history entry");
+		
 		ContentValues newValues = new ContentValues();
 		newValues.put(KEY_LANG, item.getLanguage());
 		newValues.put(KEY_KEYWORDS, item.getKeywords());

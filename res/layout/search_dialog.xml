@@ -4,18 +4,18 @@
 	android:layout_width="match_parent" 
 	android:layout_height="match_parent"
 	android:fillViewport="true"
+	android:orientation="vertical"
 	android:scrollbars="horizontal|vertical">
 	<ScrollView
-	  android:orientation="vertical"
 	  android:layout_width="match_parent"
 	  android:id="@+id/search_dialog_layout_shell_out" 
-	  android:layout_height="match_parent">
+	  android:layout_height="wrap_content">
 	  	<LinearLayout
 	  		android:layout_width="match_parent"
 	  		android:layout_height="wrap_content"
 	  		android:orientation="vertical"
 			android:id="@+id/search_dialog_layout_shell"
-		>
+			>
 			<RelativeLayout 
 				android:id="@+id/search_dialog_layout" 
 				android:layout_width="match_parent" 

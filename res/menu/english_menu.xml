@@ -9,6 +9,7 @@
 		  android:title="Forward" />
   	<item android:id="@+id/home"
   		  android:icon="@drawable/ic_menu_home"
+  		  android:showAsAction="ifRoom|withText" 
 		  android:title="Home" />
   	<item android:id="@+id/memo"
   		  android:icon="@drawable/ic_menu_save"

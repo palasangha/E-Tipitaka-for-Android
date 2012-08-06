@@ -14,7 +14,9 @@ import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -75,6 +77,179 @@ public class SearchDialog extends Activity {
 		// TODO Auto-generated constructor stub
 	}
 	*/
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+    	super.onCreate(savedInstanceState);
+        setContentView(R.layout.search_dialog);
+        
+        context = this;
+		
+		prefs =  PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		sortKey = prefs.getString("SORT_KEY", SearchHistoryDBAdapter.KEY_KEYWORDS);
+		isDesc = prefs.getBoolean("IS_DESC", false);
+    	searchHistoryDBAdapter = new SearchHistoryDBAdapter(this);
+    	searchResultsDBAdapter = new SearchResultsDBAdapter(this);
+		
+		Button queryBtn = (Button) findViewById(R.id.query_btn);
+		queryBtn.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				String query = searchText.getText().toString();
+				b1 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_vinai)).isChecked();
+				b2 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_suttan)).isChecked();
+				b3 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_abhidham)).isChecked();
+				b4 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_etc)).isChecked();
+				
+				b5 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_mul)).isChecked();
+				b6 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_att)).isChecked();
+				b7 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_tik)).isChecked();
+				
+				if(query.trim().length() > 0) {
+	        		query = query.replace("aa", "ā").replace("ii", "ī").replace("uu", "ū").replace(".t", "ṭ").replace(".d", "ḍ").replace("\"n", "ṅ").replace(".n", "ṇ").replace(".m", "ṃ").replace("~n", "ñ").replace(".l", "ḷ");
+	        		Intent intent = new Intent(context, SearchActivity.class);
+	        		Bundle dataBundle = new Bundle();
+	        		dataBundle.putString("LANG", "pali");
+	        		dataBundle.putString("QUERY", query);
+	        		dataBundle.putBoolean("b1", b1);
+	        		dataBundle.putBoolean("b2", b2);
+	        		dataBundle.putBoolean("b3", b3);
+	        		dataBundle.putBoolean("b4", b4);
+	        		dataBundle.putBoolean("b5", b5);
+	        		dataBundle.putBoolean("b6", b6);
+	        		dataBundle.putBoolean("b7", b7);
+	        		intent.putExtras(dataBundle);
+	        		startActivity(intent);
+				}
+			}
+		});
+		
+		codeLabel = (TextView)findViewById(R.id.code_label);
+		codeText = (EditText)findViewById(R.id.code_text);
+		codeText.addTextChangedListener(new TextWatcher() {
+			
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+				String text = searchText.getText().toString();
+				updateHistoryList(lang, text);
+			}
+		});
+		
+		numberLabel = (TextView)findViewById(R.id.number_label);
+		numberText = (EditText)findViewById(R.id.number_text);
+		numberText.addTextChangedListener(new TextWatcher() {
+			
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+				String text = searchText.getText().toString();
+				updateHistoryList(lang, text);
+			}
+		});
+		
+		searchText = (EditText) findViewById(R.id.search_text);
+		searchText.addTextChangedListener(new TextWatcher() {
+			
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+				String text = searchText.getText().toString();
+				updateHistoryList(lang, text);
+			}
+		});
+		
+		//show keyboard
+        imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+	    imm.toggleSoftInput(0, 0);		
+		
+        historyList = (ListView) this.findViewById(R.id.search_history_listview);
+        
+        updateHistoryList(lang);
+        
+
+        historyList.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				//searchHistoryDBAdapter.open();
+				//Cursor cursor = searchHistoryDBAdapter.getEntries(lang);
+				//cursor.moveToPosition(arg2);
+				//String keywords = cursor.getString(SearchHistoryDBAdapter.KEYWORDS_COL);
+				
+				String keywords = ((TextView)arg1.findViewById(R.id.hline1)).getText().toString();
+				//String keywords = line.substring(0, line.lastIndexOf('(')).trim();
+				searchText.setText("");
+				searchText.append(keywords);
+				
+				//cursor.close();
+				//searchHistoryDBAdapter.close();
+		        imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+			    imm.toggleSoftInput(0, 0);				
+			}
+		});
+        
+        historyList.setOnTouchListener(new OnTouchListener() {			
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+	            imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+	            imm.hideSoftInputFromWindow(searchText.getApplicationWindowToken(), 0);
+	            //if(historyAdapter.getMarkedPosition() != -1) {
+	            //	historyAdapter.setMarkedPosition(-1);
+	            //}
+				return false;
+			}
+		});                
+
+		if(prefs.getString("SORT_KEY", SearchHistoryDBAdapter.KEY_KEYWORDS).equals(SearchHistoryDBAdapter.KEY_CODE)) {
+			showCodePanel();
+			setupFullPopupMenu();
+		} else {
+			hideCodePanel();
+			setupNormalPopupMenu();
+		}
+        
+		super.onCreate(savedInstanceState);
+		
+		
+	}
+	
 	
 	private class ResultsCursorAdapter extends SimpleCursorAdapter {
 
@@ -260,178 +435,7 @@ public class SearchDialog extends Activity {
 	    return super.onKeyUp(keyCode, event);
 	}	
 	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-    	super.onCreate(savedInstanceState);
-        setContentView(R.layout.search_dialog);
-        
-        context = this;
-		
-		prefs =  PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		sortKey = prefs.getString("SORT_KEY", SearchHistoryDBAdapter.KEY_KEYWORDS);
-		isDesc = prefs.getBoolean("IS_DESC", false);
-    	searchHistoryDBAdapter = new SearchHistoryDBAdapter(this);
-    	searchResultsDBAdapter = new SearchResultsDBAdapter(this);
-		
-		Button queryBtn = (Button) findViewById(R.id.query_btn);
-		queryBtn.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				String query = searchText.getText().toString();
-				b1 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_vinai)).isChecked();
-				b2 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_suttan)).isChecked();
-				b3 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_abhidham)).isChecked();
-				b4 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_etc)).isChecked();
-				
-				b5 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_mul)).isChecked();
-				b6 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_att)).isChecked();
-				b7 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_tik)).isChecked();
-				
-				if(query.trim().length() > 0) {
-	        		query = query.replace("aa", "ā").replace("ii", "ī").replace("uu", "ū").replace(".t", "ṭ").replace(".d", "ḍ").replace("\"n", "ṅ").replace(".n", "ṇ").replace(".m", "ṃ").replace("~n", "ñ").replace(".l", "ḷ");
-	        		Intent intent = new Intent(context, SearchActivity.class);
-	        		Bundle dataBundle = new Bundle();
-	        		dataBundle.putString("LANG", "pali");
-	        		dataBundle.putString("QUERY", query);
-	        		dataBundle.putBoolean("b1", b1);
-	        		dataBundle.putBoolean("b2", b2);
-	        		dataBundle.putBoolean("b3", b3);
-	        		dataBundle.putBoolean("b4", b4);
-	        		dataBundle.putBoolean("b5", b5);
-	        		dataBundle.putBoolean("b6", b6);
-	        		dataBundle.putBoolean("b7", b7);
-	        		intent.putExtras(dataBundle);
-	        		startActivity(intent);
-				}
-			}
-		});
-		
-		codeLabel = (TextView)findViewById(R.id.code_label);
-		codeText = (EditText)findViewById(R.id.code_text);
-		codeText.addTextChangedListener(new TextWatcher() {
-			
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void afterTextChanged(Editable s) {
-				String text = searchText.getText().toString();
-				updateHistoryList(lang, text);
-			}
-		});
-		
-		numberLabel = (TextView)findViewById(R.id.number_label);
-		numberText = (EditText)findViewById(R.id.number_text);
-		numberText.addTextChangedListener(new TextWatcher() {
-			
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void afterTextChanged(Editable s) {
-				String text = searchText.getText().toString();
-				updateHistoryList(lang, text);
-			}
-		});
-		
-		searchText = (EditText) findViewById(R.id.search_text);
-		searchText.addTextChangedListener(new TextWatcher() {
-			
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void afterTextChanged(Editable s) {
-				String text = searchText.getText().toString();
-				updateHistoryList(lang, text);
-			}
-		});
-		
-		//show keyboard
-        imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-	    imm.toggleSoftInput(0, 0);		
-		
-        historyList = (ListView) this.findViewById(R.id.search_history_listview);
-        
-        updateHistoryList(lang);
-        
 
-        historyList.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				//searchHistoryDBAdapter.open();
-				//Cursor cursor = searchHistoryDBAdapter.getEntries(lang);
-				//cursor.moveToPosition(arg2);
-				//String keywords = cursor.getString(SearchHistoryDBAdapter.KEYWORDS_COL);
-				
-				String keywords = ((TextView)arg1.findViewById(R.id.hline1)).getText().toString();
-				//String keywords = line.substring(0, line.lastIndexOf('(')).trim();
-				searchText.setText("");
-				searchText.append(keywords);
-				
-				//cursor.close();
-				//searchHistoryDBAdapter.close();
-		        imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-			    imm.toggleSoftInput(0, 0);				
-			}
-		});
-        
-        historyList.setOnTouchListener(new OnTouchListener() {			
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-	            imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-	            imm.hideSoftInputFromWindow(searchText.getApplicationWindowToken(), 0);
-	            //if(historyAdapter.getMarkedPosition() != -1) {
-	            //	historyAdapter.setMarkedPosition(-1);
-	            //}
-				return false;
-			}
-		});                
-
-		if(prefs.getString("SORT_KEY", SearchHistoryDBAdapter.KEY_KEYWORDS).equals(SearchHistoryDBAdapter.KEY_CODE)) {
-			showCodePanel();
-			setupFullPopupMenu();
-		} else {
-			hideCodePanel();
-			setupNormalPopupMenu();
-		}
-        
-		super.onCreate(savedInstanceState);
-		
-		
-	}
-	
 	private void setupFullPopupMenu() {
         historyList.setOnItemLongClickListener(new OnItemLongClickListener() {
 			@Override
@@ -864,7 +868,7 @@ public class SearchDialog extends Activity {
 		if(savedCursor != null && !savedCursor.isClosed()) {
 			savedCursor.close();
 		}
-		savedCursor = searchHistoryDBAdapter.getEntries(_lang, "", sortKey, isDesc, code, number);
+		savedCursor = searchHistoryDBAdapter.getEntries(_lang, sortKey, isDesc);
         historyAdapter = new ResultsCursorAdapter(this, R.layout.history_item, savedCursor, 
         		new String[] {  SearchHistoryDBAdapter.KEY_KEYWORDS,
         						SearchHistoryDBAdapter.KEY_LINE1, 
@@ -873,17 +877,27 @@ public class SearchDialog extends Activity {
         		new int[] {R.id.hline1, R.id.hline2, R.id.hline3, R.id.priority_number, R.id.priority_code});
         historyList.setAdapter(historyAdapter);				
 		searchHistoryDBAdapter.close();
+		Log.i("Tipitaka","saved cursor length: "+savedCursor.getCount());
 	}
 	
 	public void updateHistoryList() {
 		updateHistoryList(lang,searchText.getText().toString());
 	}
 	
-	/*
 	@Override
-	public void cancel() {
-		Toast.makeText(context, "Cancel", Toast.LENGTH_SHORT).show();
-		super.cancel();
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle item selection
+		super.onOptionsItemSelected(item);
+		SharedPreferences.Editor editor = prefs.edit();
+		
+		switch (item.getItemId()) {
+	        case android.R.id.home:
+	            // app icon in action bar clicked; go home
+	            Intent intent = new Intent(this, SelectBookActivity.class);
+	            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+	            startActivity(intent);
+	            return true;
+		}
+		return false;
 	}
-	*/
 }

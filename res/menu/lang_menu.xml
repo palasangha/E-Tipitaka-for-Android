@@ -4,12 +4,15 @@
   	android:id="@+id/main_menu">
       
 	<item android:id="@+id/bookmark_menu_item"
+  		  android:showAsAction="ifRoom|withText" 
   		  android:icon="@drawable/ic_menu_archive"
           android:title="@string/bookmark" />
 	<item android:id="@+id/dict_menu_item"
+  		  android:showAsAction="ifRoom|withText" 
   		  android:icon="@android:drawable/ic_menu_sort_alphabetically"
           android:title="@string/dictionary" />
   	<item android:id="@+id/search_menu_item"
+  		  android:showAsAction="ifRoom|withText" 
   		  android:icon="@android:drawable/ic_menu_search"
 		  android:title="@string/th_search" />
 	<item android:id="@+id/english_menu_item"

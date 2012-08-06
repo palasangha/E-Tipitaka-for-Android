@@ -73,6 +73,7 @@ public class SelectBookActivity extends Activity {
     
     
     private final String infoFile = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "ATPK" + File.separator + "saveinfo.txt";
+	private SelectBookActivity context;
 
     
     // copy from http://www.chrisdadswell.co.uk/android-coding-example-checking-for-the-presence-of-an-internet-connection-on-an-android-device/
@@ -81,12 +82,15 @@ public class SelectBookActivity extends Activity {
     	ConnectivityManager connec =  (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 
     	// ARE WE CONNECTED TO THE NET
+    	if(connec == null)
+    		return false;
     	if (connec.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED ||
     			connec.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTING ||
     			connec.getNetworkInfo(1).getState() == NetworkInfo.State.CONNECTING ||
     			connec.getNetworkInfo(1).getState() == NetworkInfo.State.CONNECTED ) {
     		return true;
-    	} else if (connec.getNetworkInfo(0).getState() == NetworkInfo.State.DISCONNECTED ||  
+    	} 
+    	if (connec.getNetworkInfo(0).getState() == NetworkInfo.State.DISCONNECTED ||  
     			connec.getNetworkInfo(1).getState() == NetworkInfo.State.DISCONNECTED  ) {
     		return false;
     	}
@@ -97,7 +101,7 @@ public class SelectBookActivity extends Activity {
     	String zipFile = Environment.getExternalStorageDirectory() + File.separator + fileName; 
     	String unzipLocation = Environment.getExternalStorageDirectory() + File.separator; 
     	final Decompress d = new Decompress(zipFile, unzipLocation); 
-    	unzipProgressDialog = new ProgressDialog(SelectBookActivity.this);
+    	unzipProgressDialog = new ProgressDialog(this);
     	unzipProgressDialog.setCancelable(false);
     	unzipProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
     	unzipProgressDialog.setMessage(getString(R.string.unzipping_db));
@@ -111,7 +115,7 @@ public class SelectBookActivity extends Activity {
 					public void run() {
 						if(unzipProgressDialog.isShowing()) {
 							unzipProgressDialog.dismiss();
-							Toast.makeText(SelectBookActivity.this, getString(R.string.unzipped), Toast.LENGTH_SHORT).show();
+							Toast.makeText(context, getString(R.string.unzipped), Toast.LENGTH_SHORT).show();
 						}
 					}
 				});
@@ -136,7 +140,7 @@ public class SelectBookActivity extends Activity {
     		urlConnection.setRequestMethod("GET");
     		urlConnection.setDoOutput(true);
 
-            downloadProgressDialog = new ProgressDialog(SelectBookActivity.this);
+            downloadProgressDialog = new ProgressDialog(this);
             downloadProgressDialog.setCancelable(false);
             downloadProgressDialog.setMessage(getString(R.string.downloading));
             downloadProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -202,7 +206,7 @@ public class SelectBookActivity extends Activity {
 			    		//close the output stream when done
 			    		fileOutput.close();
 					} catch (IOException e) {
-			    		Toast.makeText(SelectBookActivity.this, e.toString(), Toast.LENGTH_LONG).show();
+			    		Toast.makeText(getBaseContext(), e.toString(), Toast.LENGTH_LONG).show();
 			    		//e.printStackTrace();
 			    	}    	
 					
@@ -213,10 +217,10 @@ public class SelectBookActivity extends Activity {
 
     	//catch some possible errors...
     	} catch (MalformedURLException e) {
-    		Toast.makeText(SelectBookActivity.this, e.toString(), Toast.LENGTH_LONG).show();
+    		Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
     		//e.printStackTrace();
     	} catch (IOException e) {
-    		Toast.makeText(SelectBookActivity.this, e.toString(), Toast.LENGTH_LONG).show();
+    		Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
     		//e.printStackTrace();
     	}    	
     }
@@ -260,13 +264,13 @@ public class SelectBookActivity extends Activity {
 			}
 			cursor.close();
 			
-			Toast.makeText(SelectBookActivity.this, getString(R.string.export_success), Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, getString(R.string.export_success), Toast.LENGTH_SHORT).show();
 			
 			ps.close();
 			fout.close();
 		}
 		catch (IOException e) {
-			Toast.makeText(SelectBookActivity.this, e.toString(), Toast.LENGTH_LONG).show();
+			Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
 		}
 		searchHistoryDBAdapter.close();
 		bookmarkDBAdapter.close();
@@ -288,7 +292,7 @@ public class SelectBookActivity extends Activity {
 							searchHistoryDBAdapter.insertEntry(item);
 						}
 					} catch (Exception e) {
-						Toast.makeText(SelectBookActivity.this, e.toString(), Toast.LENGTH_LONG).show();
+						Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
 					}
 				} else if(tokens[0].equals("B")) {
 					try {
@@ -297,12 +301,12 @@ public class SelectBookActivity extends Activity {
 							bookmarkDBAdapter.insertEntry(item);
 						}
 					} catch (Exception e) {
-						Toast.makeText(SelectBookActivity.this, e.toString(), Toast.LENGTH_LONG).show();
+						Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
 					}
 				}
 				
 			}
-			Toast.makeText(SelectBookActivity.this, getString(R.string.import_success), Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, getString(R.string.import_success), Toast.LENGTH_SHORT).show();
 		}
 		catch (IOException e) {
         	final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
@@ -336,7 +340,7 @@ public class SelectBookActivity extends Activity {
 		switch (item.getItemId()) {
 	    	
 			case (int)R.id.bookmark_menu_item:
-				intent = new Intent(SelectBookActivity.this, BookmarkPaliActivity.class);
+				intent = new Intent(this, BookmarkPaliActivity.class);
 				Bundle dataBundle = new Bundle();
 				dataBundle.putString("LANG", lang);
 				intent.putExtras(dataBundle);
@@ -356,7 +360,7 @@ public class SelectBookActivity extends Activity {
 				showHelpDialog();
 				break;
 			case (int)R.id.dict_menu_item:
-				intent = new Intent(this, cped.class);
+				intent = new Intent(this, DictionaryActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				break;
@@ -431,7 +435,7 @@ public class SelectBookActivity extends Activity {
 				if(isInternetOn()) {
 					downloadFile("http://static.sirimangalo.org/pali/ATPK/ATPK.zip", "ATPK.zip");
 				} else {
-					AlertDialog.Builder builder = new AlertDialog.Builder(SelectBookActivity.this);
+					AlertDialog.Builder builder = new AlertDialog.Builder(context);
 					builder.setTitle(getString(R.string.internet_not_connected));
 					builder.setMessage(getString(R.string.check_your_connection));
 					builder.setCancelable(false);
@@ -474,14 +478,16 @@ public class SelectBookActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        this.context = this;
 
         main =  View.inflate(this, R.layout.main, null);
         setContentView(main);
         
-        searchHistoryDBAdapter = new SearchHistoryDBAdapter(SelectBookActivity.this);
-        bookmarkDBAdapter = new BookmarkDBAdapter(SelectBookActivity.this);
+        searchHistoryDBAdapter = new SearchHistoryDBAdapter(this);
+        bookmarkDBAdapter = new BookmarkDBAdapter(this);
                 
-        Context context = getApplicationContext();
+        final Context context = getApplicationContext();
         prefs =  PreferenceManager.getDefaultSharedPreferences(context);
         
         MainTipitakaDBAdapter mainTipitakaDBAdapter = new MainTipitakaDBAdapter(this);
@@ -518,10 +524,10 @@ public class SelectBookActivity extends Activity {
         //TextView limitationText = (TextView) findViewById(R.id.limitation);
         //limitationText.setText(Html.fromHtml(getString(R.string.limitation)));
         
-        ArrayAdapter<String> adapter0 = new ArrayAdapter<String>(SelectBookActivity.this, R.layout.my_gallery_item_0, hnames);        
+        ArrayAdapter<String> adapter0 = new ArrayAdapter<String>(this, R.layout.my_gallery_item_0, hnames);        
         gHier.setAdapter(adapter0);
         
-        ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(SelectBookActivity.this, R.layout.my_gallery_item_1, cnames);        
+        ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, R.layout.my_gallery_item_1, cnames);        
         gCate.setAdapter(adapter1);
 
 		final int[] ncate0 = res.getIntArray(R.array.lengths_0);
@@ -561,14 +567,14 @@ public class SelectBookActivity extends Activity {
 					t_ncate[i] = Integer.toString(i+1);
 				}
 				//Log.i("Tipitaka","item selected: "+arg2);		
-				ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(SelectBookActivity.this, R.layout.my_gallery_item_1, t_ncate);        
+				ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(context, R.layout.my_gallery_item_1, t_ncate);        
 		        gNCate.setAdapter(adapter2);
 		        		        
 			}
 
 			@Override
 			public void onNothingSelected(AdapterView<?> arg0) {
-					
+				return;	
 			}
         });
        
@@ -600,7 +606,7 @@ public class SelectBookActivity extends Activity {
 				for(int i=0; i<ncate[hierC]; i++) {
 					t_ncate[i] = Integer.toString(i+1);
 				}
-				ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(SelectBookActivity.this, R.layout.my_gallery_item_1, t_ncate);        
+				ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(context, R.layout.my_gallery_item_1, t_ncate);        
 		        gNCate.setAdapter(adapter2);
 			}
 
@@ -718,7 +724,7 @@ public class SelectBookActivity extends Activity {
 						break;
 				}				
 				editor.commit();
-        		Intent intent = new Intent(SelectBookActivity.this, ReadBookActivity.class);
+        		Intent intent = new Intent(context, ReadBookActivity.class);
         		Bundle dataBundle = new Bundle();
         		dataBundle.putInt("VOL", selectedBook);
         		dataBundle.putInt("PAGE", 1);
