@@ -697,4 +697,9 @@
 		<item>Commentary</item>
 		<item>Sub-Commentary</item>
 	</string-array>
+	<string-array name="dict">
+		<item>PED</item>
+		<item>CPED</item>
+		<item>DPPN</item>
+	</string-array>
 </resources>

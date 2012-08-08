@@ -46,24 +46,37 @@
 			android:layout_width="match_parent"
 			android:layout_marginBottom="5dp"
 			android:layout_height="2dp"/>
-		<ScrollView
-			android:id="@+id/text_scrollview"
-			android:visibility="invisible"
-			android:scrollbars="vertical"
+		<RelativeLayout
 			android:layout_width="match_parent"
-			android:layout_height="match_parent">
-			<TextView style="?android:attr/textViewStyle"
-				android:background="@android:color/black" 
-				android:textColor="@android:color/white"
-				android:textColorHighlight="#999900"
-				android:id="@+id/main_text"
+			android:layout_height="wrap_content">
+			<ScrollView
+				android:id="@+id/text_scrollview"
+				android:visibility="invisible"
+				android:scrollbars="vertical"
 				android:layout_width="match_parent"
+				android:layout_height="match_parent">
+			<view class="org.yuttadhammo.tipitaka.ReadBookActivity$PaliTextView" style="?android:attr/textViewStyle"
+					android:background="@android:color/black" 
+					android:textColor="@android:color/white"
+					android:textColorHighlight="#999900"
+					android:id="@+id/main_text"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginBottom="20dp"
+					android:padding="10dp"
+					android:textSize="16dp"
+					android:lineSpacingExtra="2dip"
+				/>
+			</ScrollView>
+			<Button 
+				android:id="@+id/dict_button"
+				android:visibility="gone"
+				android:layout_alignParentRight="true"
+				android:layout_alignParentTop="true"
 				android:layout_height="wrap_content"
-				android:layout_marginBottom="20dp"
-				android:padding="10dp"
-				android:textSize="16dp"
-				android:lineSpacingExtra="2dip"
+				android:layout_width="wrap_content"
+				android:text="@string/dict"
 			/>
-		</ScrollView>
+		</RelativeLayout>
 	</LinearLayout>
 </LinearLayout>

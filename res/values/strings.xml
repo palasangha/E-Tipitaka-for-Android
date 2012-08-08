@@ -194,7 +194,9 @@
     <string name="CPED">Concise Pali-English</string>
     <string name="CEPD">Concise English-Pali</string>
     <string name="DPPN">Pali Proper Names</string>
-
+    
+    <string name="choose_dict">Choose A Dictionary:</string>
+    
     <string name="text_paused_cellular">Would you like to enable downloading over cellular connections? Depending on your data plan, this may cost you money.</string>
     <string name="text_paused_cellular_2">If you choose not to enable downloading over cellular connections, the download will automatically resume when wi-fi is available.</string>
 	<string name="text_button_resume_cellular">Resume download</string>

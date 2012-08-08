@@ -48,6 +48,13 @@
 		android:id="@+id/main_area"
 		android:layout_height="match_parent"
 		android:layout_width="match_parent">
+		<Button 
+			android:id="@+id/dict_button"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="@string/dict"
+			android:layout_alignParentRight="true"
+		/>
 		<ListView
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
@@ -63,7 +70,7 @@
 			android:scrollbars="vertical"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent">
-			<TextView style="?android:attr/textViewStyle"
+			<view class="org.yuttadhammo.tipitaka.ReadBookActivity$PaliTextView" style="?android:attr/textViewStyle"
 				android:background="@android:color/black" 
 				android:textColor="@android:color/white"
 				android:textColorHighlight="#999900"

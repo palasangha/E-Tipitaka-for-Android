@@ -7,8 +7,10 @@ import java.util.Collections;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -19,6 +21,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.Html;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -34,7 +37,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Gallery;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
@@ -56,13 +58,15 @@ import android.view.animation.AnimationUtils;
 
 
 public class ReadBookActivity extends Activity { //implements OnGesturePerformedListener {
-	private TextView textContent;
+	private PaliTextView textContent;
 	//~ private TextView pageLabel;
 	//~ private TextView itemsLabel;
 	private String headerText = "";
 	private Gallery gPage;
 	private ListView idxList;
 	private ScrollView scrollview;
+	
+	private static Button dictButton;
 	
 	private MainTipitakaDBAdapter mainTipitakaDBAdapter;
 	
@@ -150,13 +154,50 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         	
         nitem = res.getIntArray(R.array.nitem);
 
-        textContent = (TextView) read.findViewById(R.id.main_text);
+        textContent = (PaliTextView) read.findViewById(R.id.main_text);
       
 		textContent.setTypeface(font);
         textSize = Float.parseFloat(prefs.getString("base_text_size", "16"));
         
 		textContent.setTextSize(textSize);
+		
+		dictButton = (Button) findViewById(R.id.dict_button);
+		
+		dictButton.setOnClickListener(new OnClickListener() {
 
+			@Override
+			public void onClick(View v) {
+				if(!textContent.hasSelection())
+					return;
+				int s=textContent.getSelectionStart();
+				int e=textContent.getSelectionEnd();
+				String word = textContent.getText().toString().substring(s,e);
+				word = word.replaceAll("/ .*/","");
+				
+				final String aword = word;
+
+				new AlertDialog.Builder(ReadBookActivity.this)
+				.setItems(R.array.dict, new Dialog.OnClickListener(){
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Intent intent = new Intent(getBaseContext(), DictionaryActivity.class);
+						Bundle dataBundle = new Bundle();
+						dataBundle.putString("word", aword);
+						if(which == 2)
+							which = 3;
+						dataBundle.putInt("dict", which);
+						intent.putExtras(dataBundle);
+						startActivity(intent);
+					}
+				})
+				.setTitle(getString(R.string.choose_dict))
+				.show();
+
+				
+			}
+		});
+
+		
         gPage = (Gallery) read.findViewById(R.id.gallery_page);
 		
         // index button
@@ -1173,18 +1214,33 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		return title;
 	}
 	
-	/*
-	@Override
-	public void onGesturePerformed(GestureOverlayView overlay, Gesture gesture) {
-	    ArrayList<Prediction> predictions = mLibrary.recognize(gesture);
-	    if (predictions.size() > 0 && predictions.get(0).score > 1.0) {
-	        String action = predictions.get(0).name;
-	        if ("left".equals(action)) {
-	        	readNext();
-	        } else if ("right".equals(action)) {
-	        	readBack();
-	        } 
+
+	public static class PaliTextView extends TextView {
+
+		public PaliTextView(Context context, AttributeSet attrs, int defStyle)
+		{
+		    super(context, attrs, defStyle);
+		}   
+		
+		
+		public PaliTextView(Context context, AttributeSet attrs)
+		{
+		    super(context, attrs);
+		}
+		
+		public PaliTextView(Context context)
+		{
+		    super(context);
+		}
+	    @Override   
+	    protected void onSelectionChanged(int selStart, int selEnd) { 
+	    	if(selEnd > selStart) {
+	    		dictButton.setVisibility(View.VISIBLE);
+	    	}
+		    else {
+	    		dictButton.setVisibility(View.GONE);
+	    	}
 	    }
-	}*/	
+	}
 	
 }

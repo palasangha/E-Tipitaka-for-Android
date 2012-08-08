@@ -71,10 +71,7 @@ public class DictionaryActivity extends Activity {
 		dict = prefs.getInt (DICT_KEY, 0); // default to PED
 
 		word = prefs.getString (WORD_KEY, "");
-		setTitleWithMessage (word);
 		
-		String text = prefs.getString (LOOKUP_TEXT_KEY, "");
-		//lookup_text.setText (text);
 		lookup_text.setOnKeyListener (new LookupTextKeyListener ());
 		if (prefs.getBoolean (LOOKUP_TEXT_IS_FOCUSED_KEY, true)) {
 			lookup_text.requestFocus ();
@@ -89,7 +86,21 @@ public class DictionaryActivity extends Activity {
 		displayWebViewHtml (
 			prefs.getString (HTML_KEY, loadResToString (R.raw.index))
 		);
+		Bundle extras = this.getIntent().getExtras();
+		if(extras.containsKey("word")) {
+
+			SharedPreferences.Editor ed = prefs.edit ();
+			ed.putInt (DICT_KEY, extras.getInt("dict"));
+			ed.commit();
+			dict = extras.getInt("dict");
 			
+			setTitleWithMessage (word);
+			lookup_text.setText(extras.getString("word"));
+			wv.setSelected (true);
+			lookupWord ();
+		}
+		else
+			setTitleWithMessage (word);
 	}
 	
 	
