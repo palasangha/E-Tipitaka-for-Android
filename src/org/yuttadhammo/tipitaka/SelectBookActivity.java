@@ -75,6 +75,271 @@ public class SelectBookActivity extends Activity {
     private final String infoFile = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "ATPK" + File.separator + "saveinfo.txt";
 	private SelectBookActivity context;
 
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+        this.context = this;
+
+        main =  View.inflate(this, R.layout.main, null);
+        setContentView(main);
+        
+        searchHistoryDBAdapter = new SearchHistoryDBAdapter(this);
+        bookmarkDBAdapter = new BookmarkDBAdapter(this);
+                
+        final Context context = getApplicationContext();
+        prefs =  PreferenceManager.getDefaultSharedPreferences(context);
+        
+        MainTipitakaDBAdapter mainTipitakaDBAdapter = new MainTipitakaDBAdapter(this);
+        try {
+        	mainTipitakaDBAdapter.open();
+        	if(mainTipitakaDBAdapter.isOpened()) {
+        		mainTipitakaDBAdapter.close();
+        	} else {
+        		startDownloader();
+        	}
+        } catch (SQLiteException e) {
+			Log.e ("Tipitaka","error:", e);
+        	startDownloader();
+        }
+        
+		final Typeface font = Typeface.createFromAsset(getAssets(), "verajjan.ttf");  
+        final Resources res = getResources();
+        final String [] cnames = res.getStringArray(R.array.category);
+        final String [] hnames = res.getStringArray(R.array.hnames);
+        
+        
+        textInfo = (Button) main.findViewById(R.id.read_btn);
+        //textHeader = (TextView) findViewById(R.id.tipitaka_label);
+        //textHeaderLang = (TextView) findViewById(R.id.tipitaka_lang_label);
+        readBtn = (Button) main.findViewById(R.id.read_btn);
+        
+        gCate = (Gallery) main.findViewById(R.id.gallery_cate);
+        gNCate = (Gallery) main.findViewById(R.id.gallery_ncate);
+        gHier = (Gallery) main.findViewById(R.id.gallery_hier);
+
+        //TextView cautionText = (TextView) findViewById(R.id.caution);
+        //cautionText.setText(Html.fromHtml(getString(R.string.caution)));
+        
+        //TextView limitationText = (TextView) findViewById(R.id.limitation);
+        //limitationText.setText(Html.fromHtml(getString(R.string.limitation)));
+        
+        ArrayAdapter<String> adapter0 = new ArrayAdapter<String>(this, R.layout.my_gallery_item_0, hnames);        
+        gHier.setAdapter(adapter0);
+        
+        ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, R.layout.my_gallery_item_1, cnames);        
+        gCate.setAdapter(adapter1);
+
+		final int[] ncate0 = res.getIntArray(R.array.lengths_0);
+		final int[] ncate1 = res.getIntArray(R.array.lengths_1);
+		final int[] ncate2 = res.getIntArray(R.array.lengths_2);
+		final int[] ncate3 = res.getIntArray(R.array.lengths_3);
+        
+        final String[] t_book = res.getStringArray(R.array.thaibook);
+       
+        gCate.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				selectedCate = arg2+1;
+				
+				int[] ncate = ncate0;
+				switch(arg2) {
+					case 0:
+						ncate = ncate0;
+						break;
+					case 1:
+						ncate = ncate1;
+						break;
+					case 2:
+						ncate = ncate2;
+						break;
+					case 3:
+						ncate = ncate3;
+						break;
+				}
+
+				String [] t_ncate = new String [ncate[hierC]];				
+				
+				//Log.i("Tipitaka","Number of books: "+ncate[hierC]);		
+				
+				for(int i=0; i<ncate[hierC]; i++) {
+					t_ncate[i] = Integer.toString(i+1);
+				}
+				//Log.i("Tipitaka","item selected: "+arg2);		
+				ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(context, R.layout.my_gallery_item_1, t_ncate);        
+		        gNCate.setAdapter(adapter2);
+		        		        
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				return;	
+			}
+        });
+       
+        gHier.setOnItemSelectedListener(new OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+
+				hierC = arg2;
+				
+				int[] ncate = ncate0;
+				switch(selectedCate) {
+					case 1:
+						ncate = ncate0;
+						break;
+					case 2:
+						ncate = ncate1;
+						break;
+					case 3:
+						ncate = ncate2;
+						break;
+					case 4:
+						ncate = ncate3;
+						break;
+				}
+
+				String [] t_ncate = new String [ncate[hierC]];				
+				
+				
+				for(int i=0; i<ncate[hierC]; i++) {
+					t_ncate[i] = Integer.toString(i+1);
+				}
+				ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(context, R.layout.my_gallery_item_1, t_ncate);        
+		        gNCate.setAdapter(adapter2);
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+					
+			}
+        });
+        
+        gNCate.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+	        	String[] bookIA = res.getStringArray(R.array.vin_m_list);
+				switch(selectedCate) {
+					case 1:
+						switch(hierC) {
+							case 0:
+								break;
+							case 1:
+								bookIA = res.getStringArray(R.array.vin_a_list);
+								break;
+							case 2:
+								bookIA = res.getStringArray(R.array.vin_t_list);
+								break;
+						}
+						break;
+					case 2:
+						switch(hierC) {
+							case 0:
+								bookIA = res.getStringArray(R.array.sut_m_list);
+								break;
+							case 1:
+								bookIA = res.getStringArray(R.array.sut_a_list);
+								break;
+							case 2:
+								bookIA = res.getStringArray(R.array.sut_t_list);
+								break;
+						}
+						break;
+					case 3:
+						switch(hierC) {
+							case 0:
+								bookIA = res.getStringArray(R.array.abhi_m_list);
+								break;
+							case 1:
+								bookIA = res.getStringArray(R.array.abhi_a_list);
+								break;
+							case 2:
+								bookIA = res.getStringArray(R.array.abhi_t_list);
+								break;
+						}
+						break;
+					case 4:
+						switch(hierC) {
+							case 0:
+								bookIA = res.getStringArray(R.array.etc_m_list);
+								break;
+							case 1:
+								bookIA = res.getStringArray(R.array.etc_a_list);
+								break;
+							case 2:
+								bookIA = res.getStringArray(R.array.etc_t_list);
+								break;
+						}
+						break;
+					default:
+						break;
+				}
+				
+				selectedBook = Integer.parseInt(bookIA[arg2])+1;
+				
+				//~ String header = getString(R.string.th_tipitaka_book).trim() + " " + Integer.toString(selectedBook);
+				//~ if(lang == "thai")
+					//~ header = header + "\n" + getString(R.string.th_lang);
+				//~ else if(lang == "pali")
+					//~ header = header + "\n" + getString(R.string.pl_lang);
+				//~ textHeader.setText(header);
+				//changeHeader();
+				
+				thisTitle = t_book[selectedBook-1].trim();
+				
+				//Log.i ("Tipitaka","book title: "+info);
+				textInfo.setText(thisTitle);
+				textInfo.setTypeface(font);				
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				
+			}
+        	
+        });
+        
+        
+        readBtn.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				SharedPreferences.Editor editor = prefs.edit();
+				int pos1 = gCate.getSelectedItemPosition();
+				editor.putInt("Position1", pos1);				
+				switch(pos1) {
+					case 0:
+						int vPos = gNCate.getSelectedItemPosition();
+						editor.putInt("VPosition", vPos);						
+						break;
+					case 1:
+						int sPos = gNCate.getSelectedItemPosition();
+						editor.putInt("SPosition", sPos);						
+						break;
+					case 2:
+						int aPos = gNCate.getSelectedItemPosition();
+						editor.putInt("APosition", aPos);						
+						break;
+				}				
+				editor.commit();
+        		Intent intent = new Intent(context, ReadBookActivity.class);
+        		Bundle dataBundle = new Bundle();
+        		dataBundle.putInt("VOL", selectedBook);
+        		dataBundle.putInt("PAGE", 1);
+        		dataBundle.putString("LANG", lang);
+        		dataBundle.putString("TITLE", thisTitle);
+        		dataBundle.putString("FIRSTPAGE", "TRUE");
+        		intent.putExtras(dataBundle);
+        		startActivity(intent);				
+			}
+        	
+        });
+    }
+
+	
     
     // copy from http://www.chrisdadswell.co.uk/android-coding-example-checking-for-the-presence-of-an-internet-connection-on-an-android-device/
     private boolean isInternetOn() {
@@ -474,268 +739,5 @@ public class SelectBookActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 	}
-	
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        
-        this.context = this;
-
-        main =  View.inflate(this, R.layout.main, null);
-        setContentView(main);
-        
-        searchHistoryDBAdapter = new SearchHistoryDBAdapter(this);
-        bookmarkDBAdapter = new BookmarkDBAdapter(this);
-                
-        final Context context = getApplicationContext();
-        prefs =  PreferenceManager.getDefaultSharedPreferences(context);
-        
-        MainTipitakaDBAdapter mainTipitakaDBAdapter = new MainTipitakaDBAdapter(this);
-        try {
-        	mainTipitakaDBAdapter.open();
-        	if(mainTipitakaDBAdapter.isOpened()) {
-        		mainTipitakaDBAdapter.close();
-        	} else {
-        		startDownloader();
-        	}
-        } catch (SQLiteException e) {
-			Log.e ("Tipitaka","error:", e);
-        	startDownloader();
-        }
-        
-		final Typeface font = Typeface.createFromAsset(getAssets(), "verajjan.ttf");  
-        final Resources res = getResources();
-        final String [] cnames = res.getStringArray(R.array.category);
-        final String [] hnames = res.getStringArray(R.array.hnames);
-        
-        
-        textInfo = (Button) main.findViewById(R.id.read_btn);
-        //textHeader = (TextView) findViewById(R.id.tipitaka_label);
-        //textHeaderLang = (TextView) findViewById(R.id.tipitaka_lang_label);
-        readBtn = (Button) main.findViewById(R.id.read_btn);
-        
-        gCate = (Gallery) main.findViewById(R.id.gallery_cate);
-        gNCate = (Gallery) main.findViewById(R.id.gallery_ncate);
-        gHier = (Gallery) main.findViewById(R.id.gallery_hier);
-
-        //TextView cautionText = (TextView) findViewById(R.id.caution);
-        //cautionText.setText(Html.fromHtml(getString(R.string.caution)));
-        
-        //TextView limitationText = (TextView) findViewById(R.id.limitation);
-        //limitationText.setText(Html.fromHtml(getString(R.string.limitation)));
-        
-        ArrayAdapter<String> adapter0 = new ArrayAdapter<String>(this, R.layout.my_gallery_item_0, hnames);        
-        gHier.setAdapter(adapter0);
-        
-        ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, R.layout.my_gallery_item_1, cnames);        
-        gCate.setAdapter(adapter1);
-
-		final int[] ncate0 = res.getIntArray(R.array.lengths_0);
-		final int[] ncate1 = res.getIntArray(R.array.lengths_1);
-		final int[] ncate2 = res.getIntArray(R.array.lengths_2);
-		final int[] ncate3 = res.getIntArray(R.array.lengths_3);
-        
-        final String[] t_book = res.getStringArray(R.array.thaibook);
-       
-        gCate.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				selectedCate = arg2+1;
-				
-				int[] ncate = ncate0;
-				switch(arg2) {
-					case 0:
-						ncate = ncate0;
-						break;
-					case 1:
-						ncate = ncate1;
-						break;
-					case 2:
-						ncate = ncate2;
-						break;
-					case 3:
-						ncate = ncate3;
-						break;
-				}
-
-				String [] t_ncate = new String [ncate[hierC]];				
-				
-				//Log.i("Tipitaka","Number of books: "+ncate[hierC]);		
-				
-				for(int i=0; i<ncate[hierC]; i++) {
-					t_ncate[i] = Integer.toString(i+1);
-				}
-				//Log.i("Tipitaka","item selected: "+arg2);		
-				ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(context, R.layout.my_gallery_item_1, t_ncate);        
-		        gNCate.setAdapter(adapter2);
-		        		        
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				return;	
-			}
-        });
-       
-        gHier.setOnItemSelectedListener(new OnItemSelectedListener() {
-			@Override
-			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-
-				hierC = arg2;
-				
-				int[] ncate = ncate0;
-				switch(selectedCate) {
-					case 1:
-						ncate = ncate0;
-						break;
-					case 2:
-						ncate = ncate1;
-						break;
-					case 3:
-						ncate = ncate2;
-						break;
-					case 4:
-						ncate = ncate3;
-						break;
-				}
-
-				String [] t_ncate = new String [ncate[hierC]];				
-				
-				
-				for(int i=0; i<ncate[hierC]; i++) {
-					t_ncate[i] = Integer.toString(i+1);
-				}
-				ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(context, R.layout.my_gallery_item_1, t_ncate);        
-		        gNCate.setAdapter(adapter2);
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-					
-			}
-        });
-        
-        gNCate.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-	        	String[] bookIA = res.getStringArray(R.array.vin_m_list);
-				switch(selectedCate) {
-					case 1:
-						switch(hierC) {
-							case 0:
-								break;
-							case 1:
-								bookIA = res.getStringArray(R.array.vin_a_list);
-								break;
-							case 2:
-								bookIA = res.getStringArray(R.array.vin_t_list);
-								break;
-						}
-						break;
-					case 2:
-						switch(hierC) {
-							case 0:
-								bookIA = res.getStringArray(R.array.sut_m_list);
-								break;
-							case 1:
-								bookIA = res.getStringArray(R.array.sut_a_list);
-								break;
-							case 2:
-								bookIA = res.getStringArray(R.array.sut_t_list);
-								break;
-						}
-						break;
-					case 3:
-						switch(hierC) {
-							case 0:
-								bookIA = res.getStringArray(R.array.abhi_m_list);
-								break;
-							case 1:
-								bookIA = res.getStringArray(R.array.abhi_a_list);
-								break;
-							case 2:
-								bookIA = res.getStringArray(R.array.abhi_t_list);
-								break;
-						}
-						break;
-					case 4:
-						switch(hierC) {
-							case 0:
-								bookIA = res.getStringArray(R.array.etc_m_list);
-								break;
-							case 1:
-								bookIA = res.getStringArray(R.array.etc_a_list);
-								break;
-							case 2:
-								bookIA = res.getStringArray(R.array.etc_t_list);
-								break;
-						}
-						break;
-					default:
-						break;
-				}
-				
-				selectedBook = Integer.parseInt(bookIA[arg2])+1;
-				
-				//~ String header = getString(R.string.th_tipitaka_book).trim() + " " + Integer.toString(selectedBook);
-				//~ if(lang == "thai")
-					//~ header = header + "\n" + getString(R.string.th_lang);
-				//~ else if(lang == "pali")
-					//~ header = header + "\n" + getString(R.string.pl_lang);
-				//~ textHeader.setText(header);
-				//changeHeader();
-				
-				thisTitle = t_book[selectedBook-1].trim();
-				
-				//Log.i ("Tipitaka","book title: "+info);
-				textInfo.setText(thisTitle);
-				textInfo.setTypeface(font);				
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				
-			}
-        	
-        });
-        
-        
-        readBtn.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				SharedPreferences.Editor editor = prefs.edit();
-				int pos1 = gCate.getSelectedItemPosition();
-				editor.putInt("Position1", pos1);				
-				switch(pos1) {
-					case 0:
-						int vPos = gNCate.getSelectedItemPosition();
-						editor.putInt("VPosition", vPos);						
-						break;
-					case 1:
-						int sPos = gNCate.getSelectedItemPosition();
-						editor.putInt("SPosition", sPos);						
-						break;
-					case 2:
-						int aPos = gNCate.getSelectedItemPosition();
-						editor.putInt("APosition", aPos);						
-						break;
-				}				
-				editor.commit();
-        		Intent intent = new Intent(context, ReadBookActivity.class);
-        		Bundle dataBundle = new Bundle();
-        		dataBundle.putInt("VOL", selectedBook);
-        		dataBundle.putInt("PAGE", 1);
-        		dataBundle.putString("LANG", lang);
-        		dataBundle.putString("TITLE", thisTitle);
-        		dataBundle.putString("FIRSTPAGE", "TRUE");
-        		intent.putExtras(dataBundle);
-        		startActivity(intent);				
-			}
-        	
-        });
-    }
 
 }

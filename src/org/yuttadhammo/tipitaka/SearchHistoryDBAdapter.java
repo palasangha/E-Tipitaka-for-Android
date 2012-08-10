@@ -145,7 +145,6 @@ public class SearchHistoryDBAdapter {
 	}	
 	
 	public Cursor getEntries(String _lang, String key, boolean isDesc) {
-		String where = "";
 		String orderby;
 		if(isDesc) {
 			orderby = key + " DESC" + ", " + KEY_PRIORITY + " DESC";
@@ -221,7 +220,6 @@ public class SearchHistoryDBAdapter {
 	}
 	
 	public long insertEntry(SearchHistoryItem item) {
-		Log.i("Tipitaka","inserting history entry");
 		
 		ContentValues newValues = new ContentValues();
 		newValues.put(KEY_LANG, item.getLanguage());
@@ -235,7 +233,9 @@ public class SearchHistoryDBAdapter {
 		newValues.put(KEY_PRIORITY, item.getPriority());
 		newValues.put(KEY_CODE, item.getCode());
 		
-		return db.insert(DATABASE_TABLE, null, newValues);
+		long row = db.insert(DATABASE_TABLE, null, newValues);
+		Log.i("Tipitaka","inserting history entry row: "+row);
+		return row;
 	}	
 	
 	public int updateEntry(long _rowIndex, SearchHistoryItem item) {

@@ -12,17 +12,17 @@ public class SearchResultsItem {
 	private String saved;
 	private String marked;	
 
-	public SearchResultsItem(String _lang, String _keywords, String _pages, String _suts, String _sCate, String _content) {
+	public SearchResultsItem(String _lang, String _keywords, String _pages, String _suts, String _sCate) {
 		lang = _lang;
 		keywords = _keywords;
 		pages = _pages;
 		suts = _suts;
 		sCate = _sCate;
-		content = _content;
-		pClicked = null;
-		sClicked = null;
-		saved = null;
-		marked = null;
+		content = "";
+		pClicked = "";
+		sClicked = "";
+		saved = "";
+		marked = "";
 	}
 	
 	public String getLanguage() {

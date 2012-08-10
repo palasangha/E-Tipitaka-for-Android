@@ -44,6 +44,10 @@
 	<string name="ss_vinai">Vi.</string>
 	<string name="ss_suttan">Su.</string>
 	<string name="ss_abhi">Abhi.</string>
+	<string name="ss_etc">Etc.</string>
+	<string name="ss_mul">Mūl</string>
+	<string name="ss_att">Aṭṭ</string>
+	<string name="ss_tik">Ṭīk</string>
 	<string name="s_page">p.</string>
 	<string name="s_sut">su.</string>		
 	<string name="s_vinai">Vinaya</string>
@@ -53,9 +57,9 @@
 	<string name="suttan_full">Suttanta Pitaka</string>
 	<string name="abhi_full">Abhidhamma Pitaka</string>
 	<string name="etc_full">Et Cetera</string>
-	<string name="mul_full">Canon</string>
-	<string name="att_abb">Comm.</string>
-	<string name="tik_abb">Sub-Comm.</string>
+	<string name="mul_full">Mūla</string>
+	<string name="att_full">Aṭṭhakathā</string>
+	<string name="tik_full">Ṭīkā</string>
 	<string name="th_suttra">Suttas</string>
 	<string name="select_item_compare">Select item to compare</string>
 	<string name="select_item_memo">Select item to bookmark</string>

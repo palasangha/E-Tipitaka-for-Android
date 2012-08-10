@@ -1,5 +1,7 @@
 package org.yuttadhammo.tipitaka;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -13,6 +15,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Html;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -64,6 +67,7 @@ public class SearchDialog extends Activity {
 	private SharedPreferences prefs;	
 	private TextView codeLabel;
 	private TextView numberLabel;
+	private View searchView;
 		   	
 	/*
 	public SearchDialog(Context context, int theme) {
@@ -81,7 +85,8 @@ public class SearchDialog extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
-        setContentView(R.layout.search_dialog);
+        searchView =  View.inflate(this, R.layout.search_dialog, null);
+        setContentView(searchView);
         
         context = this;
 		
@@ -97,14 +102,14 @@ public class SearchDialog extends Activity {
 			@Override
 			public void onClick(View v) {
 				String query = searchText.getText().toString();
-				b1 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_vinai)).isChecked();
-				b2 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_suttan)).isChecked();
-				b3 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_abhidham)).isChecked();
-				b4 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_etc)).isChecked();
+				b1 = ((CheckBox) searchView.findViewById(R.id.cb_vin)).isChecked();
+				b2 = ((CheckBox) searchView.findViewById(R.id.cb_sut)).isChecked();
+				b3 = ((CheckBox) searchView.findViewById(R.id.cb_abhi)).isChecked();
+				b4 = ((CheckBox) searchView.findViewById(R.id.cb_etc)).isChecked();
 				
-				b5 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_mul)).isChecked();
-				b6 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_att)).isChecked();
-				b7 = ((CheckBox) SearchDialog.this.findViewById(R.id.cb_tik)).isChecked();
+				b5 = ((CheckBox) searchView.findViewById(R.id.cb_mul)).isChecked();
+				b6 = ((CheckBox) searchView.findViewById(R.id.cb_att)).isChecked();
+				b7 = ((CheckBox) searchView.findViewById(R.id.cb_tik)).isChecked();
 				
 				if(query.trim().length() > 0) {
 	        		query = query.replace("aa", "ā").replace("ii", "ī").replace("uu", "ū").replace(".t", "ṭ").replace(".d", "ḍ").replace("\"n", "ṅ").replace(".n", "ṇ").replace(".m", "ṃ").replace("~n", "ñ").replace(".l", "ḷ");
@@ -217,6 +222,41 @@ public class SearchDialog extends Activity {
 				//String keywords = line.substring(0, line.lastIndexOf('(')).trim();
 				searchText.setText("");
 				searchText.append(keywords);
+
+				String hiers = ((TextView)arg1.findViewById(R.id.hline2)).getText().toString();
+				if(hiers.contains("M"))
+					((CheckBox) searchView.findViewById(R.id.cb_mul)).setChecked(true);
+				else
+					((CheckBox) searchView.findViewById(R.id.cb_mul)).setChecked(false);
+				if(hiers.contains("A"))
+					((CheckBox) searchView.findViewById(R.id.cb_att)).setChecked(true);
+				else
+					((CheckBox) searchView.findViewById(R.id.cb_att)).setChecked(false);
+				if(hiers.contains("T"))
+					((CheckBox) searchView.findViewById(R.id.cb_tik)).setChecked(true);
+				else
+					((CheckBox) searchView.findViewById(R.id.cb_tik)).setChecked(false);
+				
+				String sets = ((TextView)arg1.findViewById(R.id.hline3)).getText().toString();
+				
+				if(sets.contains(getString(R.string.ss_vinai)))
+					((CheckBox) searchView.findViewById(R.id.cb_vin)).setChecked(true);
+				else
+					((CheckBox) searchView.findViewById(R.id.cb_vin)).setChecked(false);
+				if(sets.contains(getString(R.string.ss_suttan)))
+					((CheckBox) searchView.findViewById(R.id.cb_sut)).setChecked(true);
+				else
+					((CheckBox) SearchDialog.this.findViewById(R.id.cb_sut)).setChecked(false);
+				if(sets.contains(getString(R.string.ss_abhi)))
+					((CheckBox) searchView.findViewById(R.id.cb_abhi)).setChecked(true);
+				else
+					((CheckBox) searchView.findViewById(R.id.cb_abhi)).setChecked(false);
+				if(sets.contains(getString(R.string.ss_etc)))
+					((CheckBox) searchView.findViewById(R.id.cb_etc)).setChecked(true);
+				else
+					((CheckBox) searchView.findViewById(R.id.cb_etc)).setChecked(false);
+
+
 				
 				//cursor.close();
 				//searchHistoryDBAdapter.close();
@@ -310,11 +350,16 @@ public class SearchDialog extends Activity {
 				codeLabel.setVisibility(View.GONE);
 				numberLabel.setVisibility(View.GONE);
 			}
+
+			TextView line2 = (TextView)view.findViewById(R.id.hline2);
+			String text = line2.getText().toString();
+			text = text.replaceAll("([MAT]\b)","<font color='#45FF45'>$1</font>");
 			
 			TextView line3 = (TextView)view.findViewById(R.id.hline3);
-			String text = line3.getText().toString();
+			text = line3.getText().toString();
 			String [] tokens = text.split("\\s+");
 			String output = "";
+			ArrayList<String> output2 = new ArrayList<String>();
 			for(String s: tokens) {
 				if(s.startsWith(context.getString(R.string.ss_vinai))) {
 					if(s.endsWith(context.getString(R.string.zero_zero))) {
@@ -334,9 +379,22 @@ public class SearchDialog extends Activity {
 					} else {
 						output += String.format("<font color='#A020F0'>%s</font>  ", s);
 					}
-				}
+				} else if(s.startsWith(context.getString(R.string.ss_etc))) {
+					if(s.endsWith(context.getString(R.string.zero_zero))) {
+						output += s + "  ";
+					} else {
+						output += String.format("<font color='#45FF45'>%s</font>  ", s);
+					}
+				} else if(s.startsWith(context.getString(R.string.ss_etc))) {
+					if(s.endsWith(context.getString(R.string.zero_zero))) {
+						output += s + "  ";
+					} else {
+						output += String.format("<font color='#45FF45'>%s</font>  ", s);
+					}
+				} 
 			}
 			line3.setText(Html.fromHtml(output.trim()));
+			
 			Typeface font = Typeface.createFromAsset(context.getAssets(), "verajjan.ttf");
 			line3.setTypeface(font);
 			view.setBackgroundColor(Color.BLACK);

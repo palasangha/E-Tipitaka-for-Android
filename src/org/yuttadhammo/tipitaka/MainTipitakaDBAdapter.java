@@ -140,7 +140,7 @@ public class MainTipitakaDBAdapter {
     	
     	final Cursor cursor = this.db.query(
     			lang, 
-    			new String[] {"_id","volume", "item"}, 
+    			new String[] {"_id","volume", "item", "content"}, 
     			selection,
     			null, 
     			null, 

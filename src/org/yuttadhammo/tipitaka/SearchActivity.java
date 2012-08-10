@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -20,6 +22,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.Html;
+import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -495,6 +499,7 @@ public class SearchActivity extends Activity {
 		private int posVinai = Integer.MAX_VALUE;
 		private int posSuttan = Integer.MAX_VALUE;
 		private int posAbhi = Integer.MAX_VALUE;
+		private int posEtc = Integer.MAX_VALUE;
 		public SpecialCursorAdapter(Context context, int layout, Cursor c,
 				String[] from, int[] to) {
 			super(context, layout, c, from, to);
@@ -510,53 +515,36 @@ public class SearchActivity extends Activity {
 			TextView line2 = (TextView)view.findViewById(R.id.line2);
 			line2.setTextSize(prefs.getFloat("Line2Size", 12f));
 
-			line2.setTypeface(font);				
+			line1.setTypeface(font);				
+			line2.setTypeface(font);
+			
+			//line2.setText(Html.fromHtml(line2.getText().toString()));
 
-			ImageView star = (ImageView)view.findViewById(R.id.star_mark);
-			
-			if(checkMarked.contains(position)) {
-				//star.setImageDrawable(context.getResources().getDrawable(R.drawable.star_big_on));
-				star.setVisibility(View.VISIBLE);
-			} else {
-				star.setVisibility(View.INVISIBLE);
-				//star.setImageDrawable(context.getResources().getDrawable(R.drawable.star_big_off));
-			}
-			
-			RelativeLayout topLayout = (RelativeLayout)view.findViewById(R.id.top_layout);
-						
+					
 			if(checkClicked.contains(position)) {
 				line1.setBackgroundColor(Color.rgb(90, 90, 90));
 				line2.setBackgroundColor(Color.rgb(90, 90, 90));
-				star.setBackgroundColor(Color.rgb(90, 90, 90));
-				topLayout.setBackgroundColor(Color.rgb(90, 90, 90));
 			} else if(checkSecondaryClicked.contains(position)) {
 				line1.setBackgroundColor(Color.rgb(45, 45, 45));
 				line2.setBackgroundColor(Color.rgb(45, 45, 45));
-				star.setBackgroundColor(Color.rgb(45, 45, 45));
-				topLayout.setBackgroundColor(Color.rgb(45, 45, 45));				
 			} else {
 				line1.setBackgroundColor(Color.BLACK);
 				line2.setBackgroundColor(Color.BLACK);
-				star.setBackgroundColor(Color.BLACK);
-				topLayout.setBackgroundColor(Color.BLACK);				
 			}
 
 			if(checkSaved.contains(position)) {
 				line1.setBackgroundColor(Color.rgb(25, 25, 90));
 				line2.setBackgroundColor(Color.rgb(25, 25, 90));
-				star.setBackgroundColor(Color.rgb(25, 25, 90));
-				topLayout.setBackgroundColor(Color.rgb(25, 25, 90));
 			}
 			
 			if(position >= posVinai && position < posSuttan && position < posAbhi) {				
-				line2.setTextColor(Color.argb(255, 30, 144, 255));
-				//Log.i("VI",Integer.toString(position));
+				line1.setTextColor(Color.argb(255, 30, 144, 255));
 			} else if(position >= posSuttan && position < posAbhi) {
-				line2.setTextColor(Color.argb(255, 255, 69, 0));
-				//Log.i("SU",Integer.toString(position));
-			} else if(position >= posAbhi) {
-				line2.setTextColor(Color.argb(255, 160, 32, 240));
-				//Log.i("AB",Integer.toString(position));
+				line1.setTextColor(Color.argb(255, 255, 69, 0));
+			} else if(position >= posAbhi && position < posEtc) {
+				line1.setTextColor(Color.argb(255, 160, 32, 240));
+			} else if(position >= posEtc) {
+				line1.setTextColor(Color.argb(255, 69, 255, 69));
 			}
 
 			return view;			
@@ -663,23 +651,17 @@ public class SearchActivity extends Activity {
 		public void setAbhiPosition(int position) {
 			posAbhi = position;
 		}
+		public void setEtcPosition(int position) {
+			posEtc = position;
+		}
 		
 	}
 
-	/*
-	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		if(keyCode == KeyEvent.KEYCODE_SEARCH) {
-			return false;
-		} else {
-			return super.onKeyUp(keyCode, event);
-		}
-	}
-	*/
 	
 	private void showResults(ArrayList<String> _resultList, boolean isSaved, String keywords, ArrayList<Integer> pList, ArrayList<Integer> sList, ArrayList<Integer> savedList, ArrayList<Integer> markedList) {
 		Log.i("Tipitaka","showing search results");
 		
-        savedCursor = convertToCursor(_resultList);
+        savedCursor = convertToCursor(_resultList,keywords);
         adapter = new SpecialCursorAdapter(SearchActivity.this, R.layout.result_item, savedCursor,
         		new String[] {"line1", "line2"},
         		new int[] {R.id.line1, R.id.line2});
@@ -702,6 +684,7 @@ public class SearchActivity extends Activity {
         adapter.setVinaiPosition(firstPosVinai);
         adapter.setSuttanPosition(firstPosSuttan);
         adapter.setAbhiPosition(firstPosAbhi);
+        adapter.setEtcPosition(firstPosEtc);
         
         TextView p1 = (TextView) findViewById(R.id.npage1);
         TextView p2 = (TextView) findViewById(R.id.npage2);
@@ -723,36 +706,52 @@ public class SearchActivity extends Activity {
         s3.setText(Integer.toString(suAbhi));
         s4.setText(Integer.toString(suEtc));
 
-        // save search history
         if(isSaved) {
-    		Log.i("Tipitaka","saving search history");
+
+            // save search history
+
+        	Log.i("Tipitaka","saving search history");
     		
             String tmp = ""+(pVinai+pSuttan+pAbhi+pEtc) + " " + getString(R.string.sections);
             tmp += " " + ""+(suVinai+suSuttan+suAbhi+suEtc) + " " + getString(R.string.volumes);
             String line1 = String.format("(%s)", tmp);
 
+            if(b5) {
+            	line1 += " M ";
+            }
+            if(b6) {
+            	line1 += " A ";
+            }
+            if(b7) {
+            	line1 += " T ";
+            }
+            
             String line2 = "";
-            if(selCate.charAt(0) == '1') {
+            if(b1) {
             	line2 += String.format("%s(%s/%s)  ", 
             			getString(R.string.ss_vinai), 
             			pVinai+"", 
             			suVinai+"");
             			
             }
-            if(selCate.charAt(1) == '1') {
+            if(b2) {
             	line2 += String.format("%s(%s/%s)  ", 
             			getString(R.string.ss_suttan), 
             			pSuttan+"",
             			suSuttan+"");
             }
-            if(selCate.charAt(2) == '1') {
-            	line2 += String.format("%s(%s/%s)", 
+            if(b3) {
+            	line2 += String.format("%s(%s/%s) ", 
             			getString(R.string.ss_abhi), 
             			pAbhi+"", 
             			suAbhi+"");
             }
-            line2 = line2.trim();    	        
-            
+            if(b4) {
+            	line2 += String.format("%s(%s/%s) ", 
+            			getString(R.string.ss_etc), 
+            			pEtc+"", 
+            			suEtc+"");
+            }            
             
             searchHistoryDBAdapter.open();
     	    SearchHistoryItem item1 = new SearchHistoryItem(lang, keywords, pVinai+pSuttan+pAbhi+pEtc, suVinai+suSuttan+suAbhi+suEtc, selCate, line1, line2);
@@ -760,58 +759,27 @@ public class SearchActivity extends Activity {
     	    	searchHistoryDBAdapter.insertEntry(item1);
     	    }
             searchHistoryDBAdapter.close();
-        }
-        else {
+
+
             // save search results
 	        searchResultsDBAdapter.open();
-	        try {
-	        	String content = Utils.toStringBase64(_resultList);
-	        	String pClicked = Utils.toStringBase64(adapter.getPrimaryClicked());
-	        	String sClicked = Utils.toStringBase64(adapter.getSecondaryClicked());
-	        	String saved = Utils.toStringBase64(adapter.getSaved());
-	        	String marked = Utils.toStringBase64(adapter.getMarked());
 	        	
-		        SearchResultsItem item2 = new SearchResultsItem(lang, keywords, 
-		        		pVinai+":"+pSuttan+":"+pAbhi+":"+pEtc,
-		        		suVinai+":"+suSuttan+":"+suAbhi+":"+suEtc,selCate, content);
-		        if(!searchResultsDBAdapter.isDuplicated(item2)) {
-			        item2.setPrimaryClicked(pClicked);
-			        item2.setSecondaryClicked(sClicked);
-			        item2.setSaved(saved);
-			        item2.setMarked(marked);
-		        	savedResultsItemPosition = searchResultsDBAdapter.insertEntry(item2);
-		        	//Toast.makeText(this, "SAVE"+":"+savedResultsItemPosition, Toast.LENGTH_SHORT).show();
-		        } else {
-		        	Cursor cursor = searchResultsDBAdapter.getEntries(lang, keywords, selCate);
-		        	if(cursor.getCount() > 0 && cursor.moveToFirst()) {
-		        		savedResultsItemPosition = cursor.getInt(SearchResultsDBAdapter.ID_COL);
-		        		pClicked = cursor.getString(SearchResultsDBAdapter.PRIMARY_CLIKCED_COL);
-		        		sClicked = cursor.getString(SearchResultsDBAdapter.SECONDARY_CLIKCED_COL);
-		        		saved = cursor.getString(SearchResultsDBAdapter.SAVED_COL);
-		        		marked = cursor.getString(SearchResultsDBAdapter.MARKED_COL);
-		        		
-				        item2.setPrimaryClicked(pClicked);
-				        item2.setSecondaryClicked(sClicked);
-				        item2.setSaved(saved);
-				        item2.setMarked(marked);
-				        
-		        		try {
-		        			adapter.setPrimaryClicked((ArrayList<Integer>)Utils.fromStringBase64(pClicked));
-		        			adapter.setSecondaryClicked((ArrayList<Integer>)Utils.fromStringBase64(sClicked));
-		        			adapter.setSaved((ArrayList<Integer>)Utils.fromStringBase64(saved));
-		        			adapter.setMarked((ArrayList<Integer>)Utils.fromStringBase64(marked));
-		        		} catch(IOException e) {
-		        			e.printStackTrace();
-		        		} catch(ClassNotFoundException e) {
-		        			e.printStackTrace();
-		        		}
-		        	}
-		        	cursor.close();
-		        }
-		        savedResultsItem = item2;
-	        } catch(IOException e) {
-	        	e.printStackTrace();
+	        SearchResultsItem item2 = new SearchResultsItem(lang, keywords, 
+	        		pVinai+":"+pSuttan+":"+pAbhi+":"+pEtc,
+	        		suVinai+":"+suSuttan+":"+suAbhi+":"+suEtc,selCate);
+	        if(!searchResultsDBAdapter.isDuplicated(item2)) {
+	        	savedResultsItemPosition = searchResultsDBAdapter.insertEntry(item2);
+	        	//Toast.makeText(this, "SAVE"+":"+savedResultsItemPosition, Toast.LENGTH_SHORT).show();
+	        } else {
+	        	Cursor cursor = searchResultsDBAdapter.getEntries(lang, keywords, selCate);
+	        	if(cursor.getCount() > 0 && cursor.moveToFirst()) {
+	        		savedResultsItemPosition = cursor.getInt(SearchResultsDBAdapter.ID_COL);
+
+	        	}
+	        	cursor.close();
 	        }
+	        savedResultsItem = item2;
+
 	        searchResultsDBAdapter.close();    	        
         }
         
@@ -883,7 +851,7 @@ public class SearchActivity extends Activity {
     		Cursor cursor = mainTipitakaDBAdapter.search(vol, this.query, lang);    		
     		cursor.moveToFirst();
     		while(cursor.isAfterLast() == false) {
-    			this.resultList.add(cursor.getString(0)+":"+cursor.getString(1)+":"+cursor.getString(2));
+    			this.resultList.add(cursor.getString(0)+":"+cursor.getString(1)+":"+cursor.getString(2)+":"+cursor.getString(3));
     			cursor.moveToNext();
     		}
     		cursor.close();
@@ -999,7 +967,7 @@ public class SearchActivity extends Activity {
 		return newCursor;
 	}
 	
-	private MatrixCursor convertToCursor(ArrayList<String> results) {
+	private MatrixCursor convertToCursor(ArrayList<String> results, String query) {
 		final String [] matrix = { "_id", "line1", "line2" };
 		MatrixCursor cursor = new MatrixCursor(matrix);
 		final Resources res = this.getResources();
@@ -1066,8 +1034,6 @@ public class SearchActivity extends Activity {
 			}
 			
 			String sVol = Integer.toString(voli+1);
-			int page = Integer.parseInt(tokens[2]);
-			String sPage = Integer.toString(page+1);
 			for(String sut : tokens[1].split("\\s+")) {
 				if(! al_tmp.contains(sVol+":"+sut)) {
 					al_tmp.add(sVol+":"+sut);
@@ -1088,12 +1054,20 @@ public class SearchActivity extends Activity {
 				break;
 			}
 			
-			String line1 =  Integer.toString(key+1) + ". " +  
-					getString(R.string.th_tipitaka_label) + " "  +
-					getString(R.string.th_book_label) + " " +
-					sVol + " " +
-					getString(R.string.th_page_label) + " " +  
-					sPage;
+			int summaryBuffer = 20; 
+			String summary = "";
+			String content = tokens[3].replaceAll("^\\[[0-9]+\\]","").replaceAll("\\^a\\^[^^]*\\^ea\\^","").replaceAll("\\^b\\^","").replaceAll("\\^eb\\^","");
+			int startQuery = content.indexOf(query);
+			if(startQuery > -1) {
+				if(startQuery < summaryBuffer)
+					startQuery = summaryBuffer;
+				int endQuery = startQuery+query.length()+summaryBuffer;
+				if(content.length() < endQuery)
+					endQuery = content.length();
+				summary = content.substring(startQuery-summaryBuffer,endQuery);
+			}
+			
+			String line2 =  summary;
 			
 			String [] ts = tokens[2].split("\\s+");
 
@@ -1116,7 +1090,7 @@ public class SearchActivity extends Activity {
 				tmp = tmp + t + " ";
 				count++;
 			}
-			String line2 = tmp + " " + getString(R.string.th_items_label) + " " + t_items;
+			String line1 = Integer.toString(key+1) + ". " + tmp + " " + getString(R.string.th_items_label) + " " + t_items;
 			cursor.addRow(new Object[] { key++, line1, line2});
 		}				
 		return cursor;
@@ -1138,7 +1112,6 @@ public class SearchActivity extends Activity {
 		divider1.setVisibility(View.INVISIBLE);
 		divider2.setVisibility(View.INVISIBLE);
 
-    	//savedQuery = intent.getStringExtra(SearchManager.QUERY);
 		savedQuery = _query;
 		lang = _lang;
     	

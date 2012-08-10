@@ -96,8 +96,10 @@ public class SearchResultsDBAdapter {
 				where, null, null, null, null).getCount();
 		
 		if(count > 0) {
+			Log.i("Tipitaka", "duplicate search history item");
 			return true;
 		} else {
+			Log.i("Tipitaka", "non-duplicate search history item");
 			return false;
 		}
 	}
@@ -124,12 +126,8 @@ public class SearchResultsDBAdapter {
 		String saved = cursor.getString(SAVED_COL);
 		String marked = cursor.getString(MARKED_COL);
 		
-		SearchResultsItem result = new SearchResultsItem(lang, keywords, pages, suts, sCate, content);
-		result.setPrimaryClicked(pClicked);
-		result.setSecondaryClicked(sClicked);
-		result.setSaved(saved);
-		result.setMarked(marked);
-		
+		SearchResultsItem result = new SearchResultsItem(lang, keywords, pages, suts, sCate);
+	
 		return result;
 	}
 	
@@ -186,6 +184,8 @@ public class SearchResultsDBAdapter {
 	}
 	
 	public long insertEntry(SearchResultsItem item) {
+		Log.i("Tipitaka", "inserting search history item");
+		
 		ContentValues newValues = new ContentValues();
 		newValues.put(KEY_LANG, item.getLanguage());
 		newValues.put(KEY_KEYWORDS, item.getKeywords());

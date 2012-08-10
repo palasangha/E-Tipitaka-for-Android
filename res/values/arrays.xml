@@ -693,9 +693,9 @@
 	<item>0</item>	
 	</integer-array>
 	<string-array name="hnames">
-		<item>Canon</item>
-		<item>Commentary</item>
-		<item>Sub-Commentary</item>
+		<item>Mūla</item>
+		<item>Aṭṭhakathā</item>
+		<item>Ṭīkā</item>
 	</string-array>
 	<string-array name="dict">
 		<item>PED</item>
