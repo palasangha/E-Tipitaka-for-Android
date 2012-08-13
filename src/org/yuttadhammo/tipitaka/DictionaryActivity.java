@@ -87,7 +87,7 @@ public class DictionaryActivity extends Activity {
 			prefs.getString (HTML_KEY, loadResToString (R.raw.index))
 		);
 		Bundle extras = this.getIntent().getExtras();
-		if(extras.containsKey("word")) {
+		if(extras != null && extras.containsKey("word")) {
 
 			SharedPreferences.Editor ed = prefs.edit ();
 			ed.putInt (DICT_KEY, extras.getInt("dict"));
@@ -296,7 +296,7 @@ public class DictionaryActivity extends Activity {
 			this.word = null;
 			ed.putInt (DICT_KEY, dict);
 			ed.commit ();
-
+			lookupWord();
 		}
 		else {
 			switch (item.getItemId()) {
