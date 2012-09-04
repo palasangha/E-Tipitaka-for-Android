@@ -6,13 +6,10 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:orientation="horizontal"
-  android:background="#FF000000"
   >
 	<ListView
 		android:layout_width="@dimen/left800"
 		android:layout_height="match_parent"
-		android:textColor="@android:color/white"
-		android:background="@android:color/black"
 		android:choiceMode="singleChoice" 
 		android:divider="@android:color/transparent"
 		android:dividerHeight="10.0sp"
@@ -60,9 +57,8 @@
 				android:layout_width="match_parent"
 				android:layout_height="match_parent">
 			<view class="org.yuttadhammo.tipitaka.ReadBookActivity$PaliTextView" style="?android:attr/textViewStyle"
-					android:background="@android:color/black" 
-					android:textColor="@android:color/white"
-					android:textColorHighlight="#999900"
+					android:textColorHighlight="#BBFFFF00"
+					android:textColor="#FFFFFF"
 					android:id="@+id/main_text"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"

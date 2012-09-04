@@ -158,7 +158,7 @@ public class SearchHistoryDBAdapter {
 	}		
 	
 	public Cursor getEntries(String _lang, String subText, String key, boolean isDesc) {
-		String where = KEY_KEYWORDS + " LIKE " +  "'%" + subText + "%'";
+		String where = KEY_KEYWORDS + " LIKE " +  "'%" + subText.replace("'","''") + "%'";
 		String orderby;
 		if(isDesc) {
 			orderby = key + " DESC" + ", " + KEY_PRIORITY + " DESC";
@@ -172,9 +172,9 @@ public class SearchHistoryDBAdapter {
 	}
 
 	public Cursor getEntries(String _lang, String subText, String key, boolean isDesc, String code, String number) {
-		String where = KEY_KEYWORDS + " LIKE " +  "'%" + subText + "%'" +
+		String where = KEY_KEYWORDS + " LIKE " +  "'%" + subText.replace("'","''") + "%'" +
 						" AND " + KEY_CODE + " LIKE " + "'" + code + "%'" +
-						" AND " + KEY_PRIORITY + " LIKE" + "'" + number + "%'";
+						" AND " + KEY_PRIORITY + " LIKE " + "'" + number + "%'";
 		String orderby;
 		if(isDesc) {
 			orderby = key + " DESC" + ", " + KEY_PRIORITY + " DESC";
@@ -189,7 +189,7 @@ public class SearchHistoryDBAdapter {
 	
 	
 	public Cursor getEntries(String _lang, String keywords, String sCate, String key, boolean isDesc) {
-		String where = KEY_KEYWORDS + "=" + "'" + keywords + "'" +
+		String where = KEY_KEYWORDS + "=" + "'" + keywords.replace("'","''") + "'" +
 			" AND " + KEY_SEL_CATE + "=" + "'" + sCate + "'";
 		String orderby;
 		if(isDesc) {

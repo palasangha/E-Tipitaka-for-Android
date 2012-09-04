@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Collections;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -128,7 +127,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	public Resources res;
 	private LinearLayout splitPane;
 
-	@SuppressLint("NewApi")
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -376,6 +374,9 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				//Log.i ("Tipitaka","db cursor length: "+cursor.getCount());
 				String title = cursor.getString(2);
 				String content = cursor.getString(1);
+				
+				if(content == null)
+					content = "";
 
 				//~ content = "<u>"+content.replaceAll(" +", "</u> <u>")+"</u>";
 				

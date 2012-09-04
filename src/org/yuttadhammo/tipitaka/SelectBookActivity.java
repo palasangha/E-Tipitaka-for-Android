@@ -1,16 +1,17 @@
 package org.yuttadhammo.tipitaka;
 
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 
 import android.util.Log;
 
@@ -27,6 +28,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -111,6 +113,8 @@ public class SelectBookActivity extends Activity {
         
         
         textInfo = (Button) main.findViewById(R.id.read_btn);
+		textInfo.setTypeface(font);				
+
         //textHeader = (TextView) findViewById(R.id.tipitaka_label);
         //textHeaderLang = (TextView) findViewById(R.id.tipitaka_lang_label);
         readBtn = (Button) main.findViewById(R.id.read_btn);
@@ -125,7 +129,7 @@ public class SelectBookActivity extends Activity {
         //TextView limitationText = (TextView) findViewById(R.id.limitation);
         //limitationText.setText(Html.fromHtml(getString(R.string.limitation)));
         
-        ArrayAdapter<String> adapter0 = new ArrayAdapter<String>(this, R.layout.my_gallery_item_0, hnames);        
+        ArrayAdapter<String> adapter0 = new TipitakaGalleryAdapter(this, R.layout.my_gallery_item_0, hnames);        
         gHier.setAdapter(adapter0);
         
         ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, R.layout.my_gallery_item_1, cnames);        
@@ -390,104 +394,81 @@ public class SelectBookActivity extends Activity {
     	unzipProgressDialog.show();
     	    
     }
+
+    private class DownloadFile extends AsyncTask<String, Integer, String> {
+        @Override
+        protected String doInBackground(String... sUrl) {
+            try {
+                URL url = new URL(sUrl[0]);
+                URLConnection connection = url.openConnection();
+                connection.connect();
+                // this will be useful so that you can show a typical 0-100% progress bar
+                int fileLength = connection.getContentLength();
+
+	    		File SDCardRoot = Environment.getExternalStorageDirectory();
+	    		//create a new file, specifying the path, and the filename
+	    		//which we want to save the file as.
+	    		File file = new File(SDCardRoot,"ATPK.zip");
+                
+                // download the file
+                InputStream input = new BufferedInputStream(url.openStream());
+                OutputStream output = new FileOutputStream(file);
+
+                byte data[] = new byte[1024];
+                long total = 0;
+                int count;
+                while ((count = input.read(data)) != -1) {
+                    total += count;
+                    // publishing the progress....
+                    publishProgress((int) (total * 100 / fileLength));
+                    output.write(data, 0, count);
+                }
+
+                output.flush();
+                output.close();
+                input.close();
+            } catch (Exception e) {
+            }
+            return null;
+        }
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            downloadProgressDialog.show();
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            super.onProgressUpdate(progress);
+            downloadProgressDialog.setProgress(progress[0]);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+			if(downloadProgressDialog.isShowing()) {
+				downloadProgressDialog.setProgress(totalDowloadSize);
+				downloadProgressDialog.setMessage(getString(R.string.finish));
+				downloadProgressDialog.dismiss();
+			}
+				//start uncompress the zip file
+				uncompressFile("ATPK.zip");
+		}
+
+    }
+
     
     // copy from http://www.androidsnippets.org/snippets/193/index.html
     private void downloadFile(String urlText, final String fileName) {
-    	try {    		
-    		//set the download URL, a url that points to a file on the internet
-    		//this is the file to be downloaded
-    		final URL url = new URL(urlText);
-
-    		//create the new connection
-    		final HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-
-    		//set up some things on the connection
-    		urlConnection.setRequestMethod("GET");
-    		urlConnection.setDoOutput(true);
-
-            downloadProgressDialog = new ProgressDialog(this);
-            downloadProgressDialog.setCancelable(false);
-            downloadProgressDialog.setMessage(getString(R.string.downloading));
-            downloadProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            downloadProgressDialog.setProgress(0);
-    		
-    		Thread thread = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {					
-			    		//and connect!
-			    		urlConnection.connect();
-
-			    		//set the path where we want to save the file
-			    		//in this case, going to save it on the root directory of the
-			    		//sd card.
-			    		final File SDCardRoot = Environment.getExternalStorageDirectory();
-			    		//create a new file, specifying the path, and the filename
-			    		//which we want to save the file as.
-			    		final File file = new File(SDCardRoot,fileName);
-			    		final String savedFileName = fileName;
-
-
-			    		//this will be used in reading the data from the internet
-			    		final InputStream inputStream = urlConnection.getInputStream();
-			    		//this is the total size of the file
-			    		totalDowloadSize = urlConnection.getContentLength();
-			    		//variable to store total downloaded bytes
-			    		downloadedSize = 0;
-
-			            downloadProgressDialog.setMax(totalDowloadSize);
-			            
-						//this will be used to write the downloaded data into the file we created
-			    		FileOutputStream fileOutput = new FileOutputStream(file);    		
-			    		//create a buffer...
-			    		byte[] buffer = new byte[1024];
-			    		int bufferLength = 0; //used to store a temporary size of the buffer
-			    		//now, read through the input buffer and write the contents to the file
-			    		while ( (bufferLength = inputStream.read(buffer)) > 0 ) {
-			    			//add the data in the buffer to the file in the file output stream (the file on the sd card
-			    			fileOutput.write(buffer, 0, bufferLength);
-			    			//add up the size so we know how much is downloaded
-			    			downloadedSize += bufferLength;
-			    			//this is where you would do something to report the prgress, like this maybe
-			    			//updateProgress(downloadedSize, totalSize);
-			    			handler.post(new Runnable() {
-								@Override
-								public void run() {
-									if(downloadedSize < totalDowloadSize) {
-										downloadProgressDialog.setProgress(downloadedSize);
-									} else {
-										if(downloadProgressDialog.isShowing()) {
-											downloadProgressDialog.setProgress(totalDowloadSize);
-											downloadProgressDialog.setMessage(getString(R.string.finish));
-											downloadProgressDialog.dismiss();
-											//start uncompress the zip file
-											uncompressFile(savedFileName);
-										}
-									}
-								}
-							});
-	
-			    		}
-			    		//close the output stream when done
-			    		fileOutput.close();
-					} catch (IOException e) {
-			    		Toast.makeText(getBaseContext(), e.toString(), Toast.LENGTH_LONG).show();
-			    		//e.printStackTrace();
-			    	}    	
-					
-				}
-			});
-    		thread.start();
-    		downloadProgressDialog.show();
-
-    	//catch some possible errors...
-    	} catch (MalformedURLException e) {
-    		Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-    		//e.printStackTrace();
-    	} catch (IOException e) {
-    		Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-    		//e.printStackTrace();
-    	}    	
+        downloadProgressDialog = new ProgressDialog(this);
+        downloadProgressDialog.setCancelable(false);
+        downloadProgressDialog.setMessage(getString(R.string.downloading));
+        downloadProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        downloadProgressDialog.setProgress(0);
+        
+     // execute this when the downloader must be fired
+        DownloadFile downloadFile = new DownloadFile();
+        downloadFile.execute(urlText);
     }
     
     

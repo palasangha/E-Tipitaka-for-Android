@@ -11,7 +11,6 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.text.InputType;
-import android.widget.Toast;
 
 
 public class SettingsActivity extends PreferenceActivity {

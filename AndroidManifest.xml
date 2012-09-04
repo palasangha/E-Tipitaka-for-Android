@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="org.yuttadhammo.tipitaka"
-      android:versionName="3.5" android:versionCode="30">
+      android:versionName="4.0" android:versionCode="33">
     <uses-sdk android:minSdkVersion="8"  android:targetSdkVersion="10"/>
 
 	<uses-permission android:name="android.permission.INTERNET" />
@@ -23,7 +23,7 @@
               android:authorities="org.yuttadhammo.tipitaka.ATPKSearchSuggestionProvider" />
      	-->
         <activity android:name=".SelectBookActivity"
-        		  android:theme="@style/MyTheme"
+        		  android:theme="@style/SwitchTheme"
         		  android:configChanges="orientation|keyboardHidden"
                   android:label="@string/app_name"
                   >
@@ -34,19 +34,19 @@
         </activity>
 
 		<activity android:name=".ReadBookActivity"
-				  android:theme="@style/MyTheme"
+				  android:theme="@style/SwitchTheme"
 				  android:configChanges="orientation|keyboardHidden"
 				  android:label="@string/read_page">
 		</activity>
 
 		<activity android:name=".EnglishActivity"
-				  android:theme="@style/MyTheme"
+				  android:theme="@style/SwitchTheme"
 				  android:configChanges="orientation|keyboardHidden"
 				  android:label="@string/english_page">
 		</activity>
 
 		<activity android:name=".SearchActivity"
-				  android:theme="@style/MyTheme"
+				  android:theme="@style/SwitchTheme"
 				  android:configChanges="orientation|keyboardHidden"
 				  android:label="@string/search_page"
 				  android:exported="false">
@@ -58,7 +58,7 @@
 		</activity>		
 		<activity 
 			android:name=".BookmarkPaliActivity"
-			android:theme="@style/MyTheme"
+			android:theme="@style/SwitchTheme"
 			android:configChanges="orientation|keyboardHidden"
 			android:noHistory="true"
 		/>
@@ -66,15 +66,15 @@
 			android:name=".BookmarkEnglishActivity"
 			android:configChanges="orientation|keyboardHidden"
 			android:noHistory="true"
-			android:theme="@style/MyTheme"
+			android:theme="@style/SwitchTheme"
 		/>
         <activity 
-			android:theme="@style/MyTheme"
+			android:theme="@style/SwitchTheme"
 			android:name=".SettingsActivity"
 			android:noHistory="true"
         />
         <activity 
-			android:theme="@style/MyTheme"
+			android:theme="@style/SwitchTheme"
 			android:name=".DictionaryActivity"
 			android:noHistory="true"
         />
@@ -86,7 +86,7 @@
         <activity 
             android:name="SearchDialog"
 		  	android:label="@string/search_dialog"
-			android:theme="@style/MyTheme"
+			android:theme="@style/SwitchTheme"
             />
 
     </application>

@@ -195,6 +195,14 @@ public class MainTipitakaDBAdapter {
 		return input.replace("aa", "ā").replace("ii", "ī").replace("uu", "ū").replace(".t", "ṭ").replace(".d", "ḍ").replace("\"n", "ṅ").replace(".n", "ṇ").replace(".m", "ṃ").replace("~n", "ñ").replace(".l", "ḷ");
 	}
 
+	public Cursor dictQueryEndings(String table, String endings) {
+    	final Cursor cursor = this.db.rawQuery(
+    			"SELECT entry, text FROM "+table+" WHERE entry IN ("+endings+")",
+    			null
+    		);	
+    	return cursor;		
+	}
+
 }
 
 

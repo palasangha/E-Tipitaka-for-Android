@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -24,6 +25,7 @@ import java.io.InputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 public class DictionaryActivity extends Activity {
@@ -41,7 +43,6 @@ public class DictionaryActivity extends Activity {
 	private static final String	DICT_KEY	= "dict";  // 0 = CPED, 1 = DPPN, 2 = PED
 	
 	private static final String[] DICT_ARRAY = {"PED","CPED","CEPD","DPPN"};  // 0 = CPED, 1 = DPPN, 2 = PED
-	private static final String[] DICT_ARRAY_FULL = {"Full Pali-English","Concise Pali-English","Concise English-Pali","Pali Proper Names"};  // 0 = CPED, 1 = DPPN, 2 = PED
 	private static final String[] TABLE_ARRAY = {"ped","cped","cepd","dppn"};  // 0 = CPED, 1 = DPPN, 2 = PED
 	
 	private int dict = 0;  // 0 = CPED, 1 = DPPN, 2 = PED
@@ -53,10 +54,13 @@ public class DictionaryActivity extends Activity {
 	private SharedPreferences prefs;
 	private WebView wv;
 
+	private String NO_RESULTS = "<html><head></head><body><p><b>No results.</b></p></body></html>";
+
 	
 	@Override
 	public void onCreate (Bundle savedInstanceState) {
 		super.onCreate (savedInstanceState);
+        db = new MainTipitakaDBAdapter(this);
 
 		setContentView (R.layout.cped);
 		prefs = getPreferences (MODE_PRIVATE);
@@ -130,13 +134,6 @@ public class DictionaryActivity extends Activity {
 		}
 	}
 	
-	private class MenuButtonClickListener implements OnClickListener {
-		@Override
-		public void onClick (View v) {
-			DictionaryActivity.this.openOptionsMenu();
-		}
-	}
-	
 	private class LookupTextKeyListener implements OnKeyListener {
 		@Override
 		public boolean onKey (View view, int keyCode, KeyEvent event) {
@@ -180,30 +177,32 @@ public class DictionaryActivity extends Activity {
 		lookupWord (lookup_text.getText ().toString ());
 	}
 
-	private void lookupWord (String word) {
-		word = word.replaceAll("^ +","").replaceAll(" +$","").replace("*","%").replaceAll("%$","");
-		if ((this.word != null && this.word.equals (word)) || word == "") {
+	private void lookupWord (String query) {
+		query = query.replaceAll("^ +","").replaceAll(" +$","").replace("*","%").replaceAll("%$","");
+		if ((this.word != null && this.word.equals (query)) || query == "") {
 			return;
 		}
-		word = word.replaceAll("ā", "aa").replaceAll("ī", "ii").replaceAll("ū", "uu").replaceAll("ṭ", ".t").replaceAll("ḍ", ".d").replaceAll("ṅ", "\"n").replaceAll("ṇ", ".n").replaceAll("[ṃṁ]", ".m").replaceAll("ñ", "~n").replaceAll("ḷ", ".l").replaceAll("Ā", "AA").replaceAll("Ī", "II").replaceAll("Ū", "UU").replaceAll("Ṭ", ".T").replaceAll("Ḍ", ".D").replaceAll("Ṅ", "\"N").replaceAll("Ṇ", ".N").replaceAll("[ṂṀ]",".M").replaceAll("Ñ", "~N").replaceAll("Ḷ", ".L");
+		query = query.replaceAll("ā", "aa").replaceAll("ī", "ii").replaceAll("ū", "uu").replaceAll("ṭ", ".t").replaceAll("ḍ", ".d").replaceAll("ṅ", "\"n").replaceAll("ṇ", ".n").replaceAll("[ṃṁ]", ".m").replaceAll("ñ", "~n").replaceAll("ḷ", ".l").replaceAll("Ā", "AA").replaceAll("Ī", "II").replaceAll("Ū", "UU").replaceAll("Ṭ", ".T").replaceAll("Ḍ", ".D").replaceAll("Ṅ", "\"N").replaceAll("Ṇ", ".N").replaceAll("[ṂṀ]",".M").replaceAll("Ñ", "~N").replaceAll("Ḷ", ".L");
 		
-		word = word.toLowerCase();
+		query = query.toLowerCase();
 		
-		this.word = word;
+		this.word = query;
 		
 		displayLoadingPage ();
 
 		String table = TABLE_ARRAY[dict];
 
-        db = new MainTipitakaDBAdapter(this);
 		db.open();
-		Cursor c = db.dictQuery(table,word);		
-		String html = parse(c);
+		Cursor c = db.dictQuery(table,query);		
+		String html = parse(c, query);
 		db.close();
-		displayResult (word, html);
+		displayResult (query, html);
 	}
 
-    public String parse (Cursor c){
+    public String parse (Cursor c, String query){
+    	if(c == null || c.getCount() == 0) {
+    		return parseEndings(query);
+    	}
 		try {
 			String raw = "";
 			ContentValues cvs = new ContentValues();
@@ -254,10 +253,39 @@ public class DictionaryActivity extends Activity {
 		catch(Exception e) {
 			Log.e ("cped", "failed to load entry: " + e);
 
-			html = "<html><head></head><body><p><b>No results.</b></p></body></html>";
-			return html;
+			return NO_RESULTS ;
 		}
     }
+
+	private String parseEndings(String query) {
+		String[] declensions = getResources().getStringArray(R.array.declensions);
+		ArrayList<String> endings = new ArrayList<String>(); 
+		for(String declension : declensions) {
+			String[] decArray = TextUtils.split(declension, ",");
+			String ending = decArray[0];
+			int offset = Integer.parseInt(decArray[1]);
+			int min = Integer.parseInt(decArray[2]);
+			String add = decArray[3];
+			if(query.length() > min && query.endsWith(ending)) {
+				endings.add(TextUtils.substring(query, 0, query.length()-ending.length()+offset)+add);
+			}
+		}
+		if(endings.isEmpty())
+			return NO_RESULTS;
+
+		String endstring = "'"+TextUtils.join("','", endings)+"'";
+		String table = TABLE_ARRAY[dict];
+		db.open();
+		Cursor c = db.dictQueryEndings(table,endstring);	
+    	if(c == null || c.getCount() == 0) {
+    		db.close();
+   			return NO_RESULTS;
+    	}
+		String html = parse(c, query);
+		db.close();
+		return html;
+	}
+
 
 	@Override
 	public boolean onCreateOptionsMenu (Menu menu) {
