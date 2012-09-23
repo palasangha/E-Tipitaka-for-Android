@@ -6,4 +6,10 @@
 						android:shouldDisableView="true"
 						android:singleLine="true"/>
     </PreferenceCategory>	                        
+	<PreferenceCategory android:title="@string/prefMisc">
+   		<EditTextPreference android:key="data_dir"
+						android:title="@string/prefDataDir"
+						android:shouldDisableView="true"
+						android:singleLine="true"/>
+    </PreferenceCategory>
 </PreferenceScreen>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="SwitchTheme" parent="@android:style/Theme">
+    <style name="SwitchTheme" parent="@android:style/Theme.Light">
 	</style> 
     <style name="searchDialogStyle" parent="@android:style/Theme.Panel">
     </style>

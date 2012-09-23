@@ -3,29 +3,47 @@ package org.yuttadhammo.tipitaka;
 import java.io.File;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
 public class MainTipitakaDBAdapter {
 	private static final String DATABASE_NAME = "atipitaka.db";
 	//private static final int DATABASE_VERSION = 1;	
-	private static String DATABASE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "ATPK"; 
+	private static String DEFAULT_DATABASE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "ATPK"; 
+	private static String DATABASE_PATH = null; 
 	private SQLiteDatabase db = null;
 	private final Context context;
 	//private MainTipitakaDBHelper dbHelper;
 	
 	public MainTipitakaDBAdapter(Context _context) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_context);
+		DATABASE_PATH = prefs.getString("data_dir", DEFAULT_DATABASE_PATH);
 		//dbHelper = new MainTipitakaDBHelper(DATABASE_PATH + File.separator + DATABASE_NAME);
 		context = _context;
 	}
 	
-	public MainTipitakaDBAdapter open() throws SQLException {
+	public MainTipitakaDBAdapter open() {
         File f = new File(DATABASE_PATH + File.separator + DATABASE_NAME);
+        if(!f.exists()) {
+        	f = new File(DEFAULT_DATABASE_PATH + File.separator + DATABASE_NAME);
+        	Log.w("Tipitaka","Reverting to default database file at"+f.getAbsolutePath());
+        }
+        
         if(f.exists()) {
+        	try {
 			//db = SQLiteDatabase.openDatabase(DATABASE_PATH + File.separator + DATABASE_NAME, null, SQLiteDatabase.OPEN_READWRITE);
-			db = SQLiteDatabase.openDatabase(DATABASE_PATH + File.separator + DATABASE_NAME, null, SQLiteDatabase.OPEN_READONLY);
+        		db = SQLiteDatabase.openDatabase(f.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
+        	}
+        	catch(Exception e) {
+        		e.printStackTrace();
+        		db = null;
+        		return this;
+        	}
 			// version check
 
 			//db.setVersion(pversion);

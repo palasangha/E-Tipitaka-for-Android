@@ -6,6 +6,7 @@
 	android:layout_width="match_parent" 
 	android:layout_height="match_parent"
 	android:fillViewport="true"
+	android:background="@drawable/background"
 	android:scrollbars="horizontal|vertical">
 
 	<LinearLayout
@@ -60,7 +61,6 @@
 		    android:layout_height="match_parent"
 		    android:text="@string/th_read"
 		    android:layout_margin="10dp"
-		    android:textColor="#FFFFFF"
 		    android:textSize="30dp" />
 	</LinearLayout>
 </ScrollView>

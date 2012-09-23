@@ -5,6 +5,7 @@
   android:fillViewport="true"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
+  android:background="@drawable/background"
   android:orientation="vertical">
 	<LinearLayout
 		android:id="@+id/top_bar"
@@ -27,14 +28,6 @@
 			android:layout_marginBottom="5dp"
 			android:textSize="30dp"
 		/>	
-<!--     	<ImageView
-			android:layout_marginTop="3dp"
-			android:layout_marginBottom="2dp"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center"
-			android:src="@drawable/triangle1s"
-		/>  -->
 	</LinearLayout>
 	<View 
 		android:id="@+id/short_divider"
@@ -47,18 +40,10 @@
 		android:id="@+id/main_area"
 		android:layout_height="match_parent"
 		android:layout_width="match_parent">
-		<Button 
-			android:id="@+id/dict_button"
-			android:visibility="gone"
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:text="@string/dict"
-			android:layout_alignParentRight="true"
-		/>
 		<ListView
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:divider="#b5b5b5"
+			android:divider="#333333"
 			android:dividerHeight="1dp"
 			android:choiceMode="singleChoice" 
 	  		android:id="@+id/index_list"/>
@@ -68,10 +53,9 @@
 			android:scrollbars="vertical"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent">
-			<view class="org.yuttadhammo.tipitaka.ReadBookActivity$PaliTextView" style="?android:attr/textViewStyle"
+			<view class="org.yuttadhammo.tipitaka.ReadBookActivity$PaliTextView" 
+			    style="?android:attr/textViewStyle"
 				android:id="@+id/main_text"
-				android:textColorHighlight="#BBFFFF00"
-				android:textColor="#FFFFFF"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="20dp"
@@ -80,5 +64,14 @@
 				android:lineSpacingExtra="2dip"
 			/>
 		</ScrollView>
+		<Button 
+			android:id="@+id/dict_button"
+			android:visibility="gone"
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="@string/dict"
+			android:layout_alignParentRight="true"
+			android:layout_alignParentTop="true"
+		/>
 	</RelativeLayout>
 </LinearLayout>

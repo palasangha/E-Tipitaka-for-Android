@@ -64,8 +64,6 @@ public class SearchDialog extends Activity {
 	private String sortKey;
 	private boolean isDesc = false;
 	private SharedPreferences prefs;	
-	private TextView codeLabel;
-	private TextView numberLabel;
 	private View searchView;
 		   	
 	/*
@@ -129,7 +127,6 @@ public class SearchDialog extends Activity {
 			}
 		});
 		
-		codeLabel = (TextView)findViewById(R.id.code_label);
 		codeText = (EditText)findViewById(R.id.code_text);
 		codeText.addTextChangedListener(new TextWatcher() {
 			
@@ -153,7 +150,6 @@ public class SearchDialog extends Activity {
 			}
 		});
 		
-		numberLabel = (TextView)findViewById(R.id.number_label);
 		numberText = (EditText)findViewById(R.id.number_text);
 		numberText.addTextChangedListener(new TextWatcher() {
 			
@@ -289,7 +285,6 @@ public class SearchDialog extends Activity {
 		
 	}
 	
-	
 	private class ResultsCursorAdapter extends SimpleCursorAdapter {
 
 		private int markedPosition = -1;
@@ -304,16 +299,9 @@ public class SearchDialog extends Activity {
 			this.notifyDataSetChanged();
 		}
 		
-		public int getMarkedPosition() {
-			return markedPosition;
-		}
-		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View view = super.getView(position, convertView, parent);
-			
-			View splitter = view.findViewById(R.id.item_splitter);
-			splitter.setBackgroundColor(Color.BLACK);
 			
 			String skey = prefs.getString("SORT_KEY", SearchHistoryDBAdapter.KEY_KEYWORDS);
 			
@@ -322,26 +310,11 @@ public class SearchDialog extends Activity {
 			
 			if(position > 0 && skey.equals(SearchHistoryDBAdapter.KEY_CODE)) {
 				savedCursor.moveToPosition(position-1);
-				String topPriority = savedCursor.getString(SearchHistoryDBAdapter.PRIORITY_COL);
 				savedCursor.moveToPosition(position);
-				String currentPriority = savedCursor.getString(SearchHistoryDBAdapter.PRIORITY_COL);
 				
-				if(topPriority.length() != currentPriority.length()) {
-					splitter.setBackgroundColor(Color.LTGRAY);
-				} else if (currentPriority.length() == 4) {
-					if(!currentPriority.substring(0, 2).equals(topPriority.substring(0, 2))) {
-						splitter.setBackgroundColor(Color.LTGRAY);
-					}
-				} 
-
 				savedCursor.moveToPosition(position-1);
-				String topCode = savedCursor.getString(SearchHistoryDBAdapter.CODE_COL);
 				savedCursor.moveToPosition(position);
-				String currentCode = savedCursor.getString(SearchHistoryDBAdapter.CODE_COL);
 				
-				if(!topCode.equals(currentCode)) {
-					splitter.setBackgroundColor(Color.rgb(255, 215, 0));
-				}
 				codeLabel.setVisibility(View.VISIBLE);
 				numberLabel.setVisibility(View.VISIBLE);
 				
@@ -358,7 +331,6 @@ public class SearchDialog extends Activity {
 			text = line3.getText().toString();
 			String [] tokens = text.split("\\s+");
 			String output = "";
-			ArrayList<String> output2 = new ArrayList<String>();
 			for(String s: tokens) {
 				if(s.startsWith(context.getString(R.string.ss_vinai))) {
 					if(s.endsWith(context.getString(R.string.zero_zero))) {
@@ -382,23 +354,16 @@ public class SearchDialog extends Activity {
 					if(s.endsWith(context.getString(R.string.zero_zero))) {
 						output += s + "  ";
 					} else {
-						output += String.format("<font color='#45FF45'>%s</font>  ", s);
+						output += String.format("<font color='#00AA00'>%s</font>  ", s);
 					}
-				} else if(s.startsWith(context.getString(R.string.ss_etc))) {
-					if(s.endsWith(context.getString(R.string.zero_zero))) {
-						output += s + "  ";
-					} else {
-						output += String.format("<font color='#45FF45'>%s</font>  ", s);
-					}
-				} 
+				}
 			}
 			line3.setText(Html.fromHtml(output.trim()));
 			
 			Typeface font = Typeface.createFromAsset(context.getAssets(), "verajjan.ttf");
 			line3.setTypeface(font);
-			view.setBackgroundColor(Color.BLACK);
 			if(markedPosition == position) {
-				view.setBackgroundColor(Color.DKGRAY);
+				view.setBackgroundColor(Color.LTGRAY);
 			}
 			
 			return view;
@@ -919,8 +884,6 @@ public class SearchDialog extends Activity {
 	}
 
 	private void updateHistoryList(String _lang) {
-		String code = codeText.getText().toString();
-		String number = numberText.getText().toString();	
 		searchHistoryDBAdapter.open();
 		if(savedCursor != null && !savedCursor.isClosed()) {
 			savedCursor.close();

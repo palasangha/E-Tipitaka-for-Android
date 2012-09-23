@@ -515,14 +515,15 @@ public class SearchActivity extends Activity {
 
 					
 			if(checkClicked.contains(position)) {
-				line1.setBackgroundColor(Color.rgb(90, 90, 90));
-				line2.setBackgroundColor(Color.rgb(90, 90, 90));
+				line1.setBackgroundColor(Color.LTGRAY);
+				line2.setBackgroundColor(Color.LTGRAY);
 			} else if(checkSecondaryClicked.contains(position)) {
-				line1.setBackgroundColor(Color.rgb(45, 45, 45));
-				line2.setBackgroundColor(Color.rgb(45, 45, 45));
-			} else {
-				line1.setBackgroundColor(Color.BLACK);
-				line2.setBackgroundColor(Color.BLACK);
+				line1.setBackgroundColor(Color.LTGRAY);
+				line2.setBackgroundColor(Color.LTGRAY);
+			}
+			else {
+				line1.setBackgroundColor(Color.TRANSPARENT);
+				line2.setBackgroundColor(Color.TRANSPARENT);
 			}
 
 			if(checkSaved.contains(position)) {
@@ -537,7 +538,7 @@ public class SearchActivity extends Activity {
 			} else if(position >= posAbhi && position < posEtc) {
 				line1.setTextColor(Color.argb(255, 160, 32, 240));
 			} else if(position >= posEtc) {
-				line1.setTextColor(Color.argb(255, 69, 255, 69));
+				line1.setTextColor(Color.argb(255, 00, 150, 00));
 			}
 
 			return view;			

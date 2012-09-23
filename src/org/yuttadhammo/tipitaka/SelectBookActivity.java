@@ -63,11 +63,6 @@ public class SelectBookActivity extends Activity {
 	private SharedPreferences prefs;  
     private SearchHistoryDBAdapter searchHistoryDBAdapter;
     private BookmarkDBAdapter bookmarkDBAdapter;
-    private ProgressDialog downloadProgressDialog;
-    private ProgressDialog unzipProgressDialog;
-	private Handler handler = new Handler();
-    private int totalDowloadSize;
-    private int downloadedSize;
     private SearchDialog searchDialog = null;
     
     private int hierC = 0;
@@ -93,18 +88,6 @@ public class SelectBookActivity extends Activity {
         final Context context = getApplicationContext();
         prefs =  PreferenceManager.getDefaultSharedPreferences(context);
         
-        MainTipitakaDBAdapter mainTipitakaDBAdapter = new MainTipitakaDBAdapter(this);
-        try {
-        	mainTipitakaDBAdapter.open();
-        	if(mainTipitakaDBAdapter.isOpened()) {
-        		mainTipitakaDBAdapter.close();
-        	} else {
-        		startDownloader();
-        	}
-        } catch (SQLiteException e) {
-			Log.e ("Tipitaka","error:", e);
-        	startDownloader();
-        }
         
 		final Typeface font = Typeface.createFromAsset(getAssets(), "verajjan.ttf");  
         final Resources res = getResources();
@@ -343,134 +326,6 @@ public class SelectBookActivity extends Activity {
         });
     }
 
-	
-    
-    // copy from http://www.chrisdadswell.co.uk/android-coding-example-checking-for-the-presence-of-an-internet-connection-on-an-android-device/
-    private boolean isInternetOn() {
-
-    	ConnectivityManager connec =  (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-
-    	// ARE WE CONNECTED TO THE NET
-    	if(connec == null)
-    		return false;
-    	if (connec.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED ||
-    			connec.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTING ||
-    			connec.getNetworkInfo(1).getState() == NetworkInfo.State.CONNECTING ||
-    			connec.getNetworkInfo(1).getState() == NetworkInfo.State.CONNECTED ) {
-    		return true;
-    	} 
-    	if (connec.getNetworkInfo(0).getState() == NetworkInfo.State.DISCONNECTED ||  
-    			connec.getNetworkInfo(1).getState() == NetworkInfo.State.DISCONNECTED  ) {
-    		return false;
-    	}
-    	return false;
-    }
-    
-    private void uncompressFile(String fileName) {
-    	String zipFile = Environment.getExternalStorageDirectory() + File.separator + fileName; 
-    	String unzipLocation = Environment.getExternalStorageDirectory() + File.separator; 
-    	final Decompress d = new Decompress(zipFile, unzipLocation); 
-    	unzipProgressDialog = new ProgressDialog(this);
-    	unzipProgressDialog.setCancelable(false);
-    	unzipProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-    	unzipProgressDialog.setMessage(getString(R.string.unzipping_db));
-    	Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				d.unzip();
-				handler.post(new Runnable() {
-					
-					@Override
-					public void run() {
-						if(unzipProgressDialog.isShowing()) {
-							unzipProgressDialog.dismiss();
-							Toast.makeText(context, getString(R.string.unzipped), Toast.LENGTH_SHORT).show();
-						}
-					}
-				});
-			}
-		});
-    	thread.start();
-    	unzipProgressDialog.show();
-    	    
-    }
-
-    private class DownloadFile extends AsyncTask<String, Integer, String> {
-        @Override
-        protected String doInBackground(String... sUrl) {
-            try {
-                URL url = new URL(sUrl[0]);
-                URLConnection connection = url.openConnection();
-                connection.connect();
-                // this will be useful so that you can show a typical 0-100% progress bar
-                int fileLength = connection.getContentLength();
-
-	    		File SDCardRoot = Environment.getExternalStorageDirectory();
-	    		//create a new file, specifying the path, and the filename
-	    		//which we want to save the file as.
-	    		File file = new File(SDCardRoot,"ATPK.zip");
-                
-                // download the file
-                InputStream input = new BufferedInputStream(url.openStream());
-                OutputStream output = new FileOutputStream(file);
-
-                byte data[] = new byte[1024];
-                long total = 0;
-                int count;
-                while ((count = input.read(data)) != -1) {
-                    total += count;
-                    // publishing the progress....
-                    publishProgress((int) (total * 100 / fileLength));
-                    output.write(data, 0, count);
-                }
-
-                output.flush();
-                output.close();
-                input.close();
-            } catch (Exception e) {
-            }
-            return null;
-        }
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            downloadProgressDialog.show();
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... progress) {
-            super.onProgressUpdate(progress);
-            downloadProgressDialog.setProgress(progress[0]);
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-			if(downloadProgressDialog.isShowing()) {
-				downloadProgressDialog.setProgress(totalDowloadSize);
-				downloadProgressDialog.setMessage(getString(R.string.finish));
-				downloadProgressDialog.dismiss();
-			}
-				//start uncompress the zip file
-				uncompressFile("ATPK.zip");
-		}
-
-    }
-
-    
-    // copy from http://www.androidsnippets.org/snippets/193/index.html
-    private void downloadFile(String urlText, final String fileName) {
-        downloadProgressDialog = new ProgressDialog(this);
-        downloadProgressDialog.setCancelable(false);
-        downloadProgressDialog.setMessage(getString(R.string.downloading));
-        downloadProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        downloadProgressDialog.setProgress(0);
-        
-     // execute this when the downloader must be fired
-        DownloadFile downloadFile = new DownloadFile();
-        downloadFile.execute(urlText);
-    }
-    
     
     @Override
     public boolean onSearchRequested() {
@@ -669,44 +524,7 @@ public class SelectBookActivity extends Activity {
 			//~ 
 	//~ }
 	
-	private void startDownloader() {
-    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	builder.setTitle(getString(R.string.db_not_found));
-    	builder.setMessage(getString(R.string.confirm_download));
-    	builder.setCancelable(false);
-    	builder.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if(isInternetOn()) {
-					downloadFile("http://static.sirimangalo.org/pali/ATPK/ATPK.zip", "ATPK.zip");
-				} else {
-					AlertDialog.Builder builder = new AlertDialog.Builder(context);
-					builder.setTitle(getString(R.string.internet_not_connected));
-					builder.setMessage(getString(R.string.check_your_connection));
-					builder.setCancelable(false);
-					builder.setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							finish();
-						}
-					});
-					builder.show();
-				}
-			}
-		});
-    	
-    	builder.setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				finish();
-			}
-		});
-    	
-    	builder.show();
-	}
-	
+
 	@Override
 	protected void onRestart() {
 		super.onRestart();

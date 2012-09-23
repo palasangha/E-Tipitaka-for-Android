@@ -193,11 +193,14 @@
 
 	<string name="prefText">Text Preferences</string>
 	<string name="prefBaseSize">Tipitaka Font Size</string>
-		
+	<string name="prefMisc">Misc Preferences</string>
+	<string name="prefDataDir">Database Location</string>
+			
     <string name="PED">Full Pali-English</string>
     <string name="CPED">Concise Pali-English</string>
     <string name="CEPD">Concise English-Pali</string>
     <string name="DPPN">Pali Proper Names</string>
+    <string name="MULTI">Pali Combined</string>
     
     <string name="choose_dict">Choose A Dictionary:</string>
     

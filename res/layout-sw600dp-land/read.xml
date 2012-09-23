@@ -5,6 +5,7 @@
   android:fillViewport="true"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
+  android:background="@drawable/background"
   android:orientation="horizontal"
   >
 	<ListView
@@ -57,8 +58,6 @@
 				android:layout_width="match_parent"
 				android:layout_height="match_parent">
 			<view class="org.yuttadhammo.tipitaka.ReadBookActivity$PaliTextView" style="?android:attr/textViewStyle"
-					android:textColorHighlight="#BBFFFF00"
-					android:textColor="#FFFFFF"
 					android:id="@+id/main_text"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"

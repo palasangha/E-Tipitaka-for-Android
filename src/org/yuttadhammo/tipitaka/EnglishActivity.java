@@ -146,22 +146,14 @@ public class EnglishActivity extends Activity {
 
     
     
-    // copy from http://www.chrisdadswell.co.uk/android-coding-example-checking-for-the-presence-of-an-internet-connection-on-an-android-device/
     private boolean isInternetOn() {
-
-    	ConnectivityManager connec =  (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-
-    	// ARE WE CONNECTED TO THE NET
-    	if (connec.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED ||
-    			connec.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTING ||
-    			connec.getNetworkInfo(1).getState() == NetworkInfo.State.CONNECTING ||
-    			connec.getNetworkInfo(1).getState() == NetworkInfo.State.CONNECTED ) {
-    		return true;
-    	} else if (connec.getNetworkInfo(0).getState() == NetworkInfo.State.DISCONNECTED ||  
-    			connec.getNetworkInfo(1).getState() == NetworkInfo.State.DISCONNECTED  ) {
-    		return false;
-    	}
-    	return false;
+	    ConnectivityManager cm =
+		        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+		    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+		        return true;
+		    }
+		    return false;
     }
     
     private void uncompressFile(String fileName) {

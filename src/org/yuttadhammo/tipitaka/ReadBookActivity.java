@@ -1,5 +1,12 @@
 package org.yuttadhammo.tipitaka;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,6 +15,7 @@ import java.util.Collections;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,11 +23,17 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Html;
+import android.text.Spanned;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -52,8 +66,6 @@ import android.view.View.OnLongClickListener;
 
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-
-
 
 
 public class ReadBookActivity extends Activity { //implements OnGesturePerformedListener {
@@ -115,6 +127,14 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 
     private String[] t_book;
 	private Typeface font;
+
+	// download stuff
+	
+    private ProgressDialog downloadProgressDialog;
+    private ProgressDialog unzipProgressDialog;
+	private Handler handler = new Handler();
+    private int totalDowloadSize;
+
 	
 	SharedPreferences prefs;
 	
@@ -137,12 +157,13 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         
         read =  View.inflate(this, R.layout.read, null);
         setContentView(read);
-        
+
+        mainTipitakaDBAdapter = new MainTipitakaDBAdapter(this);
+
         gestureDetector = new GestureDetector(new MyGestureDetector());
         
         savedReadPages = new ArrayList<String>();
 
-        mainTipitakaDBAdapter = new MainTipitakaDBAdapter(this);
         bookmarkDBAdapter = new BookmarkDBAdapter(this);
         
         res = getResources();
@@ -208,12 +229,27 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         
         if(splitPane != null)
         	setListVisible(1);
+
+        try {
+        	mainTipitakaDBAdapter.open();
+        	if(mainTipitakaDBAdapter.isOpened()) {
+        		mainTipitakaDBAdapter.close();
+        	} else {
+        		startDownloader();
+        		return;
+        	}
+        } catch (SQLiteException e) {
+			Log.e ("Tipitaka","error:", e);
+        	startDownloader();
+        	return;
+        }
         
         TextView idx_header = new TextView(context);
         idx_header.setText("Index");
         idx_header.setTypeface(font);
         idx_header.setGravity(0x11);
         idx_header.setTextSize(1,24);
+        idx_header.setTextColor(0xFF000000);
         
         idxList.addHeaderView(idx_header);
 
@@ -387,7 +423,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 					Arrays.sort(tokens, new StringLengthComparator());
 					Collections.reverse(Arrays.asList(tokens));
 					for(String token: tokens) {
-						content = content.replace(token, "<font color='#f9f109'><b>"+token+"</b></font>");
+						content = content.replace(token, "<font color='#888800'>"+token+"</font>");
 					}
 				}
 				
@@ -396,48 +432,20 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				// highlight items numbers (orange)
 				//content = content.replaceAll(getString(R.string.regex_item), "<font color='#EE9A00'><b>$0</b></font>");
 				
-				content = content.replaceAll("\\^b\\^", "<b>");
-				content = content.replaceAll("\\^eb\\^", "</b>");
+				content = content.replaceAll("\\^b\\^", "");
+				content = content.replaceAll("\\^eb\\^", "");
 				
 				content = content.replaceAll("\\^a\\^[^^]+\\^ea\\^", "");
 				
 				
 				content = content.replaceAll("([AIUEOKGCJTDNPBMYRLVSHaiueokgcjtdnpbmyrlvshāīūṭḍṅṇṁṃñḷĀĪŪṬḌṄṆṀṂÑḶ])0", "$1.");
-				content = content.replaceAll("\\{([^}]+)\\}", "<i><font color=\"#7D7D7D\">[$1]</font></i>");
+				content = content.replaceAll("\\{([^}]+)\\}", "<font color='#7D7D7D'>[$1]</font>");
 				
 				title = formatTitle(title);
 				
-				content = "<font color='#f9f109'><b>"+headerText+", " + title+"</b></font><br/><br/>"+content.replace("\n", "<br/>");
-				textContent.setText(Html.fromHtml(content));
-
-				//~ // linkify!
-//~ 
-				//~ CharSequence sequence = Html.fromHtml(content);
-				//~ SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
-				//~ UnderlineSpan[] underlines = strBuilder.getSpans(0, strBuilder.length(), UnderlineSpan.class);
-
-				//~ for(UnderlineSpan span : underlines) {
-				   //~ int start = strBuilder.getSpanStart(span);
-				   //~ int end = strBuilder.getSpanEnd(span);
-				   //~ int flags = strBuilder.getSpanFlags(span);
-				   //~ final String thisSpan = span.toString();
-				   //~ Log.i("Tipitaka","Underlining word: "+thisSpan);
-				   //~ ClickableSpan myActivityLauncher = new ClickableSpan() {
-					 //~ public void onClick(View view) {
-						//~ Intent intent = new Intent(ReadBookActivity.this, cped.class);
-						//~ intent.putExtra("QUERY", thisSpan);
-						//~ intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						//~ startActivity(intent);					 }
-				   //~ };
-//~ 
-				   //~ strBuilder.setSpan(myActivityLauncher, start, end, flags);
-				//~ }
-//~ 
-				//~ textContent.setText(strBuilder);
-				//~ textContent.setMovementMethod(LinkMovementMethod.getInstance());
-				
-				//~ pageLabel.setText(res.getString(R.string.th_page_label) + "  " + 
-						//~ Utils.arabic2thai(Integer.toString(arg2+1), getResources()));
+				content = "<font color='#888800'>"+headerText+", " + title+"</font><br/><br/>"+content.replace("\n", "<br/>");
+				Spanned html = Html.fromHtml(content);
+				textContent.setText(html);
 								
 				savedItems = cursor.getString(0);	
 				cursor.close();
@@ -1037,7 +1045,10 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	@Override
 	protected void onRestart() {
 		super.onRestart();
-		textSize = Float.parseFloat(prefs.getString("base_text_size", "16"));
+		String size = prefs.getString("base_text_size", "16");
+		if(size.equals(""))
+			size = "16";
+		textSize = Float.parseFloat(size);
 		textContent.setTextSize(textSize);
 		if(searchDialog != null) {
 			searchDialog.updateHistoryList();
@@ -1055,7 +1066,10 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	@Override
 	protected void onResume() {
 		super.onResume();
-        textSize = Float.parseFloat(prefs.getString("base_text_size", "16"));
+		String size = prefs.getString("base_text_size", "16");
+        if(size.equals(""))
+        	size = "16";
+		textSize = Float.parseFloat(size);
 		textContent.setTextSize(textSize);
 		/*
 		int p = 0;
@@ -1243,5 +1257,166 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	    	}
 	    }
 	}
+	
+	// downloading functions
+	
+	private void startDownloader() {
+		final Context context = this;
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	builder.setTitle(getString(R.string.db_not_found));
+    	builder.setMessage(getString(R.string.confirm_download));
+    	builder.setCancelable(false);
+    	builder.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if(isInternetOn()) {
+					downloadFile("http://static.sirimangalo.org/pali/ATPK/ATPK.zip", "ATPK.zip");
+				} else {
+					AlertDialog.Builder builder = new AlertDialog.Builder(context);
+					builder.setTitle(getString(R.string.internet_not_connected));
+					builder.setMessage(getString(R.string.check_your_connection));
+					builder.setCancelable(false);
+					builder.setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							finish();
+						}
+					});
+					builder.show();
+				}
+			}
+		});
+    	
+    	builder.setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				finish();
+			}
+		});
+    	
+    	builder.show();
+	}
+
+
+	public boolean isInternetOn() {
+	    ConnectivityManager cm =
+	        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+	        return true;
+	    }
+	    return false;
+	}
+    
+    private void uncompressFile(String fileName) {
+    	final Context context = this; 
+    	String zipFile = Environment.getExternalStorageDirectory() + File.separator + fileName; 
+    	String unzipLocation = Environment.getExternalStorageDirectory() + File.separator; 
+    	final Decompress d = new Decompress(zipFile, unzipLocation); 
+    	unzipProgressDialog = new ProgressDialog(this);
+    	unzipProgressDialog.setCancelable(false);
+    	unzipProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+    	unzipProgressDialog.setMessage(getString(R.string.unzipping_db));
+    	Thread thread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				d.unzip();
+				handler.post(new Runnable() {
+					
+					@Override
+					public void run() {
+						if(unzipProgressDialog.isShowing()) {
+							unzipProgressDialog.dismiss();
+							Toast.makeText(context, getString(R.string.unzipped), Toast.LENGTH_SHORT).show();
+							finish();
+						}
+					}
+				});
+			}
+		});
+    	thread.start();
+    	unzipProgressDialog.show();
+    	    
+    }
+
+    private class DownloadFile extends AsyncTask<String, Integer, String> {
+        @Override
+        protected String doInBackground(String... sUrl) {
+            try {
+                URL url = new URL(sUrl[0]);
+                URLConnection connection = url.openConnection();
+                connection.connect();
+                // this will be useful so that you can show a typical 0-100% progress bar
+                int fileLength = connection.getContentLength();
+
+	    		File SDCardRoot = Environment.getExternalStorageDirectory();
+	    		//create a new file, specifying the path, and the filename
+	    		//which we want to save the file as.
+	    		File file = new File(SDCardRoot,"ATPK.zip");
+                
+                // download the file
+                InputStream input = new BufferedInputStream(url.openStream());
+                OutputStream output = new FileOutputStream(file);
+
+                byte data[] = new byte[1024];
+                long total = 0;
+                int count;
+                while ((count = input.read(data)) != -1) {
+                    total += count;
+                    // publishing the progress....
+                    publishProgress((int) (total * 100 / fileLength));
+                    output.write(data, 0, count);
+                }
+
+                output.flush();
+                output.close();
+                input.close();
+            } catch (Exception e) {
+            }
+            return null;
+        }
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            downloadProgressDialog.show();
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            super.onProgressUpdate(progress);
+            downloadProgressDialog.setProgress(progress[0]);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+			if(downloadProgressDialog.isShowing()) {
+				downloadProgressDialog.setProgress(totalDowloadSize);
+				downloadProgressDialog.setMessage(getString(R.string.finish));
+				downloadProgressDialog.dismiss();
+			}
+				//start uncompress the zip file
+				uncompressFile("ATPK.zip");
+		}
+
+    }
+
+    
+    // copy from http://www.androidsnippets.org/snippets/193/index.html
+    private void downloadFile(String urlText, final String fileName) {
+        downloadProgressDialog = new ProgressDialog(this);
+        downloadProgressDialog.setCancelable(false);
+        downloadProgressDialog.setMessage(getString(R.string.downloading));
+        downloadProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        downloadProgressDialog.setProgress(0);
+        
+     // execute this when the downloader must be fired
+        DownloadFile downloadFile = new DownloadFile();
+        downloadFile.execute(urlText);
+    }
+    
+
 	
 }

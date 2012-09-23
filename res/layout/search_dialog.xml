@@ -5,6 +5,7 @@
 	android:layout_height="match_parent"
 	android:fillViewport="true"
 	android:orientation="vertical"
+	android:background="@drawable/background"
 	android:scrollbars="horizontal|vertical">
 	<ScrollView
 	  android:layout_width="match_parent"
@@ -153,7 +154,6 @@
 	  		  		
 	<ListView 
 		android:id="@+id/search_history_listview"
-		android:background="#FF000000"
 		android:layout_width="match_parent" 
 		android:layout_height="wrap_content"
 		android:drawSelectorOnTop="true"
