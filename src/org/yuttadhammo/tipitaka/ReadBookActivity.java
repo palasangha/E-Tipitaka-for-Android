@@ -120,7 +120,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 
 	//Gestures
 
-    private static final int SWIPE_MIN_LENGTH = 10;
+    private static final int SWIPE_MIN_LENGTH = 50;
     private static final int SWIPE_MAX_OFF_PATH = 100;
     private static final int SWIPE_THRESHOLD_VELOCITY = 0;
     private GestureDetector gestureDetector;
@@ -1092,7 +1092,23 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				return false;
 			}
 
-			Log.i("Tipitaka", "fing velocity: "+velocityX+" "+velocityY);
+			// check length, on path
+			
+			if(e1 != null && e2 != null) {
+				
+				if (Math.abs(e1.getX() - e2.getX()) < SWIPE_MIN_LENGTH) {
+					Log.i("Tipitaka", "fling too short");
+					return false;
+				}
+
+				if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
+					Log.i("Tipitaka", "fling off path");
+					return false;
+				}
+			}
+
+			
+			Log.i("Tipitaka", "fling velocity: "+velocityX+" "+velocityY);
 
 			boolean left = false;
 			boolean right = false;
