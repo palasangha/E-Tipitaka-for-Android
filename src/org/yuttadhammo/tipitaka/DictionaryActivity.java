@@ -4,6 +4,7 @@ package org.yuttadhammo.tipitaka;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -105,6 +106,11 @@ public class DictionaryActivity extends Activity {
 		}
 		else
 			setTitleWithMessage (word);
+		int api = Integer.parseInt(Build.VERSION.SDK);
+		
+		if (api >= 11) {
+			this.getActionBar().setHomeButtonEnabled(true);
+		}
 	}
 	
 	

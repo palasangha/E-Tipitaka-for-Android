@@ -36,32 +36,31 @@
 		android:layout_width="match_parent"
 		android:layout_marginBottom="5dp"
 		android:layout_height="2dp"/>
+	<ListView
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:divider="#333333"
+		android:dividerHeight="1dp"
+		android:choiceMode="singleChoice" 
+  		android:id="@+id/index_list"/>
 	<RelativeLayout
-		android:id="@+id/main_area"
+	    android:id="@+id/shell_text"
 		android:layout_height="match_parent"
 		android:layout_width="match_parent">
-		<ListView
+		<ScrollView
+		    android:id="@+id/scroll_text"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:divider="#333333"
-			android:dividerHeight="1dp"
-			android:choiceMode="singleChoice" 
-	  		android:id="@+id/index_list"/>
-		<ScrollView
-			android:id="@+id/text_scrollview"
-			android:visibility="invisible"
-			android:scrollbars="vertical"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent">
+		    >
 			<view class="org.yuttadhammo.tipitaka.ReadBookActivity$PaliTextView" 
 			    style="?android:attr/textViewStyle"
 				android:id="@+id/main_text"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_marginBottom="20dp"
 				android:padding="10dp"
 				android:textSize="16dp"
 				android:lineSpacingExtra="2dip"
+				android:visibility="gone"
 			/>
 		</ScrollView>
 		<Button 

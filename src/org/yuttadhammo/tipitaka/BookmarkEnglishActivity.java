@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
@@ -108,6 +109,12 @@ public class BookmarkEnglishActivity extends Activity {
 		SharedPreferences.Editor editor = prefs.edit();
 
 		switch (item.getItemId()) {
+	        case android.R.id.home:
+	            // app icon in action bar clicked; go home
+	            Intent intent = new Intent(this, SelectBookActivity.class);
+	            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+	            startActivity(intent);
+	            return true;
 			case R.id.zoom_in_result:
 				bmLine1Size=prefs.getFloat("BmLine1Size", 16f)+1;
 				bmLine2Size=prefs.getFloat("BmLine2Size", 14f)+1;
@@ -323,7 +330,11 @@ public class BookmarkEnglishActivity extends Activity {
 				return true; // don't pass click event to others
 			}
 		});
+		int api = Integer.parseInt(Build.VERSION.SDK);
 		
+		if (api >= 11) {
+			this.getActionBar().setHomeButtonEnabled(true);
+		}		
 	}
 	
 	private void updateItemList() {

@@ -50,21 +50,20 @@
 			android:layout_height="2dp"/>
 		<RelativeLayout
 			android:layout_width="match_parent"
+		    android:id="@+id/shell_text"
 			android:layout_height="wrap_content">
 			<ScrollView
-				android:id="@+id/text_scrollview"
-				android:visibility="invisible"
-				android:scrollbars="vertical"
+			    android:id="@+id/scroll_text"
 				android:layout_width="match_parent"
-				android:layout_height="match_parent">
-			<view class="org.yuttadhammo.tipitaka.ReadBookActivity$PaliTextView" style="?android:attr/textViewStyle"
-					android:id="@+id/main_text"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginBottom="20dp"
-					android:padding="10dp"
-					android:textSize="16dp"
-					android:lineSpacingExtra="2dip"
+				android:layout_height="match_parent"
+			    >
+				<view class="org.yuttadhammo.tipitaka.ReadBookActivity$PaliTextView" style="?android:attr/textViewStyle"
+						android:id="@+id/main_text"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:padding="10dp"
+						android:textSize="16dp"
+						android:lineSpacingExtra="2dip"
 				/>
 			</ScrollView>
 			<Button 

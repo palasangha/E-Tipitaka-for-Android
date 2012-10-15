@@ -27,6 +27,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -101,7 +102,13 @@ public class EnglishActivity extends Activity {
 			}
 			return;
 		}
-		//replaceCSS(); manual replace
+
+		int api = Integer.parseInt(Build.VERSION.SDK);
+		
+		if (api >= 11) {
+			this.getActionBar().setHomeButtonEnabled(true);
+		}
+		
 		showActivity();
 
 	}

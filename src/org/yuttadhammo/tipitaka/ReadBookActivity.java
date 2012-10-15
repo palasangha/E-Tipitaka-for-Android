@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Collections;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -34,6 +35,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.method.ScrollingMovementMethod;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -52,10 +54,13 @@ import android.widget.EditText;
 import android.widget.Gallery;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import android.graphics.PointF;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 
 import android.view.inputmethod.InputMethodManager;
@@ -76,6 +81,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	private Gallery gPage;
 	private ListView idxList;
 	private ScrollView scrollview;
+	private RelativeLayout textshell;
 	
 	private static Button dictButton;
 	
@@ -123,7 +129,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
     private static final int SWIPE_MIN_LENGTH = 50;
     private static final int SWIPE_MAX_OFF_PATH = 100;
     private static final int SWIPE_THRESHOLD_VELOCITY = 0;
-    private GestureDetector gestureDetector;
 
     private String[] t_book;
 	private Typeface font;
@@ -147,10 +152,11 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	public Resources res;
 	private LinearLayout splitPane;
 
+	@SuppressLint("NewApi")
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        
         Context context = getApplicationContext();
         prefs =  PreferenceManager.getDefaultSharedPreferences(context);
 		font = Typeface.createFromAsset(getAssets(), "verajjan.ttf");      
@@ -159,8 +165,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         setContentView(read);
 
         mainTipitakaDBAdapter = new MainTipitakaDBAdapter(this);
-
-        gestureDetector = new GestureDetector(new MyGestureDetector());
         
         savedReadPages = new ArrayList<String>();
 
@@ -174,11 +178,14 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         nitem = res.getIntArray(R.array.nitem);
 
         textContent = (PaliTextView) read.findViewById(R.id.main_text);
+        scrollview = (ScrollView) read.findViewById(R.id.scroll_text);
+        textshell = (RelativeLayout) read.findViewById(R.id.shell_text);
       
 		textContent.setTypeface(font);
         textSize = Float.parseFloat(prefs.getString("base_text_size", "16"));
         
 		textContent.setTextSize(textSize);
+		textContent.setMovementMethod(new ScrollingMovementMethod());
 		
 		dictButton = (Button) findViewById(R.id.dict_button);
 		
@@ -222,8 +229,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         // index button
 
         idxList = (ListView) read.findViewById(R.id.index_list);
-        scrollview = (ScrollView) read.findViewById(R.id.text_scrollview);
-
+        
         // used to test for split pane 
         splitPane = (LinearLayout) findViewById(R.id.split_pane);
         
@@ -272,9 +278,8 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		
 		if (api >= 11) {
 			textContent.setTextIsSelectable(true);
+			this.getActionBar().setHomeButtonEnabled(true);
 		}
-
-
 		
 		read.requestLayout();
         
@@ -477,7 +482,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 					int offset =  textContent.getText().toString().indexOf(i_tmp);
 					final int jumpLine = textContent.getLayout().getLineForOffset(offset);
 					
-					scrollview.postDelayed(new Runnable() {
+					textContent.postDelayed(new Runnable() {
 						@Override
 						public void run() {
 							int y=0;
@@ -485,14 +490,14 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 								y = textContent.getLayout().getLineTop(jumpLine-2);
 							else
 								y = textContent.getLayout().getLineTop(0);
-							scrollview.scrollTo(0, y);
+							textContent.scrollTo(0, y);
 						}
 					},300);
 				} else if(isJump && toPosition > -1) {
-					scrollview.postDelayed(new Runnable() {
+					textContent.postDelayed(new Runnable() {
 						@Override
 						public void run() {
-							scrollview.scrollTo(0, toPosition);
+							textContent.scrollTo(0, toPosition);
 							toPosition = -1;
 						}
 					},300);
@@ -500,6 +505,9 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 					//scrollview.fullScroll(View.FOCUS_UP);
 				}
 				gPage.requestFocus();
+				
+				if(idxList.getVisibility() == View.VISIBLE)
+					return;
 
 				// fade in
 
@@ -509,7 +517,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 					public void onAnimationEnd(Animation animation)
 					{
 						if(!isJump)
-							scrollview.scrollTo(0, 0);
+							textContent.scrollTo(0, 0);
 						isJump = false;
 						newpage = oldpage;
 						idxList.setSelection(gPage.getSelectedItemPosition());
@@ -537,31 +545,78 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			}
 			
 		});
-		
-        // Set the touch listener for the main view to be our custom gesture listener
-        scrollview.setOnTouchListener(new View.OnTouchListener() {
-            public boolean onTouch(View v, MotionEvent ev) {
-					return gestureDetector.onTouchEvent(ev);
 
-                //~ if (gestureDetector.onTouchEvent(event)) {
-                    //~ return true;
-                //~ }
-                //~ return false;
-            }
-				/*
-				// multi-touch zoom in and zoom out
-				if(event.getPointerCount() > 1) {
-					float dist = spacing(event);
-					//Log.i("SPACE", Float.toString(dist));
-					return true;
-				}*/            
+		scrollview.setOnTouchListener(new View.OnTouchListener() {
+			
+            public boolean onTouch(View v, MotionEvent me) {    			
+    			//Log.i("Tipitaka","touched");
+    			PointF mPos = new PointF();
+    			// Store pointer position.
+    			mPos.set(me.getX(), me.getY());
+
+    			switch (me.getAction()) {
+    				case MotionEvent.ACTION_DOWN: {
+    	    			//Log.i("Tipitaka","touched down");
+    	
+    					// Once we receive pointer down event its position is mapped to
+    					// right or left edge of page and that'll be the position from where
+    					// user is holding the paper to make curl happen.
+    	
+    				}
+    				case MotionEvent.ACTION_MOVE: {
+    					//Log.i("Tipitaka","Moving: "+mPos.x +" " + mDragStartPos.x);
+    					if(mCurlState == CURL_NONE) {
+        					if(mDragStartPos.x == 0)
+            					mDragStartPos.set(mPos);
+    						//Log.i("Tipitaka","Starting Moving");
+    						if(mPos.x < mDragStartPos.x)
+    							mCurlState = CURL_LEFT;
+    						else if(mPos.x > mDragStartPos.x)
+    							mCurlState = CURL_RIGHT;
+    					
+    						//Log.i("Tipitaka","curling: "+mCurlState);
+    					}
+    					else if(mCurlState == CURL_LEFT && mPos.x > mDragLastPos.x || mCurlState == CURL_RIGHT && mPos.x < mDragLastPos.x) {
+	    		    		//Log.i("Tipitaka","curl cancel: "+mCurlState+" "+mPos.x +" " + mDragLastPos.x);
+	   						mCurlState = CURL_CANCEL;
+    					}
+    					break;
+    				}
+    				case MotionEvent.ACTION_CANCEL:
+    				case MotionEvent.ACTION_UP: {
+		    			//Log.i("Tipitaka","touch up: "+mCurlState + " " +mPos.x + " " +(mDragStartPos.x - ReadBookActivity.SWIPE_MIN_LENGTH) + " " + Math.abs(mPos.y-mDragStartPos.y));
+		    			if(Math.abs(mPos.y-mDragStartPos.y) < SWIPE_MAX_OFF_PATH) {
+	    					if (mCurlState == CURL_LEFT && mPos.x < (mDragStartPos.x - SWIPE_MIN_LENGTH)) {
+	    						//Log.i("Tipitaka","end curl left");
+	    						readNext();
+	    					}
+	    					else if (mCurlState == CURL_RIGHT && mPos.x > (mDragStartPos.x + SWIPE_MIN_LENGTH)) {
+	    						//Log.i("Tipitaka","end curl right");
+	    						readPrev();
+	    					}
+		    			}
+		    			mDragStartPos = new PointF();
+   						mCurlState = CURL_NONE;
+    					break;
+    				}
+    			}
+    			mDragLastPos = mPos;
+				return false;
+            }       
         });
-        
-        //dialog.hide();
-		
 	}
+
 	
+	// Curl state. We are flipping none, left or right page.
+	private static final int CURL_NONE = 0;
+	private static final int CURL_LEFT = 1;
+	private static final int CURL_RIGHT = 2;
+	private static final int CURL_CANCEL = 3;
+
+	private int mCurlState = CURL_NONE;
 	
+	private PointF mDragStartPos = new PointF();
+	private PointF mDragLastPos = new PointF();
 	
     @Override
     public boolean onSearchRequested() {
@@ -598,6 +653,66 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	    inflater.inflate(R.menu.goto_menu, menu);
 	    return true;
 	}
+
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle item selection
+		super.onOptionsItemSelected(item);
+		Bundle dataBundle = new Bundle();
+		
+		//SharedPreferences.Editor editor = prefs.edit();
+		Intent intent;
+		switch (item.getItemId()) {
+	        case android.R.id.home:
+	            // app icon in action bar clicked; go home
+	            intent = new Intent(this, SelectBookActivity.class);
+	            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+	            startActivity(intent);
+	            return true;
+			case R.id.index:
+				setListVisible(2);
+				break;
+	        case (int)R.id.goto_page:
+				gotoPage();
+				break;
+			case (int)R.id.help_menu_item:
+				showHelpDialog();
+				break;
+			case (int)R.id.read_bookmark:
+				intent = new Intent(ReadBookActivity.this, BookmarkPaliActivity.class);
+				dataBundle.putString("LANG", lang);
+				intent.putExtras(dataBundle);
+				startActivity(intent);	
+				break;
+			case (int)R.id.memo:
+				memoItem();
+				break;
+			case (int)R.id.prefs_read:
+				intent = new Intent(this, SettingsActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
+				break;
+			case (int)R.id.read_dict_menu_item:
+				intent = new Intent(this, DictionaryActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
+				break;
+			case (int)R.id.english_menu_item:
+				intent = new Intent(this, EnglishActivity.class);
+				String url = getTrans();
+				if(url != null) {
+					dataBundle.putString("url", url);
+					intent.putExtras(dataBundle);
+				}
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
+				break;
+			default:
+				return false;
+	    }
+		return true;
+	}	
 	
 	private int getSubVolume(int volume, int item, int page, String language) {
 		mainTipitakaDBAdapter.open();
@@ -760,7 +875,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		String [] items = savedItems.split("\\s+");
 		selected_page = gPage.getSelectedItemPosition() + 1;
 
-		int scrollPosition = scrollview.getScrollY();
+		int scrollPosition = textContent.getScrollY();
 		saveReadingState(lang, selected_page, scrollPosition);
 		
 		if(items.length > 1) {
@@ -919,85 +1034,28 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
     	dialog.show();		
 	}
 	
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-	    // Handle item selection
-		super.onOptionsItemSelected(item);
-		Bundle dataBundle = new Bundle();
-		
-		//SharedPreferences.Editor editor = prefs.edit();
-		Intent intent;
-		switch (item.getItemId()) {
-	        case android.R.id.home:
-	            // app icon in action bar clicked; go home
-	            intent = new Intent(this, SelectBookActivity.class);
-	            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-	            startActivity(intent);
-	            return true;
-			case R.id.index:
-				setListVisible(2);
-				break;
-	        case (int)R.id.goto_page:
-				gotoPage();
-				break;
-			case (int)R.id.help_menu_item:
-				showHelpDialog();
-				break;
-			case (int)R.id.read_bookmark:
-				intent = new Intent(ReadBookActivity.this, BookmarkPaliActivity.class);
-				dataBundle.putString("LANG", lang);
-				intent.putExtras(dataBundle);
-				startActivity(intent);	
-				break;
-			case (int)R.id.memo:
-				memoItem();
-				break;
-			case (int)R.id.prefs_read:
-				intent = new Intent(this, SettingsActivity.class);
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(intent);
-				break;
-			case (int)R.id.read_dict_menu_item:
-				intent = new Intent(this, DictionaryActivity.class);
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(intent);
-				break;
-			case (int)R.id.english_menu_item:
-				intent = new Intent(this, EnglishActivity.class);
-				String url = getTrans();
-				if(url != null) {
-					dataBundle.putString("url", url);
-					intent.putExtras(dataBundle);
-				}
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivity(intent);
-				break;
-			default:
-				return false;
-	    }
-		return true;
-	}	
+
 		
 	private void setListVisible(int i) {
+		Log.i("Tipitaka","set list visible: "+i);
 		if(i == 0) { // show list, hide text
 			if(splitPane == null)
-				scrollview.setVisibility(View.GONE);
+				textshell.setVisibility(View.GONE);
 			idxList.setVisibility(View.VISIBLE);
 		}
 		else if(i == 1) { // hide list if not split pane, else just show text
 			if(splitPane == null)
 				idxList.setVisibility(View.GONE);
-			scrollview.setVisibility(View.VISIBLE);
+			textshell.setVisibility(View.VISIBLE);
 		}
 		else if(i == 2) { // hide/show list (button pressed)
 			if(idxList.getVisibility() == View.VISIBLE) {
-				scrollview.setVisibility(View.VISIBLE);
+				textshell.setVisibility(View.VISIBLE);
 				idxList.setVisibility(View.GONE);
 			}
 			else {
 				if(splitPane == null)
-					scrollview.setVisibility(View.GONE);
+					textshell.setVisibility(View.GONE);
 				idxList.setVisibility(View.VISIBLE);
 			}
 		}
@@ -1082,89 +1140,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         
         Toast.makeText(this, Integer.toString(p), Toast.LENGTH_SHORT).show();*/
 	}
-	
-    class MyGestureDetector extends SimpleOnGestureListener {
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			Log.i("Tipitaka", "flinging");
-			if(textContent.getVisibility() != TextView.VISIBLE) {
-				Log.i("Tipitaka", "tv invisible");
-				return false;
-			}
-
-			// check length, on path
-			
-			if(e1 != null && e2 != null) {
-				
-				if (Math.abs(e1.getX() - e2.getX()) < SWIPE_MIN_LENGTH) {
-					Log.i("Tipitaka", "fling too short");
-					return false;
-				}
-
-				if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
-					Log.i("Tipitaka", "fling off path");
-					return false;
-				}
-			}
-
-			
-			Log.i("Tipitaka", "fling velocity: "+velocityX+" "+velocityY);
-
-			boolean left = false;
-			boolean right = false;
-			if (velocityX / Math.abs(velocityY) > 2)
-				left = true;
-			else if (velocityX / Math.abs(velocityY) < -2)
-				right = true;
-
-			textContent.clearFocus();
-
-            if(right) {
-				Log.i("Tipitaka", "left to right");
-			// left to right swipe
-				readNext();
-				return true;
-            }  
-            else if (left) {
-				Log.i("Tipitaka", "right to left");
-            // right to left swipe
-				readBack();
-
-				//~ ReadBookActivity.this.overridePendingTransition(
-					//~ R.anim.slide_in_left, 
-					//~ R.anim.slide_out_right
-				//~ );
-				return true;
-            }
-			return super.onFling(e1, e2, velocityX, velocityY);
-        }
- 
-        @Override
-        public boolean onDown(MotionEvent e) {
-			//Log.i("Tipitaka", "down click");
-			return super.onDown(e);
-	        //return true;
-        }
-
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-			return super.onScroll(e1, e2, distanceX, distanceY);
-        }
-        @Override
-        public void onLongPress(MotionEvent e) {
-			//super.onLongPress(e);
-			//Log.i("Tipitaka", "long click");
-        }
-    }
-//~ 
-	//~ @Override
-	//~ public boolean dispatchTouchEvent(MotionEvent ev){
-		//~ 
-		//~ //int action = ev.getAction();
-		//~ //Log.i("Tipitaka","Action: "+Integer.toString(action));
-		//~ return gestureDetector.onTouchEvent(ev);
-	//~ }
-
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
@@ -1203,7 +1178,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		}		
 	}
 	
-	private void readBack() {
+	private void readPrev() {
 		int pos = gPage.getSelectedItemPosition();
 		if(pos-1 >= 0) {
 			newpage = oldpage-1;
