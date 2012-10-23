@@ -13,6 +13,7 @@ import java.net.URL;
 
 import android.util.Log;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -31,6 +32,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.text.Html;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -78,7 +80,10 @@ public class EnglishActivity extends Activity {
     private int downloadedSize;
     public WebView ewv;
 
+	private String ATI_PATH;
 
+
+	@SuppressLint("NewApi")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate (savedInstanceState);
@@ -90,9 +95,12 @@ public class EnglishActivity extends Activity {
 			return;
 		}
 
-
-		File file = new File(Environment.getExternalStorageDirectory(), "ati_website/start.html" );
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		ATI_PATH = prefs.getString("ati_dir", Environment.getExternalStorageDirectory() + "ati_website");
+		
+		File file = new File(ATI_PATH, "start.html" );
 		if (!file.exists()) {
+			ATI_PATH = Environment.getExternalStorageDirectory() + "ati_website";
 			file = new File(Environment.getExternalStorageDirectory(), "ATI.zip" );
 			if (file.exists()) {
 				uncompressFile("ATI.zip");
@@ -127,7 +135,7 @@ public class EnglishActivity extends Activity {
 		ewv.getSettings().setBuiltInZoomControls(true);
 		ewv.getSettings().setSupportZoom(true);
 		
-		String url = "file://"+Environment.getExternalStorageDirectory()+"/ati_website/html/index.html";
+		String url = "file://"+ATI_PATH+"/html/index.html";
 
 		if(this.getIntent().getExtras() != null) {
 			Bundle dataBundle = this.getIntent().getExtras();
@@ -461,7 +469,7 @@ public class EnglishActivity extends Activity {
 				}
 				break;
 			case (int)R.id.home:
-				ewv.loadUrl("file://"+Environment.getExternalStorageDirectory()+"/ati_website/html/index.html");
+				ewv.loadUrl("file://"+ATI_PATH+"/html/index.html");
 				break;
 			case (int)R.id.update_archive:
 				startDownloader(false);
@@ -507,14 +515,14 @@ public class EnglishActivity extends Activity {
 	}
 
 	private void replaceCSS() {
-		String newFile = getTextContent("ati_website/html/css/screen.css");
+		String newFile = getTextContent("html/css/screen.css");
 
 		if(newFile == null)
 			return;
 
 		// backup file
-		File src = new File(Environment.getExternalStorageDirectory(), "ati_website/html/css/screen.css" );
-		File dest = new File(Environment.getExternalStorageDirectory(), "ati_website/html/css/screen.css.bkp" );
+		File src = new File(ATI_PATH, "html/css/screen.css" );
+		File dest = new File(ATI_PATH, "html/css/screen.css.bkp" );
 		src.renameTo(dest);
 		
 		
@@ -524,7 +532,7 @@ public class EnglishActivity extends Activity {
 		
 		try{
 			Log.i("Tipitaka","Modifying CSS");
-			src = new File(Environment.getExternalStorageDirectory(), "ati_website/html/css/screen.css" );
+			src = new File(ATI_PATH, "html/css/screen.css" );
 
 			FileOutputStream osr = new FileOutputStream(src);
 			OutputStreamWriter osw = new OutputStreamWriter(osr); 
@@ -547,10 +555,8 @@ public class EnglishActivity extends Activity {
 
     private String getTextContent(String fileName) {
 
-		File sdcard = Environment.getExternalStorageDirectory();
-
 		//Get the text file
-		File file = new File(sdcard,fileName);
+		File file = new File(ATI_PATH,fileName);
 
 		//Read text from file
 		String text = "";

@@ -44,6 +44,7 @@ public class SettingsActivity extends PreferenceActivity {
 			}
 			
 		});
+		
 		final EditTextPreference dirPref = (EditTextPreference)findPreference("data_dir");
 		if(dirPref.getText() == null || dirPref.getText().equals(""))
 			dirPref.setText(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "ATPK");
@@ -59,5 +60,21 @@ public class SettingsActivity extends PreferenceActivity {
 			
 		});
 
+		final EditTextPreference atiPref = (EditTextPreference)findPreference("ati_dir");
+		if(atiPref.getText() == null || atiPref.getText().equals(""))
+			atiPref.setText(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "ati_website");
+		atiPref.setSummary(atiPref.getText());
+		
+		atiPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+
+			public boolean onPreferenceChange(Preference preference,
+					Object newValue) {
+				atiPref.setSummary((String)newValue);
+				return true;
+			}
+			
+		});
+
+		
 	}
 }

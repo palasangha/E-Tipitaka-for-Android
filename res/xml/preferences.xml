@@ -5,11 +5,18 @@
 						android:title="@string/prefBaseSize"
 						android:shouldDisableView="true"
 						android:singleLine="true"/>
-    </PreferenceCategory>	                        
+   		<CheckBoxPreference android:key="show_var"
+						android:title="@string/prefShowVar"
+						android:defaultValue="True"/>
+   	</PreferenceCategory>	                        
 	<PreferenceCategory android:title="@string/prefMisc">
    		<EditTextPreference android:key="data_dir"
 						android:title="@string/prefDataDir"
 						android:shouldDisableView="true"
 						android:singleLine="true"/>
-    </PreferenceCategory>
+   		<EditTextPreference android:key="ati_dir"
+						android:title="@string/prefAtiDir"
+						android:shouldDisableView="true"
+						android:singleLine="true"/>
+    </PreferenceCategory>    
 </PreferenceScreen>

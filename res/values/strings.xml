@@ -193,9 +193,11 @@
 
 	<string name="prefText">Text Preferences</string>
 	<string name="prefBaseSize">Tipitaka Font Size</string>
+	<string name="prefShowVar">Show Variants</string>
 	<string name="prefMisc">Misc Preferences</string>
 	<string name="prefDataDir">Database Location</string>
-			
+	<string name="prefAtiDir">ATI Location</string>
+				
     <string name="PED">Full Pali-English</string>
     <string name="CPED">Concise Pali-English</string>
     <string name="CEPD">Concise English-Pali</string>

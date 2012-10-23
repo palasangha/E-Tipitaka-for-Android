@@ -437,14 +437,18 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				// highlight items numbers (orange)
 				//content = content.replaceAll(getString(R.string.regex_item), "<font color='#EE9A00'><b>$0</b></font>");
 				
-				content = content.replaceAll("\\^b\\^", "");
-				content = content.replaceAll("\\^eb\\^", "");
+				content = content.replaceAll("\\^b\\^", "<b>");
+				content = content.replaceAll("\\^eb\\^", "</b>");
 				
 				content = content.replaceAll("\\^a\\^[^^]+\\^ea\\^", "");
 				
 				
 				content = content.replaceAll("([AIUEOKGCJTDNPBMYRLVSHaiueokgcjtdnpbmyrlvshāīūṭḍṅṇṁṃñḷĀĪŪṬḌṄṆṀṂÑḶ])0", "$1.");
-				content = content.replaceAll("\\{([^}]+)\\}", "<font color='#7D7D7D'>[$1]</font>");
+				
+				if(prefs.getBoolean("show_var", true))
+					content = content.replaceAll("\\{([^}]+)\\}", "<font color='#7D7D7D'>[$1]</font>");
+				else
+					content = content.replaceAll("\\{([^}]+)\\}", "");
 				
 				title = formatTitle(title);
 				
@@ -478,7 +482,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 					i_tmp = "[" + Utils.arabic2thai(Integer.toString(jumpItem), getResources()) + "]";
 				}
 
-				if(isJump && toPosition == -1) {
+				if(isJump && toPosition == -1 && textContent != null && textContent.getLayout() != null) {
 					int offset =  textContent.getText().toString().indexOf(i_tmp);
 					final int jumpLine = textContent.getLayout().getLineForOffset(offset);
 					
