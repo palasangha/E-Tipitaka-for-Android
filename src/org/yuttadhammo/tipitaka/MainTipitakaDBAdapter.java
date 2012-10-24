@@ -215,7 +215,7 @@ public class MainTipitakaDBAdapter {
 
 	public Cursor dictQueryEndings(String table, String endings) {
     	final Cursor cursor = this.db.rawQuery(
-    			"SELECT entry, text FROM "+table+" WHERE entry IN ("+endings+")",
+    			"SELECT entry, text FROM "+table+" WHERE REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(entry,'^',''),'1',''),'2',''),'3',''),'4',''),'5','') IN ("+endings+")",
     			null
     		);	
     	return cursor;		

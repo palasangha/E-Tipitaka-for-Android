@@ -209,8 +209,8 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 						Intent intent = new Intent(getBaseContext(), DictionaryActivity.class);
 						Bundle dataBundle = new Bundle();
 						dataBundle.putString("word", aword);
-						if(which == 2)
-							which = 3;
+						if(which > 1)
+							which++;
 						dataBundle.putInt("dict", which);
 						intent.putExtras(dataBundle);
 						startActivity(intent);

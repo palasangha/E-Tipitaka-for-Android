@@ -1,6 +1,7 @@
 
 package org.yuttadhammo.tipitaka;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -43,7 +44,7 @@ public class DictionaryActivity extends Activity {
 	
 	private static final String	DICT_KEY	= "dict";  // 0 = CPED, 1 = DPPN, 2 = PED
 	
-	private static final String[] DICT_ARRAY = {"PED","CPED","CEPD","DPPN"};  // 0 = CPED, 1 = DPPN, 2 = PED
+	private static final String[] DICT_ARRAY = {"PED","CPED","CEPD","DPPN","MULTI"};  // 0 = CPED, 1 = DPPN, 2 = PED
 	private static final String[] TABLE_ARRAY = {"ped","cped","cepd","dppn"};  // 0 = CPED, 1 = DPPN, 2 = PED
 	
 	private int dict = 0;  // 0 = CPED, 1 = DPPN, 2 = PED
@@ -55,9 +56,7 @@ public class DictionaryActivity extends Activity {
 	private SharedPreferences prefs;
 	private WebView wv;
 
-	private String NO_RESULTS = "<html><head></head><body><p><b>No results.</b></p></body></html>";
-
-	
+	@SuppressLint("NewApi")
 	@Override
 	public void onCreate (Bundle savedInstanceState) {
 		super.onCreate (savedInstanceState);
@@ -119,7 +118,9 @@ public class DictionaryActivity extends Activity {
 		setTitleWithMessage (null);
 	}
 	
-	private void displayResult (String word, String htmlout ) {
+	private void displayResult (String word, String raw ) {
+		
+		String htmlout = "<html><head><style> @font-face { font-family: verajjan; src: url('file:///android_asset/verajjan.ttf'); } @font-face { font-family: verajjab; src: url('file:///android_asset/verajjab.ttf'); } body{font-family:verajjan; background-color:white;} .title{font-family:verajjab; color:#5A5;font-weight:bold} div.title{font-size:150%; margin-top:24px;}</style></head><body><p style=\"font-family:verajjan\">"+raw+"</p></body></html>";
 		
 		displayWebViewHtml (htmlout);
 		//lookup_text.setText (word);
@@ -195,19 +196,36 @@ public class DictionaryActivity extends Activity {
 		this.word = query;
 		
 		displayLoadingPage ();
+		
+		String[] tables;
 
-		String table = TABLE_ARRAY[dict];
+		// multi
+		
+		if(dict == 4) {
+			tables = new String[]{"ped","cped","dppn"};
+		}
+		else {
+			tables = new String[]{TABLE_ARRAY[dict]};
+		}
 
+		String html = "";
+		int count = 0;
 		db.open();
-		Cursor c = db.dictQuery(table,query);		
-		String html = parse(c, query);
+		for(String table:tables) {
+			if(count == 2)
+				count = 3;
+			Cursor c = db.dictQuery(table,query);		
+			html += parse(c, query, dict == 4?count++:dict);
+		}
 		db.close();
 		displayResult (query, html);
 	}
 
-    public String parse (Cursor c, String query){
+    public String parse (Cursor c, String query, int table){
+		Log.i ("Tipitaka", "parsing results for dict "+DICT_ARRAY[table]);
     	if(c == null || c.getCount() == 0) {
-    		return parseEndings(query);
+    		Log.i ("Tipitaka", "No results for dict "+DICT_ARRAY[table]+"... parsing endings");
+    		return parseEndings(query, table);
     	}
 		try {
 			String raw = "";
@@ -229,14 +247,14 @@ public class DictionaryActivity extends Activity {
 			while(c.moveToNext());
 			c.close();
 			
-			raw +="<div style=\"font-weight:bold; font-size:125%; margin-bottom:24px; font-family:verajjab\">"+count+" results for "+this.word+" in "+DICT_ARRAY[dict]+":</div><hr/>";
+			raw +="<div style=\"font-weight:bold; font-size:125%; margin-bottom:24px; font-family:verajjab\">"+count+" "+(count == 1?"entry":"entries")+" for "+this.word+" in "+DICT_ARRAY[table]+":</div><hr/>";
 			
-			if(dict == 0 || dict == 3) {
+			if(table == 0 || table == 3) {
 				raw += "<table width=\"100%\"><tr><td valign=\"top\"><table>";
 				
 				idx=0;
 				while(idx<entries.length) {
-					raw+= "<tr><td><a href=\"#"+entries[idx]+"\" style=\"text-decoration:none; font-weight:bold; font-size:125%; margin:10px 0; color:#5A5;font-family:verajjab\">"+entries[idx++].replace("^"," ")+"</b></td></tr>";
+					raw+= "<tr><td><a href=\"#"+table+entries[idx]+"\" style=\"text-decoration:none; font-weight:bold; font-size:125%; margin:10px 0; color:#5A5;font-family:verajjab\">"+entries[idx++].replace("^"," ")+"</b></td></tr>";
 				}
 
 				raw += "</table></td></tr></table><hr/>";
@@ -245,25 +263,22 @@ public class DictionaryActivity extends Activity {
 			idx=0;
 			while(idx<entries.length) {
 				String thisText = texts[idx];
-				if(dict == 3) { // fudge for DPPN colors
+				if(table == 3) { // fudge for DPPN colors
 					thisText = thisText.replaceAll("^([^<]*<[^>]*)>","$1 style='color:#5A5;font-family:verajjab'>");
 				}
-				raw+= ((dict == 1 || dict == 2)?"<b style=\"color:#5A5;font-family:verajjab\">"+entries[idx]+"</b>: ":"<a name=\""+entries[idx]+"\">")+thisText+((dict == 1 || dict == 2)?"<br/>":"<hr/>");
+				raw+= ((table == 1 || table == 2)?"<b style=\"color:#5A5;font-family:verajjab\">"+entries[idx]+"</b>: ":"<a name=\""+table+entries[idx]+"\">")+thisText+((table == 1 || table == 2)?"<br/>":"<hr/>");
 				idx++;
 			}
 			
-			html = "<html><head><style> @font-face { font-family: verajjan; src: url('file:///android_asset/verajjan.ttf'); } @font-face { font-family: verajjab; src: url('file:///android_asset/verajjab.ttf'); } body{font-family:verajjan; background-color:white;} .title{font-family:verajjab; color:#5A5;font-weight:bold} div.title{font-size:150%; margin-top:24px;}</style></head><body><p style=\"font-family:verajjan\">"+raw+"</p></body></html>";
-			
-			return html;
+			return raw + ((table == 1 || table == 2)?"<hr/>":"");
 		}
 		catch(Exception e) {
 			Log.e ("cped", "failed to load entry: " + e);
-
-			return NO_RESULTS ;
+			return "<div style=\"font-weight:bold; font-size:125%; margin-bottom:24px; font-family:verajjab\">No results for "+this.word+" in "+DICT_ARRAY[table]+".</div><hr/>";
 		}
     }
 
-	private String parseEndings(String query) {
+	private String parseEndings(String query, int table) {
 		String[] declensions = getResources().getStringArray(R.array.declensions);
 		ArrayList<String> endings = new ArrayList<String>(); 
 		for(String declension : declensions) {
@@ -272,24 +287,23 @@ public class DictionaryActivity extends Activity {
 			int offset = Integer.parseInt(decArray[1]);
 			int min = Integer.parseInt(decArray[2]);
 			String add = decArray[3];
+			//Log.d ("cped", "checking ending: " + ending);
 			if(query.length() > min && query.endsWith(ending)) {
 				endings.add(TextUtils.substring(query, 0, query.length()-ending.length()+offset)+add);
+				//Log.d ("cped", "adding ending: " + endings.get(endings.size()-1));
 			}
 		}
 		if(endings.isEmpty())
-			return NO_RESULTS;
+			return "<div style=\"font-weight:bold; font-size:125%; margin-bottom:24px; font-family:verajjab\">No results for "+this.word+" in "+DICT_ARRAY[table]+".</div><hr/>";;
 
 		String endstring = "'"+TextUtils.join("','", endings)+"'";
-		String table = TABLE_ARRAY[dict];
-		db.open();
-		Cursor c = db.dictQueryEndings(table,endstring);	
-    	if(c == null || c.getCount() == 0) {
-    		db.close();
-   			return NO_RESULTS;
-    	}
-		String html = parse(c, query);
-		db.close();
-		return html;
+		Log.d ("cped", "endings: " + endstring);
+
+		Cursor c = db.dictQueryEndings(TABLE_ARRAY[table],endstring);	
+    	if(c == null || c.getCount() == 0)
+			return "<div style=\"font-weight:bold; font-size:125%; margin-bottom:24px; font-family:verajjab\">No results for "+this.word+" in "+DICT_ARRAY[table]+".</div><hr/>";
+    	else
+    		return parse(c, query, table);
 	}
 
 
@@ -325,7 +339,9 @@ public class DictionaryActivity extends Activity {
 				case R.id.menu_DPPN:
 					dict = 3;
 					break;
-
+				case R.id.menu_MULTI:
+					dict = 4;
+					break;
 			}
 			this.word = null;
 			ed.putInt (DICT_KEY, dict);

@@ -701,6 +701,7 @@
 		<item>PED</item>
 		<item>CPED</item>
 		<item>DPPN</item>
+		<item>MULTI</item>
 	</string-array>
 	<string-array name="declensions">
 		<item>a,1,0,</item>

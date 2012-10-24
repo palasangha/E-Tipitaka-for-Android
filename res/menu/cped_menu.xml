@@ -28,6 +28,11 @@
 				    android:title="@string/DPPN"
 				    android:checkable="true"
 				    />
+				<item 
+				    android:id="@+id/menu_MULTI" 
+				    android:title="@string/MULTI"
+				    android:checkable="true"
+				    />
 			</group>
 		</menu>
 	</item>
