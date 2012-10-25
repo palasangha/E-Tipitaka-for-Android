@@ -72,11 +72,13 @@
 			android:theme="@style/SwitchTheme"
 			android:name=".SettingsActivity"
 			android:noHistory="true"
+			android:label="@string/preferences_title"
         />
         <activity 
 			android:theme="@style/SwitchTheme"
 			android:name=".DictionaryActivity"
 			android:noHistory="true"
+			android:label="@string/dict_title"
         />
 		
 		<!-- 
@@ -88,6 +90,12 @@
 		  	android:label="@string/search_dialog"
 			android:theme="@style/SwitchTheme"
             />
-
+        
+        <activity 
+			android:theme="@style/SwitchTheme"
+			android:name=".HelpActivity"
+			android:noHistory="true"
+			android:label="@string/help_dialog"
+        />
     </application>
 </manifest> 

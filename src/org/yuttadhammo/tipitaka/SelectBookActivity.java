@@ -426,12 +426,6 @@ public class SelectBookActivity extends Activity {
 		bookmarkDBAdapter.close();		
 	}
 	
-	private void showHelpDialog() {
-		final Dialog helpDialog = new Dialog(this, android.R.style.Theme_NoTitleBar);
-		helpDialog.setContentView(R.layout.help_dialog);
-		helpDialog.show();
-	}
-	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    // Handle item selection
@@ -458,7 +452,8 @@ public class SelectBookActivity extends Activity {
 				startActivity(intent);
 				break;
 			case (int)R.id.help_menu_item:
-				showHelpDialog();
+				intent = new Intent(this, HelpActivity.class);
+				startActivity(intent);
 				break;
 			case (int)R.id.dict_menu_item:
 				intent = new Intent(this, DictionaryActivity.class);

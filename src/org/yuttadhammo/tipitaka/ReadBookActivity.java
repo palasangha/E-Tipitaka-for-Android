@@ -1212,7 +1212,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 
 		char nik = name.charAt(0);
 
-		return "file://"+Environment.getExternalStorageDirectory()+"/ati_website/html/tipitaka/"+nik+"n/index.html";
+		return "file://"+prefs.getString("ati_dir", Environment.getExternalStorageDirectory().getAbsolutePath() + "/ati_website")+"/html/tipitaka/"+nik+"n/index.html";
 		
 	}
 

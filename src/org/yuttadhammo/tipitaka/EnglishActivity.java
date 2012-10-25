@@ -22,10 +22,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -33,7 +29,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.text.Html;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -96,11 +91,11 @@ public class EnglishActivity extends Activity {
 		}
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		ATI_PATH = prefs.getString("ati_dir", Environment.getExternalStorageDirectory() + "ati_website");
+		ATI_PATH = prefs.getString("ati_dir", Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "ati_website");
 		
 		File file = new File(ATI_PATH, "start.html" );
 		if (!file.exists()) {
-			ATI_PATH = Environment.getExternalStorageDirectory() + "ati_website";
+			ATI_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "ati_website";
 			file = new File(Environment.getExternalStorageDirectory(), "ATI.zip" );
 			if (file.exists()) {
 				uncompressFile("ATI.zip");
@@ -127,8 +122,6 @@ public class EnglishActivity extends Activity {
         ewv  = (WebView) english.findViewById(R.id.ewv);
 
         ewv.getSettings().setJavaScriptEnabled(true); // enable javascript
-
-		//Log.i("Tipitaka","Loading URL: file://"+Environment.getExternalStorageDirectory()+"/ati_website/start.html");
 
         ewv.setWebViewClient(new MyWebViewClient());
 
@@ -336,31 +329,12 @@ public class EnglishActivity extends Activity {
 		startActivity(intent);
     	return true;
     }
-	private void showAboutDialog() {
-		final Dialog aboutDialog = new Dialog(this, android.R.style.Theme_NoTitleBar);
-		aboutDialog.setContentView(R.layout.about_dialog);
-		try {
-			PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_META_DATA);
-			((TextView)aboutDialog.findViewById(R.id.about_text_2)).setText("Version "+ pInfo.versionName);
-		} catch (NameNotFoundException e) {
-			e.printStackTrace();
-		}
-		aboutDialog.show();
-	}
 	private void showHelpDialog() {
 		final Dialog helpDialog = new Dialog(this, android.R.style.Theme_NoTitleBar);
 		helpDialog.setContentView(R.layout.help_dialog);
 		helpDialog.show();
 	}
-	
-	private void showLimitationDialog() {
-		final Dialog limitationDialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar);
-		limitationDialog.setContentView(R.layout.limitation_dialog);
-		TextView cautionText = (TextView)limitationDialog.findViewById(R.id.caution);
-		cautionText.setText(Html.fromHtml(getString(R.string.caution)));
-		limitationDialog.show();
-	}
-	
+
 	private void startDownloader(boolean close) {
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	builder.setTitle(getString(R.string.ati_not_found));
@@ -519,19 +493,18 @@ public class EnglishActivity extends Activity {
 
 		if(newFile == null)
 			return;
-
-		// backup file
-		File src = new File(ATI_PATH, "html/css/screen.css" );
-		File dest = new File(ATI_PATH, "html/css/screen.css.bkp" );
-		src.renameTo(dest);
-		
-		
 			
 		newFile = newFile.replaceAll("width:680px;","");
 		newFile = newFile.replaceAll("width:660px;","max-width: 660px");
 		
 		try{
 			Log.i("Tipitaka","Modifying CSS");
+
+			// backup file
+			File src = new File(ATI_PATH, "html/css/screen.css" );
+			File dest = new File(ATI_PATH, "html/css/screen.css.bkp" );
+			src.renameTo(dest);
+			
 			src = new File(ATI_PATH, "html/css/screen.css" );
 
 			FileOutputStream osr = new FileOutputStream(src);
