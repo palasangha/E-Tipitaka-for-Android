@@ -39,26 +39,26 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Gallery;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import android.graphics.Typeface;
 
 
 public class SelectBookActivity extends Activity {
-	private int selectedCate = 0;
+	private int selectedSet = 0;
 	private View main;
-	private int selectedBook = 0;
-	private Button textInfo;
-	private Button readBtn;
+	private int currentVolumeNumber = 0;
 	public String lang = "pali";
 	public String thisTitle;
-    private Gallery gCate; //= (Gallery) findViewById(R.id.gallery_cate);
-    private Gallery gNCate;// = (Gallery) findViewById(R.id.gallery_ncate);
-    private Gallery gHier;
+    private Gallery setGallery; //= (Gallery) findViewById(R.id.gallery_cate);
+    private Gallery heirGallery;
+	private ListView volumeList;
 
 	private SharedPreferences prefs;  
     private SearchHistoryDBAdapter searchHistoryDBAdapter;
@@ -71,6 +71,7 @@ public class SelectBookActivity extends Activity {
     
     private final String infoFile = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "ATPK" + File.separator + "saveinfo.txt";
 	private SelectBookActivity context;
+	private String[] volumeNumbers;
 
 	
 	@Override
@@ -94,18 +95,10 @@ public class SelectBookActivity extends Activity {
         final String [] cnames = res.getStringArray(R.array.category);
         final String [] hnames = res.getStringArray(R.array.hnames);
         
+        setGallery = (Gallery) main.findViewById(R.id.gallery_cate);
+        heirGallery = (Gallery) main.findViewById(R.id.gallery_hier);
+        volumeList = (ListView) main.findViewById(R.id.vol_list);
         
-        textInfo = (Button) main.findViewById(R.id.read_btn);
-		textInfo.setTypeface(font);				
-
-        //textHeader = (TextView) findViewById(R.id.tipitaka_label);
-        //textHeaderLang = (TextView) findViewById(R.id.tipitaka_lang_label);
-        readBtn = (Button) main.findViewById(R.id.read_btn);
-        
-        gCate = (Gallery) main.findViewById(R.id.gallery_cate);
-        gNCate = (Gallery) main.findViewById(R.id.gallery_ncate);
-        gHier = (Gallery) main.findViewById(R.id.gallery_hier);
-
         //TextView cautionText = (TextView) findViewById(R.id.caution);
         //cautionText.setText(Html.fromHtml(getString(R.string.caution)));
         
@@ -113,23 +106,21 @@ public class SelectBookActivity extends Activity {
         //limitationText.setText(Html.fromHtml(getString(R.string.limitation)));
         
         ArrayAdapter<String> adapter0 = new TipitakaGalleryAdapter(this, R.layout.my_gallery_item_0, hnames);        
-        gHier.setAdapter(adapter0);
+        heirGallery.setAdapter(adapter0);
         
         ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this, R.layout.my_gallery_item_1, cnames);        
-        gCate.setAdapter(adapter1);
+        setGallery.setAdapter(adapter1);
 
 		final int[] ncate0 = res.getIntArray(R.array.lengths_0);
 		final int[] ncate1 = res.getIntArray(R.array.lengths_1);
 		final int[] ncate2 = res.getIntArray(R.array.lengths_2);
 		final int[] ncate3 = res.getIntArray(R.array.lengths_3);
         
-        final String[] t_book = res.getStringArray(R.array.thaibook);
-       
-        gCate.setOnItemSelectedListener(new OnItemSelectedListener() {
+        setGallery.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 			@Override
 			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				selectedCate = arg2+1;
+				selectedSet = arg2+1;
 				
 				int[] ncate = ncate0;
 				switch(arg2) {
@@ -155,8 +146,7 @@ public class SelectBookActivity extends Activity {
 					t_ncate[i] = Integer.toString(i+1);
 				}
 				//Log.i("Tipitaka","item selected: "+arg2);		
-				ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(context, R.layout.my_gallery_item_1, t_ncate);        
-		        gNCate.setAdapter(adapter2);
+		        setVolumeList();
 		        		        
 			}
 
@@ -166,14 +156,14 @@ public class SelectBookActivity extends Activity {
 			}
         });
        
-        gHier.setOnItemSelectedListener(new OnItemSelectedListener() {
+        heirGallery.setOnItemSelectedListener(new OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 
 				hierC = arg2;
 				
 				int[] ncate = ncate0;
-				switch(selectedCate) {
+				switch(selectedSet) {
 					case 1:
 						ncate = ncate0;
 						break;
@@ -194,8 +184,8 @@ public class SelectBookActivity extends Activity {
 				for(int i=0; i<ncate[hierC]; i++) {
 					t_ncate[i] = Integer.toString(i+1);
 				}
-				ArrayAdapter<String> adapter2 = new ArrayAdapter<String>(context, R.layout.my_gallery_item_1, t_ncate);        
-		        gNCate.setAdapter(adapter2);
+				        
+		        setVolumeList();
 			}
 
 			@Override
@@ -204,227 +194,49 @@ public class SelectBookActivity extends Activity {
 			}
         });
         
-        gNCate.setOnItemSelectedListener(new OnItemSelectedListener() {
+        volumeList.setOnItemClickListener(new OnItemClickListener(){
 
 			@Override
-			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-	        	String[] bookIA = res.getStringArray(R.array.vin_m_list);
-				switch(selectedCate) {
-					case 1:
-						switch(hierC) {
-							case 0:
-								break;
-							case 1:
-								bookIA = res.getStringArray(R.array.vin_a_list);
-								break;
-							case 2:
-								bookIA = res.getStringArray(R.array.vin_t_list);
-								break;
-						}
-						break;
-					case 2:
-						switch(hierC) {
-							case 0:
-								bookIA = res.getStringArray(R.array.sut_m_list);
-								break;
-							case 1:
-								bookIA = res.getStringArray(R.array.sut_a_list);
-								break;
-							case 2:
-								bookIA = res.getStringArray(R.array.sut_t_list);
-								break;
-						}
-						break;
-					case 3:
-						switch(hierC) {
-							case 0:
-								bookIA = res.getStringArray(R.array.abhi_m_list);
-								break;
-							case 1:
-								bookIA = res.getStringArray(R.array.abhi_a_list);
-								break;
-							case 2:
-								bookIA = res.getStringArray(R.array.abhi_t_list);
-								break;
-						}
-						break;
-					case 4:
-						switch(hierC) {
-							case 0:
-								bookIA = res.getStringArray(R.array.etc_m_list);
-								break;
-							case 1:
-								bookIA = res.getStringArray(R.array.etc_a_list);
-								break;
-							case 2:
-								bookIA = res.getStringArray(R.array.etc_t_list);
-								break;
-						}
-						break;
-					default:
-						break;
-				}
-				
-				selectedBook = Integer.parseInt(bookIA[arg2])+1;
-				
-				//~ String header = getString(R.string.th_tipitaka_book).trim() + " " + Integer.toString(selectedBook);
-				//~ if(lang == "thai")
-					//~ header = header + "\n" + getString(R.string.th_lang);
-				//~ else if(lang == "pali")
-					//~ header = header + "\n" + getString(R.string.pl_lang);
-				//~ textHeader.setText(header);
-				//changeHeader();
-				
-				thisTitle = t_book[selectedBook-1].trim();
-				
-				//Log.i ("Tipitaka","book title: "+info);
-				textInfo.setText(thisTitle);
-				textInfo.setTypeface(font);				
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				
-			}
-        	
-        });
-        
-        
-        readBtn.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				int position = Integer.parseInt(volumeNumbers[arg2]);
 				SharedPreferences.Editor editor = prefs.edit();
-				int pos1 = gCate.getSelectedItemPosition();
+				int pos1 = setGallery.getSelectedItemPosition();
 				editor.putInt("Position1", pos1);				
 				switch(pos1) {
 					case 0:
-						int vPos = gNCate.getSelectedItemPosition();
-						editor.putInt("VPosition", vPos);						
+						editor.putInt("VPosition", position);						
 						break;
 					case 1:
-						int sPos = gNCate.getSelectedItemPosition();
-						editor.putInt("SPosition", sPos);						
+						editor.putInt("SPosition", position);						
 						break;
 					case 2:
-						int aPos = gNCate.getSelectedItemPosition();
-						editor.putInt("APosition", aPos);						
+						editor.putInt("APosition", position);						
 						break;
 				}				
 				editor.commit();
         		Intent intent = new Intent(context, ReadBookActivity.class);
         		Bundle dataBundle = new Bundle();
-        		dataBundle.putInt("VOL", selectedBook);
+        		dataBundle.putInt("VOL", position);
         		dataBundle.putInt("PAGE", 1);
         		dataBundle.putString("LANG", lang);
         		dataBundle.putString("TITLE", thisTitle);
         		dataBundle.putString("FIRSTPAGE", "TRUE");
         		intent.putExtras(dataBundle);
-        		startActivity(intent);				
+        		startActivity(intent);						
 			}
         	
         });
+ 
     }
 
-    
-    @Override
+
+	@Override
     public boolean onSearchRequested() {
 		Intent intent = new Intent(this, SearchDialog.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
     	return true;
     }
-    
-	private void exportInfo() {		
-		FileOutputStream fout;
-		Cursor cursor;
-		int rowId;
-		searchHistoryDBAdapter.open();
-		bookmarkDBAdapter.open();
-		try {
-			fout = new FileOutputStream(infoFile);
-			PrintStream ps = new PrintStream(fout);
-			cursor = searchHistoryDBAdapter.getAllEntries();
-			cursor.moveToFirst();
-			
-			while(!cursor.isAfterLast()) {
-				rowId = cursor.getInt(SearchHistoryDBAdapter.ID_COL);
-				SearchHistoryItem item = searchHistoryDBAdapter.getEntry(rowId);
-				ps.println("H#"+item.toString());
-				cursor.moveToNext();
-			}
-			cursor.close();
-			
-			cursor = bookmarkDBAdapter.getAllEntries();
-			cursor.moveToFirst();
-			while(!cursor.isAfterLast()) {
-				rowId = cursor.getInt(BookmarkDBAdapter.ID_COL);
-				BookmarkItem item = bookmarkDBAdapter.getEntry(rowId);
-				ps.println("B#"+item.toString());
-				cursor.moveToNext();
-			}
-			cursor.close();
-			
-			Toast.makeText(this, getString(R.string.export_success), Toast.LENGTH_SHORT).show();
-			
-			ps.close();
-			fout.close();
-		}
-		catch (IOException e) {
-			Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-		}
-		searchHistoryDBAdapter.close();
-		bookmarkDBAdapter.close();
-	}
-	
-	private void importInfo() {
-		searchHistoryDBAdapter.open();
-		bookmarkDBAdapter.open();
-		String line;
-		String [] tokens;
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(infoFile));
-			while ((line = br.readLine()) != null) { 
-				tokens = line.split("#");
-				if(tokens[0].equals("H")) {
-					try {
-						SearchHistoryItem item = new SearchHistoryItem(tokens[1]);
-						if(!searchHistoryDBAdapter.isDuplicated(item)) {
-							searchHistoryDBAdapter.insertEntry(item);
-						}
-					} catch (Exception e) {
-						Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-					}
-				} else if(tokens[0].equals("B")) {
-					try {
-						BookmarkItem item = new BookmarkItem(tokens[1]);
-						if(!bookmarkDBAdapter.isDuplicated(item)) {
-							bookmarkDBAdapter.insertEntry(item);
-						}
-					} catch (Exception e) {
-						Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-					}
-				}
-				
-			}
-			Toast.makeText(this, getString(R.string.import_success), Toast.LENGTH_SHORT).show();
-		}
-		catch (IOException e) {
-        	final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-	    	alertDialog.setTitle(getString(R.string.error_found));
-	    	alertDialog.setMessage(getString(R.string.saveinfo_not_found));
-	    	alertDialog.setButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-	    		public void onClick(DialogInterface dialog, int which) {
-				   alertDialog.dismiss();
-			   }
-			});      
-	    	alertDialog.setIcon(R.drawable.icon);
-	    	alertDialog.setCancelable(false);
-	    	alertDialog.show();
-		}
-		searchHistoryDBAdapter.close();
-		bookmarkDBAdapter.close();		
-	}
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -533,5 +345,66 @@ public class SelectBookActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 	}
-
+    
+    protected void setVolumeList() {
+    	Resources res = getResources();
+    	volumeNumbers = res.getStringArray(R.array.vin_m_list);
+		switch(selectedSet) {
+			case 1:
+				switch(hierC) {
+					case 0:
+						break;
+					case 1:
+						volumeNumbers = res.getStringArray(R.array.vin_a_list);
+						break;
+					case 2:
+						volumeNumbers = res.getStringArray(R.array.vin_t_list);
+						break;
+				}
+				break;
+			case 2:
+				switch(hierC) {
+					case 0:
+						volumeNumbers = res.getStringArray(R.array.sut_m_list);
+						break;
+					case 1:
+						volumeNumbers = res.getStringArray(R.array.sut_a_list);
+						break;
+					case 2:
+						volumeNumbers = res.getStringArray(R.array.sut_t_list);
+						break;
+				}
+				break;
+			case 3:
+				switch(hierC) {
+					case 0:
+						volumeNumbers = res.getStringArray(R.array.abhi_m_list);
+						break;
+					case 1:
+						volumeNumbers = res.getStringArray(R.array.abhi_a_list);
+						break;
+					case 2:
+						volumeNumbers = res.getStringArray(R.array.abhi_t_list);
+						break;
+				}
+				break;
+			case 4:
+				switch(hierC) {
+					case 0:
+						volumeNumbers = res.getStringArray(R.array.etc_m_list);
+						break;
+					case 1:
+						volumeNumbers = res.getStringArray(R.array.etc_a_list);
+						break;
+					case 2:
+						volumeNumbers = res.getStringArray(R.array.etc_t_list);
+						break;
+				}
+				break;
+			default:
+				break;
+		}
+		ArrayAdapter<String> adapter = new VolumeItemAdapter(context, R.layout.volume_item, R.id.volume, volumeNumbers);        
+		volumeList.setAdapter(adapter);
+    }
 }

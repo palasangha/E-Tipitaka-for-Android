@@ -130,7 +130,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
     private static final int SWIPE_MAX_OFF_PATH = 100;
     private static final int SWIPE_THRESHOLD_VELOCITY = 0;
 
-    private String[] t_book;
+    private String[] volumes;
 	private Typeface font;
 
 	// download stuff
@@ -151,13 +151,14 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 
 	public Resources res;
 	private LinearLayout splitPane;
+	protected int lastPosition;
 
 	@SuppressLint("NewApi")
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        Context context = getApplicationContext();
+        final Context context = getApplicationContext();
         prefs =  PreferenceManager.getDefaultSharedPreferences(context);
 		font = Typeface.createFromAsset(getAssets(), "verajjan.ttf");      
         
@@ -250,15 +251,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         	return;
         }
         
-        TextView idx_header = new TextView(context);
-        idx_header.setText("Index");
-        idx_header.setTypeface(font);
-        idx_header.setGravity(0x11);
-        idx_header.setTextSize(1,24);
-        idx_header.setTextColor(0xFF000000);
-        
-        idxList.addHeaderView(idx_header);
-
 		// hide virtual keyboard
 		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(textContent.getWindowToken(), 0);
@@ -283,14 +275,13 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		
 		read.requestLayout();
         
-                
+		final List<String> titles = new ArrayList<String>();
+              
 		if(ReadBookActivity.this.getIntent().getExtras() != null) {
 			Bundle dataBundle = ReadBookActivity.this.getIntent().getExtras();
 			int vol = dataBundle.getInt("VOL");
-			t_book = res.getStringArray(R.array.thaibook);
-			headerText = t_book[vol-1].trim();
-			if(splitPane == null)
-				idx_header.setText(t_book[vol-1].trim()+ "\nindex");
+			volumes = res.getStringArray(R.array.volume_names);
+			headerText = volumes[vol].trim();
 
 			int page = dataBundle.getInt("PAGE");
 			
@@ -311,15 +302,14 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				jumpItem = dataBundle.getInt("ITEM");
 			}
 
-			selected_volume = vol;
+			selected_volume = vol+1;
 
 			// create index
 			
 			mainTipitakaDBAdapter.open();
-			Cursor cursor = mainTipitakaDBAdapter.getContent(vol);
+			Cursor cursor = mainTipitakaDBAdapter.getContent(vol+1);
 
 			cursor.moveToFirst();
-			List<String> titles = new ArrayList<String>();
 
 			while (!cursor.isAfterLast()) {
 				String title = cursor.getString(1);
@@ -330,16 +320,12 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			cursor.close();
 			mainTipitakaDBAdapter.close();
 
-			MenuItemAdapter adapter = new MenuItemAdapter(this,
-					android.R.layout.simple_list_item_1, titles);			
-			
-			idxList.setAdapter(adapter);
 			idxList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
 			  @Override
 			  public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-				  if(gPage.getSelectedItemPosition() != position-1)
-					  gPage.setSelection(position-1);
+				  if(gPage.getSelectedItemPosition() != position)
+					  gPage.setSelection(position);
 				  else {
 					  setListVisible(1);
 
@@ -406,6 +392,8 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			
 			private void changeItem(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				
+				lastPosition = arg2;
+				
 				//ReadBookActivity.this.oldpage = arg2;
 				//Log.i("Tipitaka","old/new: "+Integer.toString(oldpage)+" "+Integer.toString(newpage));
 				savedReadPages.add(selected_volume+":"+(arg2+1));
@@ -468,7 +456,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 					Utils.arabic2thai(tokens[0], getResources());
 				}
 				
-				t_book = res.getStringArray(R.array.thaibook);
+				volumes = res.getStringArray(R.array.volume_names);
 
 				//headerLabel.setTypeface(font);
 
@@ -509,7 +497,23 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 					//scrollview.fullScroll(View.FOCUS_UP);
 				}
 				gPage.requestFocus();
+
+			// update index
 				
+			     // save index and top position
+
+		        int index = idxList.getFirstVisiblePosition();
+		        View v = idxList.getChildAt(0);
+		        int top = (v == null) ? 0 : v.getTop();
+
+				IndexItemAdapter adapter = new IndexItemAdapter(context, R.layout.index_list_item, R.id.title, titles, lastPosition);
+				idxList.setAdapter(adapter);
+
+		        // restore
+			
+		        idxList.setSelectionFromTop(index, top);
+				
+
 				if(idxList.getVisibility() == View.VISIBLE)
 					return;
 

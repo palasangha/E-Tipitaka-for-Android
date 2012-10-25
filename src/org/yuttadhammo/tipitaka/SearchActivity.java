@@ -980,7 +980,7 @@ public class SearchActivity extends Activity {
 		
 		ArrayList<String> al_tmp = new ArrayList<String>();
 		
-		String [] bnames = res.getStringArray(R.array.thaibook);
+		String [] bnames = res.getStringArray(R.array.volume_names);
 		
 		int key = 0;
 		
