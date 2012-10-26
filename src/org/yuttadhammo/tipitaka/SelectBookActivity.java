@@ -179,7 +179,7 @@ public class SelectBookActivity extends Activity {
         		Intent intent = new Intent(context, ReadBookActivity.class);
         		Bundle dataBundle = new Bundle();
         		dataBundle.putInt("VOL", position);
-        		dataBundle.putInt("PAGE", 1);
+        		dataBundle.putInt("PAGE", 0);
         		dataBundle.putString("LANG", lang);
         		dataBundle.putString("TITLE", thisTitle);
         		dataBundle.putString("FIRSTPAGE", "TRUE");

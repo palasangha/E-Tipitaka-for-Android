@@ -397,7 +397,7 @@ public class SearchActivity extends Activity {
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				String [] tokens = ((String) resultList.get(arg2)).split(":");
 				int volume = Integer.parseInt(tokens[1]);
-				int page = Integer.parseInt(tokens[2])+1;
+				int page = Integer.parseInt(tokens[2]);
 				Log.i("Tipitaka","search result clicked: "+volume+" "+page);
 				
 				//Toast.makeText(SearchPage.this, Integer.toString(arg2) + ":" + Long.toString(arg3), Toast.LENGTH_SHORT).show();
@@ -1084,7 +1084,7 @@ public class SearchActivity extends Activity {
 				tmp = tmp + t + " ";
 				count++;
 			}
-			String line1 = Integer.toString(key+1) + ". " + tmp + " " + getString(R.string.th_items_label) + " " + t_items;
+			String line1 = Integer.toString(key+1) + ". " + tmp + " " + getString(R.string.th_page_label) + " " + t_items;
 			cursor.addRow(new Object[] { key++, line1, line2});
 		}				
 		return cursor;
@@ -1365,18 +1365,9 @@ public class SearchActivity extends Activity {
 		});
 		
 		memoDialog.setCancelable(true);
-		String title1 = "";
-		if(language.equals("thai")) {
-			title1 = getString(R.string.th_tipitaka_label) + " " + getString(R.string.th_lang);
-		} else if(language.equals("pali")) {
-			title1 = getString(R.string.th_tipitaka_label) + " " + getString(R.string.pl_lang);
-		}
+		String title1 = getString(R.string.th_tipitaka_label) + " " + getString(R.string.pl_lang);
 		
-		//~ TextView sub_title = (TextView)memoDialog.findViewById(R.id.memo_sub_title);
-		//~ String title2 = getString(R.string.th_book_label) + " " + Integer.toString(volume);
-		//~ title2 = title2 + " " + getString(R.string.th_page_label) + " " + Integer.toString(page);
-		//~ title2 = title2 + " " + getString(R.string.th_items_label) + " " + Integer.toString(item);
-		//~ sub_title.setText(title2);
+
 		memoDialog.setTitle(title1);
 		memoDialog.show();		
 		

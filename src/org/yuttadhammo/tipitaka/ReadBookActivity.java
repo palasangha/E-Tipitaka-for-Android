@@ -247,14 +247,14 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         
 		titles = new ArrayList<String>();
               
-		if(ReadBookActivity.this.getIntent().getExtras() != null) {
-			Bundle dataBundle = ReadBookActivity.this.getIntent().getExtras();
+		if(getIntent().getExtras() != null) {
+			Bundle dataBundle = getIntent().getExtras();
 			selected_volume = dataBundle.getInt("VOL");
 			
 			volumes = res.getStringArray(R.array.volume_names);
 			volumeTitle = volumes[selected_volume].trim();
 
-			lastPosition = dataBundle.getInt("PAGE")-1;
+			lastPosition = dataBundle.getInt("PAGE");
 			
 			if (!dataBundle.containsKey("FIRSTPAGE"))
 				firstPage = false;
@@ -498,7 +498,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	
 	private void prepareBookmark() {
 		String [] items = savedItems.split("\\s+");
-		selected_page = lastPosition + 1;
+		selected_page = lastPosition;
 
 		if(items.length > 1) {
 			itemsDialog = new Dialog(ReadBookActivity.this);						
@@ -621,7 +621,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 
 		if(firstPage) {
 			firstPage = false;
-			changeItem();
+			updateText();
 			return;
 		}
 	
@@ -637,7 +637,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			{
 				public void onAnimationEnd(Animation animation)
 				{
-					changeItem();
+					updateText();
 				}
 	
 				public void onAnimationRepeat(Animation animation)
@@ -653,11 +653,11 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			textContent.startAnimation(anim);
 		}
 		else
-			changeItem();
+			updateText();
 		
 	}
 	
-	private void changeItem() {
+	private void updateText() {
 		
 		//Log.i ("Tipitaka","get volume: "+selected_volume);
 		savedReadPages.add(selected_volume+":"+(lastPosition+1));
@@ -671,8 +671,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		if(content == null)
 			content = "";
 
-		//~ content = "<u>"+content.replaceAll(" +", "</u> <u>")+"</u>";
-		
 		// highlight keywords (yellow)
 		if(keywords.trim().length() > 0) {
 			keywords = keywords.replace('+', ' ');
@@ -711,14 +709,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		savedItems = cursor.getString(0);	
 		cursor.close();
 		mainTipitakaDBAdapter.close();
-		String [] tokens = savedItems.split("\\s+");
-		if(tokens.length > 1) {
-			String.format("%s-%s", 
-					Utils.arabic2thai(tokens[0], getResources()), 
-					Utils.arabic2thai(tokens[tokens.length-1], getResources()));
-		} else {
-			Utils.arabic2thai(tokens[0], getResources());
-		}
 		
 		volumes = res.getStringArray(R.array.volume_names);
 
@@ -742,14 +732,14 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 						y = textContent.getLayout().getLineTop(jumpLine-2);
 					else
 						y = textContent.getLayout().getLineTop(0);
-					textContent.scrollTo(0, y);
+					scrollview.scrollTo(0, y);
 				}
 			},300);
 		} else if(isJump && toPosition > -1) {
 			textContent.postDelayed(new Runnable() {
 				@Override
 				public void run() {
-					textContent.scrollTo(0, toPosition);
+					scrollview.scrollTo(0, toPosition);
 					toPosition = -1;
 				}
 			},300);
@@ -784,7 +774,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			public void onAnimationEnd(Animation animation)
 			{
 				if(!isJump)
-					textContent.scrollTo(0, 0);
+					scrollview.scrollTo(0, 0);
 				isJump = false;
 				newpage = oldpage;
 			}
