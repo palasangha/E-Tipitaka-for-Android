@@ -142,6 +142,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	private LinearLayout splitPane;
 	protected int lastPosition;
 	private ArrayList<String> titles;
+	private String volumeTitle;
 
 	@SuppressLint("NewApi")
 	@Override
@@ -251,7 +252,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			selected_volume = dataBundle.getInt("VOL");
 			
 			volumes = res.getStringArray(R.array.volume_names);
-			headerText = volumes[selected_volume].trim();
+			volumeTitle = volumes[selected_volume].trim();
 
 			lastPosition = dataBundle.getInt("PAGE")-1;
 			
@@ -259,7 +260,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				firstPage = false;
 			
 			lang = dataBundle.getString("LANG");
-			
 			
 			savedReadPages.clear();
 			
@@ -579,14 +579,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		if(searchDialog != null) {
 			searchDialog.updateHistoryList();
 		}
-        /*if(lang == "thai") {
-        	npage = getResources().getIntArray(R.array.npage_thai);
-        }
-        else if(lang == "pali") {
-        	npage = getResources().getIntArray(R.array.npage_pali);
-        	
-        }*/
-        //Toast.makeText(this, "Restart", Toast.LENGTH_SHORT).show();
 	}
 	
 	@Override
@@ -597,40 +589,13 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         	size = "16";
 		textSize = Float.parseFloat(size);
 		textContent.setTextSize(textSize);
-		/*
-		int p = 0;
-		if(lang == "thai") {
-        	p = npage_thai.length;
-        }
-        else if(lang == "pali") {
-        	p = npage_pali.length;
-        }
-        
-        Toast.makeText(this, Integer.toString(p), Toast.LENGTH_SHORT).show();*/
 	}
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
-	    super.onConfigurationChanged(newConfig);
-
-	    // Checks the orientation of the screen
-	    if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-	        //Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
-	        //gPage.setVisibility(View.GONE);
-	    } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
-	        //Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
-	        //gPage.setVisibility(View.VISIBLE);
-	    }
+		super.onConfigurationChanged(newConfig);
 	}	
 	
-	/*
-	private float spacing(MotionEvent event) {
-		   float x = event.getX(0) - event.getX(1);
-		   float y = event.getY(0) - event.getY(1);
-		   return FloatMath.sqrt(x * x + y * y);
-	}
-	*/
-
 	private void saveReadingState(String _lang, int page, int scrollPosition) {
 		SharedPreferences.Editor editor = prefs.edit();
     	editor.putInt(_lang+":PAGE", page);
@@ -738,7 +703,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			content = content.replaceAll("\\{([^}]+)\\}", "");
 		
 		title = formatTitle(title);
-		headerText = headerText+", " + title;
+		headerText = volumeTitle+", " + title;
 		content = "<font color='#888800'>"+headerText+"</font><br/><br/>"+content.replace("\n", "<br/>");
 		Spanned html = Html.fromHtml(content);
 		textContent.setText(html);

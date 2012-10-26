@@ -396,7 +396,7 @@ public class SearchActivity extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 				String [] tokens = ((String) resultList.get(arg2)).split(":");
-				int volume = Integer.parseInt(tokens[1])+1;
+				int volume = Integer.parseInt(tokens[1]);
 				int page = Integer.parseInt(tokens[2])+1;
 				Log.i("Tipitaka","search result clicked: "+volume+" "+page);
 				
