@@ -9,7 +9,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Collections;
 
 import android.annotation.SuppressLint;
@@ -47,11 +46,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Gallery;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -60,12 +57,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import android.graphics.PointF;
-import android.graphics.RectF;
 import android.graphics.Typeface;
 
 import android.view.inputmethod.InputMethodManager;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View.OnLongClickListener;
 
 
@@ -201,25 +195,14 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				word = word.replaceAll("/ .*/","");
 				
 				final String aword = word;
-
-				new AlertDialog.Builder(ReadBookActivity.this)
-				.setItems(R.array.dict, new Dialog.OnClickListener(){
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						Intent intent = new Intent(getBaseContext(), DictionaryActivity.class);
-						Bundle dataBundle = new Bundle();
-						dataBundle.putString("word", aword);
-						if(which > 1)
-							which++;
-						dataBundle.putInt("dict", which);
-						intent.putExtras(dataBundle);
-						startActivity(intent);
-					}
-				})
-				.setTitle(getString(R.string.choose_dict))
-				.show();
-
 				
+				Intent intent = new Intent(getBaseContext(), DictionaryActivity.class);
+				Bundle dataBundle = new Bundle();
+				dataBundle.putString("word", aword);
+				dataBundle.putInt("dict", 4);
+				intent.putExtras(dataBundle);
+				startActivity(intent);
+
 			}
 		});
 

@@ -21,6 +21,8 @@
 			android:gravity="center"
 			android:text="@string/help"
 			android:textSize="30dp"
+			android:autoLink="web"
+			
 			/>
 		<TextView
 			android:layout_marginTop="15dp"
@@ -29,6 +31,7 @@
 			android:layout_height="wrap_content"
 			android:text="@string/help_intro"
 			android:textSize="20dp"
+			android:autoLink="web"
 			/>
 		<TextView
 			android:layout_marginTop="15dp"
@@ -37,6 +40,7 @@
 			android:layout_height="wrap_content"
 			android:text="@string/help_content_1"
 			android:textSize="20dp"
+			android:autoLink="web"
 			/>
 		<TextView
 			android:layout_marginTop="15dp"
@@ -45,6 +49,7 @@
 			android:layout_height="wrap_content"
 			android:text="@string/help_content_2"
 			android:textSize="20dp"
+			android:autoLink="web"
 			/>
 
 		<TextView
@@ -54,6 +59,7 @@
 			android:layout_height="wrap_content"
 			android:text="@string/help_content_3"
 			android:textSize="20dp"
+			android:autoLink="web"
 			/>
 
 		<TextView
@@ -63,6 +69,7 @@
 			android:layout_height="wrap_content"
 			android:text="@string/help_content_4"
 			android:textSize="20dp"
+			android:autoLink="web"
 			/>
 		<TextView
 			android:layout_marginTop="10dp"
@@ -71,6 +78,7 @@
 			android:layout_height="wrap_content"
 			android:text="@string/help_content_5"
 			android:textSize="20dp"
+			android:autoLink="web"
 			/>
 		<TextView
 			android:layout_marginTop="15dp"
@@ -80,6 +88,7 @@
 			android:gravity="center"
 			android:text="@string/about"
 			android:textSize="30dp"
+			android:autoLink="web"
 			/>
 		<TextView
 			android:layout_marginTop="15dp"
@@ -88,6 +97,7 @@
 			android:layout_height="wrap_content"
 			android:text="@string/about_content_1"
 			android:textSize="20dp"
+			android:autoLink="web"
 			/>
 		<TextView
 			android:layout_marginTop="15dp"
@@ -96,6 +106,7 @@
 			android:layout_height="wrap_content"
 			android:text="@string/about_content_2"
 			android:textSize="20dp"
+			android:autoLink="web"
 			/>
 
 		<TextView
@@ -105,6 +116,7 @@
 			android:layout_height="wrap_content"
 			android:text="@string/about_content_3"
 			android:textSize="20dp"
+			android:autoLink="web"
 			/>
 
 		<TextView
@@ -114,6 +126,7 @@
 			android:layout_height="wrap_content"
 			android:text="@string/about_content_4"
 			android:textSize="20dp"
+			android:autoLink="web"
 			/>
 
 		<TextView
@@ -123,6 +136,7 @@
 			android:layout_height="wrap_content"
 			android:text="@string/license"
 			android:textSize="20dp"
+			android:autoLink="web"
 			/>
 	</LinearLayout>
 </ScrollView>
