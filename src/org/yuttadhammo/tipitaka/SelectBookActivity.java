@@ -286,7 +286,7 @@ public class SelectBookActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.lang_menu, menu);
+	    inflater.inflate(R.menu.select_menu, menu);
 	    /*
 	    if (lang.equals("thai")) {
 	    	menu.getItem(0).setTitle(getString(R.string.select_lang) + getString(R.string.pl_lang));

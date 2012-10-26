@@ -78,7 +78,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	//~ private TextView pageLabel;
 	//~ private TextView itemsLabel;
 	private String headerText = "";
-	private Gallery gPage;
 	private ListView idxList;
 	private ScrollView scrollview;
 	private RelativeLayout textshell;
@@ -126,9 +125,8 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 
 	//Gestures
 
-    private static final int SWIPE_MIN_LENGTH = 50;
+    private static final int SWIPE_MIN_LENGTH = 30;
     private static final int SWIPE_MAX_OFF_PATH = 100;
-    private static final int SWIPE_THRESHOLD_VELOCITY = 0;
 
     private String[] volumes;
 	private Typeface font;
@@ -152,6 +150,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	public Resources res;
 	private LinearLayout splitPane;
 	protected int lastPosition;
+	private ArrayList<String> titles;
 
 	@SuppressLint("NewApi")
 	@Override
@@ -224,9 +223,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			}
 		});
 
-		
-        gPage = (Gallery) read.findViewById(R.id.gallery_page);
-		
         // index button
 
         idxList = (ListView) read.findViewById(R.id.index_list);
@@ -234,9 +230,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         // used to test for split pane 
         splitPane = (LinearLayout) findViewById(R.id.split_pane);
         
-        if(splitPane != null)
-        	setListVisible(1);
-
         try {
         	mainTipitakaDBAdapter.open();
         	if(mainTipitakaDBAdapter.isOpened()) {
@@ -275,7 +268,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		
 		read.requestLayout();
         
-		final List<String> titles = new ArrayList<String>();
+		titles = new ArrayList<String>();
               
 		if(ReadBookActivity.this.getIntent().getExtras() != null) {
 			Bundle dataBundle = ReadBookActivity.this.getIntent().getExtras();
@@ -322,238 +315,16 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 
 			idxList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-			  @Override
-			  public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-				  if(gPage.getSelectedItemPosition() != position)
-					  gPage.setSelection(position);
-				  else {
-					  setListVisible(1);
-
-				  }
-
-			  }
+				@Override
+				public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+					lastPosition = position;
+					updatePage();
+			  	}
 			});
-
+			updatePage();
 			
-			// go to page
-			
-			setGalleryPages(page);
 		}
-		
-		gPage.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-					
-				final AdapterView<?> a0 = arg0;
-				final View a1 = arg1;
-				final int a2 = arg2;
-				final long a3 = arg3;
-
-				// show index
-
-				if(firstPage) {
-					firstPage = false;
-					changeItem(a0,a1,a2,a3);
-					return;
-				}
-
-				// hide index
-				setListVisible(1);
-		
-				
-				// fade out
-				if(textContent.getVisibility() == View.VISIBLE) {
-					Animation anim = AnimationUtils.loadAnimation(ReadBookActivity.this, android.R.anim.fade_out);
-					anim.setAnimationListener(new Animation.AnimationListener()
-					{
-						public void onAnimationEnd(Animation animation)
-						{
-							changeItem(a0,a1,a2,a3);
-
-						}
-
-						public void onAnimationRepeat(Animation animation)
-						{
-							// Do nothing!
-						}
-
-						public void  onAnimationStart(Animation animation)
-						{
-							// Do nothing!
-						}
-					});
-					textContent.startAnimation(anim);
-				}
-				else
-					changeItem(a0,a1,a2,a3);
-
-			}
-			
-			private void changeItem(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				
-				lastPosition = arg2;
-				
-				//ReadBookActivity.this.oldpage = arg2;
-				//Log.i("Tipitaka","old/new: "+Integer.toString(oldpage)+" "+Integer.toString(newpage));
-				savedReadPages.add(selected_volume+":"+(arg2+1));
-				mainTipitakaDBAdapter.open();
-				Cursor cursor = mainTipitakaDBAdapter.getContent(selected_volume, arg2+1, lang);
-				cursor.moveToFirst();
-				//Log.i ("Tipitaka","db cursor length: "+cursor.getCount());
-				String title = cursor.getString(2);
-				String content = cursor.getString(1);
-				
-				if(content == null)
-					content = "";
-
-				//~ content = "<u>"+content.replaceAll(" +", "</u> <u>")+"</u>";
-				
-				// highlight keywords (yellow)
-				if(keywords.trim().length() > 0) {
-					keywords = keywords.replace('+', ' ');
-					String [] tokens = keywords.split("\\s+");
-					Arrays.sort(tokens, new StringLengthComparator());
-					Collections.reverse(Arrays.asList(tokens));
-					for(String token: tokens) {
-						content = content.replace(token, "<font color='#888800'>"+token+"</font>");
-					}
-				}
-				
-				content = content.replaceAll("\\[[0-9]+\\]", "");
-
-				// highlight items numbers (orange)
-				//content = content.replaceAll(getString(R.string.regex_item), "<font color='#EE9A00'><b>$0</b></font>");
-				
-				content = content.replaceAll("\\^b\\^", "<b>");
-				content = content.replaceAll("\\^eb\\^", "</b>");
-				
-				content = content.replaceAll("\\^a\\^[^^]+\\^ea\\^", "");
-				
-				
-				content = content.replaceAll("([AIUEOKGCJTDNPBMYRLVSHaiueokgcjtdnpbmyrlvshāīūṭḍṅṇṁṃñḷĀĪŪṬḌṄṆṀṂÑḶ])0", "$1.");
-				
-				if(prefs.getBoolean("show_var", true))
-					content = content.replaceAll("\\{([^}]+)\\}", "<font color='#7D7D7D'>[$1]</font>");
-				else
-					content = content.replaceAll("\\{([^}]+)\\}", "");
-				
-				title = formatTitle(title);
-				
-				content = "<font color='#888800'>"+headerText+", " + title+"</font><br/><br/>"+content.replace("\n", "<br/>");
-				Spanned html = Html.fromHtml(content);
-				textContent.setText(html);
-								
-				savedItems = cursor.getString(0);	
-				cursor.close();
-				mainTipitakaDBAdapter.close();
-				String [] tokens = savedItems.split("\\s+");
-				if(tokens.length > 1) {
-					String.format("%s-%s", 
-							Utils.arabic2thai(tokens[0], getResources()), 
-							Utils.arabic2thai(tokens[tokens.length-1], getResources()));
-				} else {
-					Utils.arabic2thai(tokens[0], getResources());
-				}
-				
-				volumes = res.getStringArray(R.array.volume_names);
-
-				//headerLabel.setTypeface(font);
-
-				//headerLabel.setText(header);
-				
-				String i_tmp = "";
-				if(searchCall) {
-					searchCall = false;
-					i_tmp = keywords.split("\\s+")[0].replace('+', ' ');
-				} else {
-					i_tmp = "[" + Utils.arabic2thai(Integer.toString(jumpItem), getResources()) + "]";
-				}
-
-				if(isJump && toPosition == -1 && textContent != null && textContent.getLayout() != null) {
-					int offset =  textContent.getText().toString().indexOf(i_tmp);
-					final int jumpLine = textContent.getLayout().getLineForOffset(offset);
-					
-					textContent.postDelayed(new Runnable() {
-						@Override
-						public void run() {
-							int y=0;
-							if(jumpLine > 2)
-								y = textContent.getLayout().getLineTop(jumpLine-2);
-							else
-								y = textContent.getLayout().getLineTop(0);
-							textContent.scrollTo(0, y);
-						}
-					},300);
-				} else if(isJump && toPosition > -1) {
-					textContent.postDelayed(new Runnable() {
-						@Override
-						public void run() {
-							textContent.scrollTo(0, toPosition);
-							toPosition = -1;
-						}
-					},300);
-				} else {
-					//scrollview.fullScroll(View.FOCUS_UP);
-				}
-				gPage.requestFocus();
-
-			// update index
-				
-			     // save index and top position
-
-		        int index = idxList.getFirstVisiblePosition();
-		        View v = idxList.getChildAt(0);
-		        int top = (v == null) ? 0 : v.getTop();
-
-				IndexItemAdapter adapter = new IndexItemAdapter(context, R.layout.index_list_item, R.id.title, titles, lastPosition);
-				idxList.setAdapter(adapter);
-
-		        // restore
-			
-		        idxList.setSelectionFromTop(index, top);
-				
-
-				if(idxList.getVisibility() == View.VISIBLE)
-					return;
-
-				// fade in
-
-				Animation anim = AnimationUtils.loadAnimation(ReadBookActivity.this, android.R.anim.fade_in);
-				anim.setAnimationListener(new Animation.AnimationListener()
-				{
-					public void onAnimationEnd(Animation animation)
-					{
-						if(!isJump)
-							textContent.scrollTo(0, 0);
-						isJump = false;
-						newpage = oldpage;
-						idxList.setSelection(gPage.getSelectedItemPosition());
-					}
-
-					public void onAnimationRepeat(Animation animation)
-					{
-						// Do nothing!
-					}
-
-					public void  onAnimationStart(Animation animation)
-					{
-						// Do nothing!
-					}
-				});
-				textContent.startAnimation(anim);
-				textContent.setVisibility(View.VISIBLE);
-				
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0) {
-				textContent.startAnimation(AnimationUtils.loadAnimation(ReadBookActivity.this, android.R.anim.fade_in));
-				textContent.setVisibility(View.VISIBLE);				
-			}
-			
-		});
-
+	
 		scrollview.setOnTouchListener(new View.OnTouchListener() {
 			
             public boolean onTouch(View v, MotionEvent me) {    			
@@ -658,7 +429,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.goto_menu, menu);
+	    inflater.inflate(R.menu.read_menu, menu);
 	    return true;
 	}
 
@@ -680,9 +451,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	            return true;
 			case R.id.index:
 				setListVisible(2);
-				break;
-	        case (int)R.id.goto_page:
-				gotoPage();
 				break;
 			case (int)R.id.help_menu_item:
 				showHelpDialog();
@@ -781,27 +549,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				
 		return i;
 	}
-	
-	private void jumpTo(int volume, int item, int page, int sub, String language) {
-		jumpItem = item;
-		isJump = true;
-		
-		mainTipitakaDBAdapter.open();
-		Cursor n_cursor = mainTipitakaDBAdapter.getPageByItem(volume, item, language, true);
-		n_cursor.moveToPosition(sub);
-		int new_page = 1;
-		
-		if(n_cursor.getCount() > 0) {
-			new_page = Integer.parseInt(n_cursor.getString(0));
-		}
-		
-		n_cursor.close();
-		mainTipitakaDBAdapter.close();
-		
-		setGalleryPages(new_page);
-		
-	}
-	
+
 	private void memoAt(int volume, int item, int page, String language) {
 		memoDialog = new Dialog(ReadBookActivity.this);
 		memoDialog.setContentView(R.layout.memo_dialog);
@@ -845,7 +593,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	
 	private void memoItem() {
 		String [] items = savedItems.split("\\s+");
-		selected_page = gPage.getSelectedItemPosition() + 1;
+		selected_page = lastPosition + 1;
 
 		if(items.length > 1) {
 			itemsDialog = new Dialog(ReadBookActivity.this);						
@@ -877,173 +625,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			memoAt(selected_volume, Integer.parseInt(items[0]), selected_page, lang);
 		}		
 	}
-	
-	private void compare() {
-		Log.i("ITEM",savedItems);
-		String [] items = savedItems.split("\\s+");
-		selected_page = gPage.getSelectedItemPosition() + 1;
-
-		int scrollPosition = textContent.getScrollY();
-		saveReadingState(lang, selected_page, scrollPosition);
-		
-		if(items.length > 1) {
-			itemsDialog = new Dialog(ReadBookActivity.this);						
-			itemsDialog.setContentView(R.layout.select_dialog);
-			itemsDialog.setCancelable(true);
 			
-			itemsDialog.setTitle(getString(R.string.select_item_compare));
-			
-			ListView pageView = (ListView) itemsDialog.findViewById(R.id.list_pages);						
-			ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(ReadBookActivity.this, R.layout.page_item, R.id.show_page);			
-
-			for(String item : items) {
-				dataAdapter.add(getString(R.string.th_items_label) + " " + Utils.arabic2thai(item, getResources()));
-			}
-			
-			pageView.setAdapter(dataAdapter);			
-			pageView.setOnItemClickListener(new OnItemClickListener() {
-
-				@Override
-				public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-					String [] items = savedItems.split("\\s+");
-					int sub = getSubVolume(selected_volume, Integer.parseInt(items[arg2]), selected_page, lang);
-					if(lang.equals("thai")) {
-						lang = "pali";
-					} else if(lang.equals("pali")) {
-						lang = "thai";
-					}
-					jumpTo(selected_volume, Integer.parseInt(items[arg2]), selected_page, sub, lang);
-					itemsDialog.dismiss();
-				}
-			});			
-			itemsDialog.show();			
-		} else {
-			int sub = getSubVolume(selected_volume, Integer.parseInt(items[0]), selected_page, lang);
-			if(lang.equals("thai")) {
-				lang = "pali";
-			} else if(lang.equals("pali")) {
-				lang = "thai";
-			}
-			jumpTo(selected_volume, Integer.parseInt(items[0]), selected_page, sub, lang);
-		}
-				
-	}
-	
-	private void gotoPage() {
-    	dialog = new Dialog(ReadBookActivity.this);
-    	dialog.setContentView(R.layout.goto_dialog);
-    	dialog.setCancelable(true);
-    	Button gotoBtn = (Button)dialog.findViewById(R.id.gotobtn);
-    	edittext = (EditText) dialog.findViewById(R.id.edittext);
-    	edittext.setHint(R.string.enter_page);
-    
-    	int p = 0;
-    	if(lang.equals("thai"))
-    		p = npage_thai[selected_volume-1];
-    	else if(lang.equals("pali"))
-    		p = npage_pali[selected_volume-1];
-    	    	
-    	dialog.setTitle(getResources().getString(R.string.between_page) + " " + Utils.arabic2thai("1", getResources()) + " - " + Utils.arabic2thai(Integer.toString(p), getResources()));
-    	
-    	gotoBtn.setOnClickListener(new OnClickListener() {				
-			@Override
-			public void onClick(View v) {
-				try {
-					int page = Integer.parseInt(edittext.getText().toString());
-					
-					if(page <= gPage.getCount()) {
-						gPage.setSelection(page-1);
-						dialog.dismiss();
-					}
-				} catch (java.lang.NumberFormatException e) { }				
-			}
-				
-		});
-    	
-    	dialog.show();		
-	}
-	
-	private void gotoItem() {
-    	dialog = new Dialog(ReadBookActivity.this);
-    	dialog.setContentView(R.layout.goto_dialog);
-    	dialog.setCancelable(true);
-    	Button gotoBtn = (Button)dialog.findViewById(R.id.gotobtn);
-    	edittext = (EditText) dialog.findViewById(R.id.edittext);
-    	edittext.setHint(R.string.enter_item);
-    	
-    	dialog.setTitle(getResources().getString(R.string.between_item) + " " + Utils.arabic2thai("1", getResources()) + " - " + Utils.arabic2thai(Integer.toString(nitem[selected_volume-1]), getResources()));
-    	
-    	gotoBtn.setOnClickListener(new OnClickListener() {				
-			@Override
-			public void onClick(View v) {
-				try {
-					int item = Integer.parseInt(edittext.getText().toString());
-					jumpItem = item;
-					isJump = true;					
-					//dbhelper.openDataBase();
-					mainTipitakaDBAdapter.open();
-					Cursor cursor = mainTipitakaDBAdapter.getPageByItem(selected_volume, item, lang, true);
-					//Toast.makeText(ReadBookActivity.this, Integer.toString(cursor.getCount()), Toast.LENGTH_SHORT).show();
-					int n = cursor.getCount();
-					if (n == 1) {
-						cursor.moveToFirst();
-						String sPage = cursor.getString(0);
-						//Toast.makeText(ReadBookActivity.this, sPage, Toast.LENGTH_SHORT).show();
-						gPage.setSelection(Integer.parseInt(sPage)-1);
-						dialog.dismiss();
-					} else if (n > 1) {
-						dialog.dismiss();
-						
-						selectDialog = new Dialog(ReadBookActivity.this);						
-						selectDialog.setContentView(R.layout.select_dialog);
-						selectDialog.setCancelable(true);
-						
-						selectDialog.setTitle(getResources().getString(R.string.th_items_label) + " " + Utils.arabic2thai(Integer.toString(item), getResources()) + " " + getResources().getString(R.string.more_found));
-						
-						ListView pageView = (ListView) selectDialog.findViewById(R.id.list_pages);
-												
-						ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(ReadBookActivity.this, R.layout.page_item, R.id.show_page);
-
-						found_pages = new String[cursor.getCount()];
-						cursor.moveToFirst();
-						int i = 0;
-						while(!cursor.isAfterLast()) {
-							found_pages[i] = cursor.getString(0);
-							dataAdapter.add(getResources().getString(R.string.th_page_label) + " " + Utils.arabic2thai(cursor.getString(0), getResources()));
-							cursor.moveToNext();
-							i++;
-						}
-						
-						pageView.setAdapter(dataAdapter);
-						
-						pageView.setOnItemClickListener(new OnItemClickListener() {
-
-							@Override
-							public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-								gPage.setSelection(Integer.parseInt(found_pages[arg2])-1);
-								selectDialog.dismiss();
-							}
-							
-						});
-						
-						
-						
-						selectDialog.show();
-					}
-					cursor.close();
-					mainTipitakaDBAdapter.close();
-
-				} catch (java.lang.NumberFormatException e) { }
-				
-			}
-				
-		});
-    	
-    	dialog.show();		
-	}
-	
-
-		
 	private void setListVisible(int i) {
 		Log.i("Tipitaka","set list visible: "+i);
 		if(i == 0) { // show list, hide text
@@ -1051,9 +633,8 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				textshell.setVisibility(View.GONE);
 			idxList.setVisibility(View.VISIBLE);
 		}
-		else if(i == 1) { // hide list if not split pane, else just show text
-			if(splitPane == null)
-				idxList.setVisibility(View.GONE);
+		else if(i == 1) { // hide list, show text
+			idxList.setVisibility(View.GONE);
 			textshell.setVisibility(View.VISIBLE);
 		}
 		else if(i == 2) { // hide/show list (button pressed)
@@ -1068,32 +649,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			}
 		}
 	}
-
-
-	private void setGalleryPages(int currentPage) {		
-		String [] t_pages = null;
-		int n = 0;
-				
-		t_pages = new String[npage_pali[selected_volume-1]];
-		n = npage_pali[selected_volume-1];
-		
-        for(int i=1; i<=n; i++) {
-        	t_pages[i-1] = Integer.toString(i);
-        }        
-        
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.my_gallery_item_2, t_pages);        
-        gPage.setAdapter(adapter);
-		gPage.setSelection(currentPage-1);
-	}
-	
-	private Runnable mHideButtons = new Runnable() {
-		public void run() {
-			//Toast.makeText(ReadPage.this, "Hide them", Toast.LENGTH_SHORT).show();
-			//gotoBtn.setVisibility(View.INVISIBLE);
-			
-			read.requestLayout();
-		}
-	};
 	
 	@Override
 	protected void onDestroy() {
@@ -1179,19 +734,203 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	}
 	
 	private void readNext() {
-		int pos = gPage.getSelectedItemPosition();
-		if(pos+1 < gPage.getCount()) {
-			newpage = oldpage+1;
-			gPage.setSelection(pos+1);
+		if(lastPosition+1 < idxList.getCount()) {
+			lastPosition++;
+			updatePage();
 		}		
 	}
 	
 	private void readPrev() {
-		int pos = gPage.getSelectedItemPosition();
-		if(pos-1 >= 0) {
-			newpage = oldpage-1;
-			gPage.setSelection(pos-1);
+		if(lastPosition > 0) {
+			lastPosition--;
+			updatePage();
 		}		
+	}
+
+	private void updatePage() {
+
+		if(firstPage) {
+			firstPage = false;
+			changeItem();
+			return;
+		}
+	
+		// hide index
+		if(splitPane == null)
+			setListVisible(1);
+	
+		
+		// fade out
+		if(textContent.getVisibility() == View.VISIBLE) {
+			Animation anim = AnimationUtils.loadAnimation(ReadBookActivity.this, android.R.anim.fade_out);
+			anim.setAnimationListener(new Animation.AnimationListener()
+			{
+				public void onAnimationEnd(Animation animation)
+				{
+					changeItem();
+				}
+	
+				public void onAnimationRepeat(Animation animation)
+				{
+					// Do nothing!
+				}
+	
+				public void  onAnimationStart(Animation animation)
+				{
+					// Do nothing!
+				}
+			});
+			textContent.startAnimation(anim);
+		}
+		else
+			changeItem();
+		
+	}
+	
+	private void changeItem() {
+		
+		savedReadPages.add(selected_volume+":"+(lastPosition+1));
+		mainTipitakaDBAdapter.open();
+		Cursor cursor = mainTipitakaDBAdapter.getContent(selected_volume, lastPosition+1, lang);
+		cursor.moveToFirst();
+		//Log.i ("Tipitaka","db cursor length: "+cursor.getCount());
+		String title = cursor.getString(2);
+		String content = cursor.getString(1);
+		
+		if(content == null)
+			content = "";
+
+		//~ content = "<u>"+content.replaceAll(" +", "</u> <u>")+"</u>";
+		
+		// highlight keywords (yellow)
+		if(keywords.trim().length() > 0) {
+			keywords = keywords.replace('+', ' ');
+			String [] tokens = keywords.split("\\s+");
+			Arrays.sort(tokens, new StringLengthComparator());
+			Collections.reverse(Arrays.asList(tokens));
+			for(String token: tokens) {
+				content = content.replace(token, "<font color='#888800'>"+token+"</font>");
+			}
+		}
+		
+		content = content.replaceAll("\\[[0-9]+\\]", "");
+
+		// highlight items numbers (orange)
+		//content = content.replaceAll(getString(R.string.regex_item), "<font color='#EE9A00'><b>$0</b></font>");
+		
+		content = content.replaceAll("\\^b\\^", "<b>");
+		content = content.replaceAll("\\^eb\\^", "</b>");
+		
+		content = content.replaceAll("\\^a\\^[^^]+\\^ea\\^", "");
+		
+		
+		content = content.replaceAll("([AIUEOKGCJTDNPBMYRLVSHaiueokgcjtdnpbmyrlvshāīūṭḍṅṇṁṃñḷĀĪŪṬḌṄṆṀṂÑḶ])0", "$1.");
+		
+		if(prefs.getBoolean("show_var", true))
+			content = content.replaceAll("\\{([^}]+)\\}", "<font color='#7D7D7D'>[$1]</font>");
+		else
+			content = content.replaceAll("\\{([^}]+)\\}", "");
+		
+		title = formatTitle(title);
+		
+		content = "<font color='#888800'>"+headerText+", " + title+"</font><br/><br/>"+content.replace("\n", "<br/>");
+		Spanned html = Html.fromHtml(content);
+		textContent.setText(html);
+						
+		savedItems = cursor.getString(0);	
+		cursor.close();
+		mainTipitakaDBAdapter.close();
+		String [] tokens = savedItems.split("\\s+");
+		if(tokens.length > 1) {
+			String.format("%s-%s", 
+					Utils.arabic2thai(tokens[0], getResources()), 
+					Utils.arabic2thai(tokens[tokens.length-1], getResources()));
+		} else {
+			Utils.arabic2thai(tokens[0], getResources());
+		}
+		
+		volumes = res.getStringArray(R.array.volume_names);
+
+		String i_tmp = "";
+		if(searchCall) {
+			searchCall = false;
+			i_tmp = keywords.split("\\s+")[0].replace('+', ' ');
+		} else {
+			i_tmp = "[" + Utils.arabic2thai(Integer.toString(jumpItem), getResources()) + "]";
+		}
+
+		if(isJump && toPosition == -1 && textContent != null && textContent.getLayout() != null) {
+			int offset =  textContent.getText().toString().indexOf(i_tmp);
+			final int jumpLine = textContent.getLayout().getLineForOffset(offset);
+			
+			textContent.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					int y=0;
+					if(jumpLine > 2)
+						y = textContent.getLayout().getLineTop(jumpLine-2);
+					else
+						y = textContent.getLayout().getLineTop(0);
+					textContent.scrollTo(0, y);
+				}
+			},300);
+		} else if(isJump && toPosition > -1) {
+			textContent.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					textContent.scrollTo(0, toPosition);
+					toPosition = -1;
+				}
+			},300);
+		} else {
+			//scrollview.fullScroll(View.FOCUS_UP);
+		}
+
+	// update index
+		
+	     // save index and top position
+
+        int index = idxList.getFirstVisiblePosition();
+        View v = idxList.getChildAt(0);
+        int top = (v == null) ? 0 : v.getTop();
+
+		IndexItemAdapter adapter = new IndexItemAdapter(this, R.layout.index_list_item, R.id.title, titles, lastPosition);
+		idxList.setAdapter(adapter);
+
+        // restore
+	
+        idxList.setSelectionFromTop(index, top);
+		
+
+		if(idxList.getVisibility() == View.VISIBLE && splitPane == null)
+			return;
+
+		// fade in
+
+		Animation anim = AnimationUtils.loadAnimation(ReadBookActivity.this, android.R.anim.fade_in);
+		anim.setAnimationListener(new Animation.AnimationListener()
+		{
+			public void onAnimationEnd(Animation animation)
+			{
+				if(!isJump)
+					textContent.scrollTo(0, 0);
+				isJump = false;
+				newpage = oldpage;
+			}
+
+			public void onAnimationRepeat(Animation animation)
+			{
+				// Do nothing!
+			}
+
+			public void  onAnimationStart(Animation animation)
+			{
+				// Do nothing!
+			}
+		});
+		textContent.startAnimation(anim);
+		textContent.setVisibility(View.VISIBLE);
+		
 	}
 
 	private void showHelpDialog() {

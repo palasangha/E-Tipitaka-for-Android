@@ -7,35 +7,6 @@
   android:layout_height="match_parent"
   android:background="@drawable/background"
   android:orientation="vertical">
-	<LinearLayout
-		android:id="@+id/top_bar"
-		android:orientation="vertical"
-		android:layout_marginTop="2dp"
-		android:layout_height="wrap_content"
-		android:layout_width="match_parent">
-		<ImageView
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:layout_gravity="center"
-			android:src="@drawable/triangle2s"
-		/>
-		<Gallery 
-			android:id="@+id/gallery_page" 
-			android:layout_width="match_parent" 
-			android:layout_height="wrap_content"
-			android:layout_gravity="center"
-			android:gravity="center"
-			android:layout_marginBottom="5dp"
-			android:textSize="30dp"
-		/>	
-	</LinearLayout>
-	<View 
-		android:id="@+id/short_divider"
-		android:background="@drawable/black_white_gradient"
-		android:layout_gravity="center"
-		android:layout_width="match_parent"
-		android:layout_marginBottom="5dp"
-		android:layout_height="2dp"/>
 	<ListView
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"

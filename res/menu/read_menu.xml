@@ -17,9 +17,6 @@
   	<item android:id="@+id/english_menu_item"
   		  android:icon="@drawable/ati"
   		  android:title="@string/english"/>          
-	<item android:id="@+id/goto_page"
-  		  android:icon="@drawable/ic_menu_goto"
-          android:title="@string/goto_page" />
   	<item android:id="@+id/prefs_read"
   		  android:icon="@android:drawable/ic_menu_manage"
 		  android:title="@string/preferences" />
