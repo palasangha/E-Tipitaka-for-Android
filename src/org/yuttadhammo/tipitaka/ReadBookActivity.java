@@ -68,9 +68,10 @@ import android.view.animation.AnimationUtils;
 
 
 public class ReadBookActivity extends Activity { //implements OnGesturePerformedListener {
+	private SharedPreferences prefs;
+	private MainTipitakaDBAdapter mainTipitakaDBAdapter;
+
 	private PaliTextView textContent;
-	//~ private TextView pageLabel;
-	//~ private TextView itemsLabel;
 	private String headerText = "";
 	private ListView idxList;
 	private ScrollView scrollview;
@@ -78,33 +79,20 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	
 	private static Button dictButton;
 	
-	private MainTipitakaDBAdapter mainTipitakaDBAdapter;
-	
-	//private DataBaseHelper dbhelper = null;
 	private int selected_volume;
 	private int selected_page;
 	
 	private int jumpItem;
 	private boolean isJump = false;
 	private int toPosition = -1;
-	//private int jumpLine = 0;
 	
-	//private Button gotoBtn;
 	private View read;
 	private String keywords = "";
-	private Dialog dialog;
-	private Dialog selectDialog;
 	private Dialog itemsDialog;
 	private Dialog memoDialog;
-	private EditText edittext;
 	private String savedItems;
-	private int [] npage_thai;
-	private int [] npage_pali;
-	private int [] nitem;
-	private String [] found_pages;
 	private String lang = "pali";
 	private float textSize = 0f;
-	//private boolean isZoom = false;
 	private boolean searchCall = false;
 	private String bmLang;
 	private int bmVolume;
@@ -132,10 +120,19 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	private Handler handler = new Handler();
     private int totalDowloadSize;
 
-	
-	SharedPreferences prefs;
+	// Curl state. We are flipping none, left or right page.
+
+    private static final int CURL_NONE = 0;
+	private static final int CURL_LEFT = 1;
+	private static final int CURL_RIGHT = 2;
+	private static final int CURL_CANCEL = 3;
+
+	private int mCurlState = CURL_NONE;
+	private PointF mDragStartPos = new PointF();
+	private PointF mDragLastPos = new PointF();
 	
 	// save read pages for highlighting in the results list
+
 	private ArrayList<String> savedReadPages = null;
 
 
@@ -165,11 +162,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         bookmarkDBAdapter = new BookmarkDBAdapter(this);
         
         res = getResources();
-        
-    	npage_thai = res.getIntArray(R.array.npage_thai);   
-    	npage_pali = res.getIntArray(R.array.npage_pali);
-        	
-        nitem = res.getIntArray(R.array.nitem);
 
         textContent = (PaliTextView) read.findViewById(R.id.main_text);
         scrollview = (ScrollView) read.findViewById(R.id.scroll_text);
@@ -242,6 +234,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			}
 		});
 
+		@SuppressWarnings("deprecation")
 		int api = Integer.parseInt(Build.VERSION.SDK);
 		
 		if (api >= 11) {
@@ -255,11 +248,12 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
               
 		if(ReadBookActivity.this.getIntent().getExtras() != null) {
 			Bundle dataBundle = ReadBookActivity.this.getIntent().getExtras();
-			int vol = dataBundle.getInt("VOL");
+			selected_volume = dataBundle.getInt("VOL");
+			
 			volumes = res.getStringArray(R.array.volume_names);
-			headerText = volumes[vol].trim();
+			headerText = volumes[selected_volume].trim();
 
-			int page = dataBundle.getInt("PAGE");
+			lastPosition = dataBundle.getInt("PAGE")-1;
 			
 			if (!dataBundle.containsKey("FIRSTPAGE"))
 				firstPage = false;
@@ -278,12 +272,10 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				jumpItem = dataBundle.getInt("ITEM");
 			}
 
-			selected_volume = vol+1;
-
 			// create index
 			
 			mainTipitakaDBAdapter.open();
-			Cursor cursor = mainTipitakaDBAdapter.getContent(vol+1);
+			Cursor cursor = mainTipitakaDBAdapter.getContent(selected_volume);
 
 			cursor.moveToFirst();
 
@@ -368,18 +360,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         });
 	}
 
-	
-	// Curl state. We are flipping none, left or right page.
-	private static final int CURL_NONE = 0;
-	private static final int CURL_LEFT = 1;
-	private static final int CURL_RIGHT = 2;
-	private static final int CURL_CANCEL = 3;
-
-	private int mCurlState = CURL_NONE;
-	
-	private PointF mDragStartPos = new PointF();
-	private PointF mDragLastPos = new PointF();
-	
     @Override
     public boolean onSearchRequested() {
 		Intent intent = new Intent(this, SearchDialog.class);
@@ -445,7 +425,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				startActivity(intent);	
 				break;
 			case (int)R.id.memo:
-				memoItem();
+				prepareBookmark();
 				break;
 			case (int)R.id.prefs_read:
 				intent = new Intent(this, SettingsActivity.class);
@@ -472,68 +452,8 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	    }
 		return true;
 	}	
-	
-	private int getSubVolume(int volume, int item, int page, String language) {
-		mainTipitakaDBAdapter.open();
-		Cursor p_cursor = mainTipitakaDBAdapter.getPageByItem(volume, item, language, false);
-		
-		//Log.i("INFO", volume+":"+item+":"+language);
-		
-		if(p_cursor.getCount() == 1) {
-			p_cursor.moveToFirst();
-			//Log.i("PAGE", p_cursor.getString(0));
-			p_cursor.close();
-			mainTipitakaDBAdapter.close();
-			return 0;
-		}
-		
-		//Log.i("FOUND", p_cursor.getCount()+"");
-		p_cursor.moveToFirst();
-		int i = 0;
-		int prev = -1;
-		int now = 0;
-		ArrayList<String> tmp1 = new ArrayList<String>();
-		ArrayList<ArrayList<String>> tmp2 = new ArrayList<ArrayList<String>>();
-		while(!p_cursor.isAfterLast()) {
-			now = Integer.parseInt(p_cursor.getString(0));
-			//Log.i("PAGE", p_cursor.getString(0));
-			if(prev == -1) {
-				tmp1.add(p_cursor.getString(0));
-			} else {
-				if(now == prev+1) {
-					tmp1.add(p_cursor.getString(0));
-				} else {
-					tmp2.add(tmp1);
-					tmp1 = new ArrayList<String>();
-					tmp1.add(p_cursor.getString(0));
-				}
-			}
-			p_cursor.moveToNext();
-			i++;
-			prev = now;
 
-		}
-		tmp2.add(tmp1);
-		
-		i = 0;
-		boolean isFound = false;
-		for(ArrayList<String> al : tmp2) {
-			if(al.contains(Integer.toString(page))) {
-				isFound = true;
-				break;
-			}
-			i++;
-		}
-		p_cursor.close();
-		mainTipitakaDBAdapter.close();
-		
-		if(!isFound)
-			return 0;
-				
-		return i;
-	}
-
-	private void memoAt(int volume, int item, int page, String language) {
+	private void saveBookmark(int volume, int item, int page, String language) {
 		memoDialog = new Dialog(ReadBookActivity.this);
 		memoDialog.setContentView(R.layout.memo_dialog);
 		
@@ -545,6 +465,8 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		
 		Button memoBtn = (Button)memoDialog.findViewById(R.id.memo_btn);
 		memoText = (EditText)memoDialog.findViewById(R.id.memo_text);
+		memoText.setTypeface(font);
+		memoText.setText(headerText);
 		
 		memoBtn.setOnClickListener(new OnClickListener() {
 			@Override
@@ -574,7 +496,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		memoDialog.show();
 	}
 	
-	private void memoItem() {
+	private void prepareBookmark() {
 		String [] items = savedItems.split("\\s+");
 		selected_page = lastPosition + 1;
 
@@ -598,14 +520,14 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				@Override
 				public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
 					String [] items = savedItems.split("\\s+");
-					memoAt(selected_volume, Integer.parseInt(items[arg2]), selected_page, lang);
+					saveBookmark(selected_volume, Integer.parseInt(items[arg2]), selected_page, lang);
 					itemsDialog.dismiss();
 				}
 				
 			});			
 			itemsDialog.show();			
 		} else {
-			memoAt(selected_volume, Integer.parseInt(items[0]), selected_page, lang);
+			saveBookmark(selected_volume, Integer.parseInt(items[0]), selected_page, lang);
 		}		
 	}
 			
@@ -772,9 +694,10 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	
 	private void changeItem() {
 		
+		//Log.i ("Tipitaka","get volume: "+selected_volume);
 		savedReadPages.add(selected_volume+":"+(lastPosition+1));
 		mainTipitakaDBAdapter.open();
-		Cursor cursor = mainTipitakaDBAdapter.getContent(selected_volume, lastPosition+1, lang);
+		Cursor cursor = mainTipitakaDBAdapter.getContent(selected_volume, lastPosition, lang);
 		cursor.moveToFirst();
 		//Log.i ("Tipitaka","db cursor length: "+cursor.getCount());
 		String title = cursor.getString(2);
@@ -815,8 +738,8 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			content = content.replaceAll("\\{([^}]+)\\}", "");
 		
 		title = formatTitle(title);
-		
-		content = "<font color='#888800'>"+headerText+", " + title+"</font><br/><br/>"+content.replace("\n", "<br/>");
+		headerText = headerText+", " + title;
+		content = "<font color='#888800'>"+headerText+"</font><br/><br/>"+content.replace("\n", "<br/>");
 		Spanned html = Html.fromHtml(content);
 		textContent.setText(html);
 						

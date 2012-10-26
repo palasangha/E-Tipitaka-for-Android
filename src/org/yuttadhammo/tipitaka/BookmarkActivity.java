@@ -23,12 +23,12 @@ public class BookmarkActivity extends Activity {
 		cursor.moveToFirst();
 		int key = 0;
 		while(!cursor.isAfterLast()) {
-			int volumn = cursor.getInt(BookmarkDBAdapter.VOLUME_COL);
+			int volume = cursor.getInt(BookmarkDBAdapter.VOLUME_COL);
 			int page = cursor.getInt(BookmarkDBAdapter.PAGE_COL);
 			int item = cursor.getInt(BookmarkDBAdapter.ITEM_COL);
 			String note = cursor.getString(BookmarkDBAdapter.NOTE_COL);
 			
-			String line1 = Utils.arabic2thai(""+(key+1), getResources()) + ". " + getString(R.string.th_book_label) + " " + Utils.arabic2thai(Integer.toString(volumn), getResources());
+			String line1 = Utils.arabic2thai(""+(key+1), getResources()) + ". " + getString(R.string.th_book_label) + " " + Utils.arabic2thai(Integer.toString(volume), getResources());
 			line1 = line1 + " " + getString(R.string.th_page_label) + " " + Utils.arabic2thai(Integer.toString(page), getResources());
 			line1 = line1 + " " + getString(R.string.th_items_label) + " " + Utils.arabic2thai(Integer.toString(item), getResources());
 			String line2 = note;
@@ -63,13 +63,13 @@ public class BookmarkActivity extends Activity {
 				cursor.moveToPosition(arg2);
 
 				int item = cursor.getInt(BookmarkDBAdapter.ITEM_COL);
-				int volumn = cursor.getInt(BookmarkDBAdapter.VOLUME_COL);
+				int volume = cursor.getInt(BookmarkDBAdapter.VOLUME_COL);
 				int page = cursor.getInt(BookmarkDBAdapter.PAGE_COL);
 				
         		Intent intent = new Intent(BookmarkActivity.this, ReadBookActivity.class);
         		Bundle dataBundle = new Bundle();
-        		dataBundle.putInt("VOL", volumn);
-        		dataBundle.putInt("PAGE", page);
+        		dataBundle.putInt("VOL", volume-1);
+        		dataBundle.putInt("PAGE", page-1);
         		dataBundle.putInt("ITEM", item);
         		dataBundle.putString("LANG", language);
         		

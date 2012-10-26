@@ -70,7 +70,6 @@ public class MainTipitakaDBAdapter {
     }	
 	
     public Cursor getContent(int volume) {
- 		volume--;
  		//Log.i ("Tipitaka","db lookup: volume: "+volume+", page: "+page);
 
     	String selection = String.format("volume = '%s'", volume);
@@ -87,8 +86,6 @@ public class MainTipitakaDBAdapter {
     }    
 
     public Cursor getContent(int volume, int page, String lang) {
- 		page--;
- 		volume--;
  		//Log.i ("Tipitaka","db lookup: volume: "+volume+", page: "+page);
 
     	String selection = String.format("volume = '%s' AND item = '%s'", volume, page);

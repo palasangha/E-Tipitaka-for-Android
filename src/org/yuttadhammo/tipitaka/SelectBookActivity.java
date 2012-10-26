@@ -1,38 +1,14 @@
 package org.yuttadhammo.tipitaka;
 
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.net.URL;
-import java.net.URLConnection;
-
-import android.util.Log;
-
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteException;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -42,18 +18,13 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.Gallery;
 import android.widget.ListView;
-import android.widget.Toast;
-
-import android.graphics.Typeface;
 
 
 public class SelectBookActivity extends Activity {
 	private int selectedSet = 0;
 	private View main;
-	private int currentVolumeNumber = 0;
 	public String lang = "pali";
 	public String thisTitle;
     private Gallery setGallery; //= (Gallery) findViewById(R.id.gallery_cate);
@@ -61,15 +32,10 @@ public class SelectBookActivity extends Activity {
 	private ListView volumeList;
 
 	private SharedPreferences prefs;  
-    private SearchHistoryDBAdapter searchHistoryDBAdapter;
-    private BookmarkDBAdapter bookmarkDBAdapter;
     private SearchDialog searchDialog = null;
     
     private int hierC = 0;
     
-    
-    
-    private final String infoFile = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "ATPK" + File.separator + "saveinfo.txt";
 	private SelectBookActivity context;
 	private String[] volumeNumbers;
 
@@ -83,14 +49,10 @@ public class SelectBookActivity extends Activity {
         main =  View.inflate(this, R.layout.main, null);
         setContentView(main);
         
-        searchHistoryDBAdapter = new SearchHistoryDBAdapter(this);
-        bookmarkDBAdapter = new BookmarkDBAdapter(this);
-                
         final Context context = getApplicationContext();
         prefs =  PreferenceManager.getDefaultSharedPreferences(context);
         
         
-		final Typeface font = Typeface.createFromAsset(getAssets(), "verajjan.ttf");  
         final Resources res = getResources();
         final String [] cnames = res.getStringArray(R.array.category);
         final String [] hnames = res.getStringArray(R.array.hnames);

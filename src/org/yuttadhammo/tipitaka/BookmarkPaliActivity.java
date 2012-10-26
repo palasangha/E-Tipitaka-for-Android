@@ -2,6 +2,7 @@ package  org.yuttadhammo.tipitaka;
 
 import java.util.ArrayList;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -51,6 +52,149 @@ public class BookmarkPaliActivity extends Activity {
 	boolean isDesc;
 	String sortKey;
 
+	
+	@SuppressLint("NewApi")
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		bookmarks = View.inflate(this, R.layout.bookmarks, null);
+        setContentView(bookmarks);
+		
+		listview = (ListView) this.findViewById(R.id.bookmarks_list);
+		
+        Context context = getApplicationContext();
+        prefs =  PreferenceManager.getDefaultSharedPreferences(context);
+
+        bmLine1Size = prefs.getFloat("BmLine1Size", 16f);        
+        bmLine2Size = prefs.getFloat("BmLine2Size", 14f);
+        bmLine3Size = prefs.getFloat("BmLine3Size", 12f);
+        sortKey = prefs.getString("BM_SORT_KEY", BookmarkDBAdapter.KEY_VOLUME);
+        isDesc = prefs.getBoolean("BM_IS_DESC", false);        
+        
+		bookmarkDBAdapter = new BookmarkDBAdapter(this);
+		//bookmarkDBAdapter.open();
+		
+		Bundle dataBundle = getIntent().getExtras(); 
+		if(dataBundle != null && dataBundle.containsKey("KEYWORDS")) {
+			keywords = dataBundle.getString("KEYWORDS");
+		}
+		
+		updateItemList();
+
+		listview.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+		        sortKey = prefs.getString("BM_SORT_KEY", BookmarkDBAdapter.KEY_VOLUME);
+		        isDesc = prefs.getBoolean("BM_IS_DESC", false);
+				bookmarkDBAdapter.open();
+				Cursor cursor;
+				if(keywords.length() == 0) {
+					cursor = bookmarkDBAdapter.getEntries(language, sortKey, isDesc);
+				} else {
+					cursor = bookmarkDBAdapter.getEntries(language, keywords, sortKey, isDesc);
+				}
+				cursor.moveToPosition(arg2);
+
+				int item = cursor.getInt(BookmarkDBAdapter.ITEM_COL);
+				int volumn = cursor.getInt(BookmarkDBAdapter.VOLUME_COL);
+				int page = cursor.getInt(BookmarkDBAdapter.PAGE_COL);
+				String tmp_keywords = cursor.getString(BookmarkDBAdapter.KEYWORDS_COL);
+				
+				cursor.close();
+				bookmarkDBAdapter.close();
+				
+        		Intent intent = new Intent(BookmarkPaliActivity.this, ReadBookActivity.class);
+        		Bundle dataBundle = new Bundle();
+        		dataBundle.putInt("VOL", volumn);
+        		dataBundle.putInt("PAGE", page);
+        		dataBundle.putString("LANG", language);
+        		
+        		if(tmp_keywords.length() > 0) {
+        			dataBundle.putString("QUERY", tmp_keywords);
+        		} else {
+        			dataBundle.putInt("ITEM", item);
+        		}
+        		
+        		intent.putExtras(dataBundle);
+        		startActivity(intent);					
+				
+			}
+			
+		});
+		
+		listview.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				selectedItemPosition = arg2;
+				AlertDialog.Builder builder = new AlertDialog.Builder(BookmarkPaliActivity.this);
+				
+				CharSequence[] items1 = {getString(R.string.edit), getString(R.string.delete)};
+				//CharSequence[] items2 = {getString(R.string.edit)};
+				
+				
+		        sortKey = prefs.getString("BM_SORT_KEY", BookmarkDBAdapter.KEY_VOLUME);
+		        isDesc = prefs.getBoolean("BM_IS_DESC", false);
+				bookmarkDBAdapter.open();
+				Cursor cursor;
+				if(keywords.length() == 0) {
+					cursor = bookmarkDBAdapter.getEntries(language, sortKey, isDesc);
+				} else {
+					cursor = bookmarkDBAdapter.getEntries(language, keywords, sortKey, isDesc);
+				}
+				cursor.moveToPosition(arg2);
+
+				String k = cursor.getString(BookmarkDBAdapter.KEYWORDS_COL);
+				
+				cursor.close();
+				bookmarkDBAdapter.close();				
+								
+				if(k.length() == 0) {
+					builder.setItems(items1, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							switch(which) {
+								case 0: // edit
+									editItemAt(selectedItemPosition);
+									break;
+								case 1: // delete
+									deleteItemAt(selectedItemPosition);
+									break;
+							}
+							bmItemDialog.dismiss();
+						}
+					});
+				} else {
+					builder.setItems(items1, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							switch(which) {
+								case 0: // edit
+									editItemAt(selectedItemPosition);
+									break;
+								case 1: // delete
+									deleteItemAt(selectedItemPosition);
+									break;									
+							}
+							bmItemDialog.dismiss();
+						}
+					});					
+				}
+								
+				bmItemDialog = builder.create();
+				bmItemDialog.show();
+				
+				return true; // don't pass click event to others
+			}
+		});
+		int api = Integer.parseInt(Build.VERSION.SDK);
+		
+		if (api >= 11) {
+			this.getActionBar().setHomeButtonEnabled(true);
+		}		
+	}
+	
     @Override
     public boolean onSearchRequested() {
 
@@ -259,148 +403,7 @@ public class BookmarkPaliActivity extends Activity {
         updateItemList();
         adapter.notifyDataSetChanged();
 	}
-	
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 
-		bookmarks = View.inflate(this, R.layout.bookmarks, null);
-        setContentView(bookmarks);
-		
-		listview = (ListView) this.findViewById(R.id.bookmarks_list);
-		
-        Context context = getApplicationContext();
-        prefs =  PreferenceManager.getDefaultSharedPreferences(context);
-
-        bmLine1Size = prefs.getFloat("BmLine1Size", 16f);        
-        bmLine2Size = prefs.getFloat("BmLine2Size", 14f);
-        bmLine3Size = prefs.getFloat("BmLine3Size", 12f);
-        sortKey = prefs.getString("BM_SORT_KEY", BookmarkDBAdapter.KEY_VOLUME);
-        isDesc = prefs.getBoolean("BM_IS_DESC", false);        
-        
-		bookmarkDBAdapter = new BookmarkDBAdapter(this);
-		//bookmarkDBAdapter.open();
-		
-		Bundle dataBundle = getIntent().getExtras(); 
-		if(dataBundle != null && dataBundle.containsKey("KEYWORDS")) {
-			keywords = dataBundle.getString("KEYWORDS");
-		}
-		
-		updateItemList();
-
-		listview.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-		        sortKey = prefs.getString("BM_SORT_KEY", BookmarkDBAdapter.KEY_VOLUME);
-		        isDesc = prefs.getBoolean("BM_IS_DESC", false);
-				bookmarkDBAdapter.open();
-				Cursor cursor;
-				if(keywords.length() == 0) {
-					cursor = bookmarkDBAdapter.getEntries(language, sortKey, isDesc);
-				} else {
-					cursor = bookmarkDBAdapter.getEntries(language, keywords, sortKey, isDesc);
-				}
-				cursor.moveToPosition(arg2);
-
-				int item = cursor.getInt(BookmarkDBAdapter.ITEM_COL);
-				int volumn = cursor.getInt(BookmarkDBAdapter.VOLUME_COL);
-				int page = cursor.getInt(BookmarkDBAdapter.PAGE_COL);
-				String tmp_keywords = cursor.getString(BookmarkDBAdapter.KEYWORDS_COL);
-				
-				cursor.close();
-				bookmarkDBAdapter.close();
-				
-        		Intent intent = new Intent(BookmarkPaliActivity.this, ReadBookActivity.class);
-        		Bundle dataBundle = new Bundle();
-        		dataBundle.putInt("VOL", volumn);
-        		dataBundle.putInt("PAGE", page);
-        		dataBundle.putString("LANG", language);
-        		
-        		if(tmp_keywords.length() > 0) {
-        			dataBundle.putString("QUERY", tmp_keywords);
-        		} else {
-        			dataBundle.putInt("ITEM", item);
-        		}
-        		
-        		intent.putExtras(dataBundle);
-        		startActivity(intent);					
-				
-			}
-			
-		});
-		
-		listview.setOnItemLongClickListener(new OnItemLongClickListener() {
-
-			@Override
-			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-				selectedItemPosition = arg2;
-				AlertDialog.Builder builder = new AlertDialog.Builder(BookmarkPaliActivity.this);
-				
-				CharSequence[] items1 = {getString(R.string.edit), getString(R.string.delete)};
-				//CharSequence[] items2 = {getString(R.string.edit)};
-				
-				
-		        sortKey = prefs.getString("BM_SORT_KEY", BookmarkDBAdapter.KEY_VOLUME);
-		        isDesc = prefs.getBoolean("BM_IS_DESC", false);
-				bookmarkDBAdapter.open();
-				Cursor cursor;
-				if(keywords.length() == 0) {
-					cursor = bookmarkDBAdapter.getEntries(language, sortKey, isDesc);
-				} else {
-					cursor = bookmarkDBAdapter.getEntries(language, keywords, sortKey, isDesc);
-				}
-				cursor.moveToPosition(arg2);
-
-				String k = cursor.getString(BookmarkDBAdapter.KEYWORDS_COL);
-				
-				cursor.close();
-				bookmarkDBAdapter.close();				
-								
-				if(k.length() == 0) {
-					builder.setItems(items1, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							switch(which) {
-								case 0: // edit
-									editItemAt(selectedItemPosition);
-									break;
-								case 1: // delete
-									deleteItemAt(selectedItemPosition);
-									break;
-							}
-							bmItemDialog.dismiss();
-						}
-					});
-				} else {
-					builder.setItems(items1, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							switch(which) {
-								case 0: // edit
-									editItemAt(selectedItemPosition);
-									break;
-								case 1: // delete
-									deleteItemAt(selectedItemPosition);
-									break;									
-							}
-							bmItemDialog.dismiss();
-						}
-					});					
-				}
-								
-				bmItemDialog = builder.create();
-				bmItemDialog.show();
-				
-				return true; // don't pass click event to others
-			}
-		});
-		int api = Integer.parseInt(Build.VERSION.SDK);
-		
-		if (api >= 11) {
-			this.getActionBar().setHomeButtonEnabled(true);
-		}		
-	}
-	
 	private void updateItemList() {
 		isDesc = prefs.getBoolean("BM_IS_DESC", false);
 		sortKey = prefs.getString("BM_SORT_KEY", BookmarkDBAdapter.KEY_VOLUME);

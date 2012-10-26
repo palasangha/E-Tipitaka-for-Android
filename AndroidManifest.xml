@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="org.yuttadhammo.tipitaka"
-      android:versionName="4.9" android:versionCode="42">
+      android:versionName="5.0" android:versionCode="43">
     <uses-sdk android:minSdkVersion="8"  android:targetSdkVersion="16"/>
 
 	<uses-permission android:name="android.permission.INTERNET" />
@@ -61,6 +61,7 @@
 			android:theme="@style/SwitchTheme"
 			android:configChanges="orientation|keyboardHidden"
 			android:noHistory="true"
+			android:label="@string/bookmark_page"
 		/>
 		<activity 
 			android:name=".BookmarkEnglishActivity"

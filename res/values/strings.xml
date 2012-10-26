@@ -19,6 +19,7 @@
     <string name="th_tipitaka_book">Tipitaka Vol.</string>
     <string name="search_hint">Enter search term</string>
     <string name="read_page">Android Tipitaka - Reading</string>
+    <string name="bookmark_page">Android Tipitaka - Bookmarks</string>
     <string name="english_page">Android Tipitaka - ATI</string>
     <string name="search_page">Android Tipitaka - Search Results</string>
     <string name="search_dialog">Android Tipitaka - Search</string>
