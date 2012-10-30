@@ -1,7 +1,5 @@
 package org.yuttadhammo.tipitaka;
 
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -65,20 +63,8 @@ public class SearchDialog extends Activity {
 	private boolean isDesc = false;
 	private SharedPreferences prefs;	
 	private View searchView;
+	private Typeface font;
 		   	
-	/*
-	public SearchDialog(Context context, int theme) {
-		super(context, theme);
-		// TODO Auto-generated constructor stub
-	}
-
-	protected SearchDialog(Context context, boolean cancelable,
-			OnCancelListener cancelListener) {
-		super(context, cancelable, cancelListener);
-		// TODO Auto-generated constructor stub
-	}
-	*/
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
@@ -90,7 +76,17 @@ public class SearchDialog extends Activity {
 		prefs =  PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		sortKey = prefs.getString("SORT_KEY", SearchHistoryDBAdapter.KEY_KEYWORDS);
 		isDesc = prefs.getBoolean("IS_DESC", false);
-    	searchHistoryDBAdapter = new SearchHistoryDBAdapter(this);
+
+		font = Typeface.createFromAsset(getAssets(), "verajjan.ttf");
+		
+		final CheckBox cbm = (CheckBox) searchView.findViewById(R.id.cb_mul);
+		final CheckBox cba = (CheckBox) searchView.findViewById(R.id.cb_att);
+		final CheckBox cbt = (CheckBox) searchView.findViewById(R.id.cb_tik);
+		cbm.setTypeface(font);
+		cba.setTypeface(font);
+		cbt.setTypeface(font);
+		
+		searchHistoryDBAdapter = new SearchHistoryDBAdapter(this);
     	searchResultsDBAdapter = new SearchResultsDBAdapter(this);
 		
 		Button queryBtn = (Button) findViewById(R.id.query_btn);
@@ -104,9 +100,9 @@ public class SearchDialog extends Activity {
 				b3 = ((CheckBox) searchView.findViewById(R.id.cb_abhi)).isChecked();
 				b4 = ((CheckBox) searchView.findViewById(R.id.cb_etc)).isChecked();
 				
-				b5 = ((CheckBox) searchView.findViewById(R.id.cb_mul)).isChecked();
-				b6 = ((CheckBox) searchView.findViewById(R.id.cb_att)).isChecked();
-				b7 = ((CheckBox) searchView.findViewById(R.id.cb_tik)).isChecked();
+				b5 = cbm.isChecked();
+				b6 = cba.isChecked();
+				b7 = cbt.isChecked();
 				
 				if(query.trim().length() > 0) {
 	        		query = query.replace("aa", "ā").replace("ii", "ī").replace("uu", "ū").replace(".t", "ṭ").replace(".d", "ḍ").replace("\"n", "ṅ").replace(".n", "ṇ").replace(".m", "ṃ").replace("~n", "ñ").replace(".l", "ḷ");
@@ -360,7 +356,6 @@ public class SearchDialog extends Activity {
 			}
 			line3.setText(Html.fromHtml(output.trim()));
 			
-			Typeface font = Typeface.createFromAsset(context.getAssets(), "verajjan.ttf");
 			line3.setTypeface(font);
 			if(markedPosition == position) {
 				view.setBackgroundColor(Color.LTGRAY);

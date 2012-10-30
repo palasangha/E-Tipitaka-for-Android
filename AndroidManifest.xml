@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="org.yuttadhammo.tipitaka"
-      android:versionName="5.0" android:versionCode="43">
+      android:versionName="5.1" android:versionCode="44">
     <uses-sdk android:minSdkVersion="8"  android:targetSdkVersion="16"/>
 
 	<uses-permission android:name="android.permission.INTERNET" />
@@ -82,10 +82,6 @@
 			android:label="@string/dict_title"
         />
 		
-		<!-- 
-		<meta-data android:name="android.app.default_searchable"
-               android:value=".SearchActivity" />
-         -->
         <activity 
             android:name="SearchDialog"
 		  	android:label="@string/search_dialog"

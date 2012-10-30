@@ -221,19 +221,8 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         }
         
 		// hide virtual keyboard
-		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.hideSoftInputFromWindow(textContent.getWindowToken(), 0);
-
-		textContent.setOnLongClickListener(new OnLongClickListener() {
-			@Override
-			public boolean onLongClick(View v) {
-				textContent.setCursorVisible(true);
-				Log.i("Tipitaka", "long click");
-				if(newpage != oldpage)
-					return true;
-				return false;
-			}
-		});
+//		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//		imm.hideSoftInputFromWindow(textContent.getWindowToken(), 0);
 
 		@SuppressWarnings("deprecation")
 		int api = Integer.parseInt(Build.VERSION.SDK);

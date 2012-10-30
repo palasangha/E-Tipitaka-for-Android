@@ -76,7 +76,6 @@ public class DictionaryActivity extends Activity {
 
 		word = prefs.getString (WORD_KEY, "");
 		
-		lookup_text.setOnKeyListener (new LookupTextKeyListener ());
 		if (prefs.getBoolean (LOOKUP_TEXT_IS_FOCUSED_KEY, true)) {
 			lookup_text.requestFocus ();
 		} else {
@@ -99,7 +98,7 @@ public class DictionaryActivity extends Activity {
 			dict = extras.getInt("dict");
 			
 			setTitleWithMessage (word);
-			lookup_text.setText(extras.getString("word"));
+			lookup_text.setText(toVel(extras.getString("word")));
 			wv.setSelected (true);
 			lookupWord ();
 		}
@@ -189,7 +188,7 @@ public class DictionaryActivity extends Activity {
 		if ((this.word != null && this.word.equals (query)) || query == "") {
 			return;
 		}
-		query = query.replaceAll("ā", "aa").replaceAll("ī", "ii").replaceAll("ū", "uu").replaceAll("ṭ", ".t").replaceAll("ḍ", ".d").replaceAll("ṅ", "\"n").replaceAll("ṇ", ".n").replaceAll("[ṃṁ]", ".m").replaceAll("ñ", "~n").replaceAll("ḷ", ".l").replaceAll("Ā", "AA").replaceAll("Ī", "II").replaceAll("Ū", "UU").replaceAll("Ṭ", ".T").replaceAll("Ḍ", ".D").replaceAll("Ṅ", "\"N").replaceAll("Ṇ", ".N").replaceAll("[ṂṀ]",".M").replaceAll("Ñ", "~N").replaceAll("Ḷ", ".L");
+		query = toVel(query);
 		
 		query = query.toLowerCase();
 		
@@ -221,7 +220,7 @@ public class DictionaryActivity extends Activity {
 		displayResult (query, html);
 	}
 
-    public String parse (Cursor c, String query, int table){
+	public String parse (Cursor c, String query, int table){
 		Log.i ("Tipitaka", "parsing results for dict "+DICT_ARRAY[table]);
     	if(c == null || c.getCount() == 0) {
     		Log.i ("Tipitaka", "No results for dict "+DICT_ARRAY[table]+"... parsing endings");
@@ -239,7 +238,7 @@ public class DictionaryActivity extends Activity {
 			do {
 				DatabaseUtils.cursorRowToContentValues(c, cvs);	    
 				
-				entries[idx] = cvs.getAsString("entry").replace("aa", "ā").replace("ii", "ī").replace("uu", "ū").replace(".t", "ṭ").replace(".d", "ḍ").replace("\"n", "ṅ").replace(".n", "ṇ").replace(".m", "ṃ").replace("~n", "ñ").replace(".l", "ḷ");
+				entries[idx] = toUni(cvs.getAsString("entry"));
 				texts[idx] = cvs.getAsString("text");
 				idx++;
 				
@@ -247,7 +246,7 @@ public class DictionaryActivity extends Activity {
 			while(c.moveToNext());
 			c.close();
 			
-			raw +="<div style=\"font-weight:bold; font-size:125%; margin-bottom:24px; font-family:verajjab\">"+count+" "+(count == 1?"entry":"entries")+" for "+this.word+" in "+DICT_ARRAY[table]+":</div><hr/>";
+			raw +="<div style=\"font-weight:bold; font-size:125%; margin-bottom:24px; font-family:verajjab\">"+count+" "+(count == 1?"entry":"entries")+" for "+toUni(this.word)+" in "+DICT_ARRAY[table]+":</div><hr/>";
 			
 			if(table == 0 || table == 3) {
 				raw += "<table width=\"100%\"><tr><td valign=\"top\"><table>";
@@ -277,6 +276,16 @@ public class DictionaryActivity extends Activity {
 			return "<div style=\"font-weight:bold; font-size:125%; margin-bottom:24px; font-family:verajjab\">No results for "+this.word+" in "+DICT_ARRAY[table]+".</div><hr/>";
 		}
     }
+
+	private String toUni(String string) {
+		string = string.replace("aa", "ā").replace("ii", "ī").replace("uu", "ū").replace(".t", "ṭ").replace(".d", "ḍ").replace("\"n", "ṅ").replace(".n", "ṇ").replace(".m", "ṃ").replace("~n", "ñ").replace(".l", "ḷ");
+		return string;
+	}
+
+    private String toVel(String string) {
+		string = string.replaceAll("ā", "aa").replaceAll("ī", "ii").replaceAll("ū", "uu").replaceAll("ṭ", ".t").replaceAll("ḍ", ".d").replaceAll("ṅ", "\"n").replaceAll("ṇ", ".n").replaceAll("[ṃṁ]", ".m").replaceAll("ñ", "~n").replaceAll("ḷ", ".l").replaceAll("Ā", "AA").replaceAll("Ī", "II").replaceAll("Ū", "UU").replaceAll("Ṭ", ".T").replaceAll("Ḍ", ".D").replaceAll("Ṅ", "\"N").replaceAll("Ṇ", ".N").replaceAll("[ṂṀ]",".M").replaceAll("Ñ", "~N").replaceAll("Ḷ", ".L");
+		return string;
+	}
 
 	private String parseEndings(String query, int table) {
 		String[] declensions = getResources().getStringArray(R.array.declensions);

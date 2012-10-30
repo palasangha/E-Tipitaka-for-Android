@@ -504,14 +504,15 @@ public class SearchActivity extends Activity {
 			//Toast.makeText(SearchPage.this, Integer.toString(position), Toast.LENGTH_SHORT).show();
 			
 			TextView line1 = (TextView)view.findViewById(R.id.line1);
-			line1.setTextSize(prefs.getFloat("Line1Size", 12f));
+			float textSize = Float.parseFloat(prefs.getString("base_text_size", "16"));
+			line1.setTextSize(textSize);
 			TextView line2 = (TextView)view.findViewById(R.id.line2);
-			line2.setTextSize(prefs.getFloat("Line2Size", 12f));
+			line2.setTextSize(textSize);
 
 			line1.setTypeface(font);				
 			line2.setTypeface(font);
 			
-			//line2.setText(Html.fromHtml(line2.getText().toString()));
+			line2.setText(line2.getText().toString().replace("<br/>", " "));
 
 					
 			if(checkClicked.contains(position)) {
