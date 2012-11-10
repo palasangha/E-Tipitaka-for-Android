@@ -186,6 +186,16 @@ public class MainTipitakaDBAdapter {
 
     	return cursor;
     }    
+ 
+    public Cursor dictQuizQuery(String table, int row) {
+		final Cursor cursor = db
+		.rawQuery(
+			"SELECT entry, text FROM "+table+" LIMIT 1 OFFSET "+row,
+			null
+		);		
+
+    	return cursor;
+    }       
     
     /*
 	private class MainTipitakaDBHelper {

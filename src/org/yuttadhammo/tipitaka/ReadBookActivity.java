@@ -113,13 +113,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
     private String[] volumes;
 	private Typeface font;
 
-	// download stuff
-	
-    private ProgressDialog downloadProgressDialog;
-    private ProgressDialog unzipProgressDialog;
-	private Handler handler = new Handler();
-    private int totalDowloadSize;
-
 	// Curl state. We are flipping none, left or right page.
 
     private static final int CURL_NONE = 0;
@@ -211,12 +204,14 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         	if(mainTipitakaDBAdapter.isOpened()) {
         		mainTipitakaDBAdapter.close();
         	} else {
-        		startDownloader();
+            	Downloader dl = new Downloader(this);
+            	dl.startDownloader("http://static.sirimangalo.org/pali/ATPK/ATPK.zip", "ATPK.zip");
         		return;
         	}
         } catch (SQLiteException e) {
 			Log.e ("Tipitaka","error:", e);
-        	startDownloader();
+        	Downloader dl = new Downloader(this);
+        	dl.startDownloader("http://static.sirimangalo.org/pali/ATPK/ATPK.zip", "ATPK.zip");
         	return;
         }
         
@@ -227,7 +222,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		@SuppressWarnings("deprecation")
 		int api = Integer.parseInt(Build.VERSION.SDK);
 		
-		if (api >= 11) {
+		if (api >= 14) {
 			textContent.setTextIsSelectable(true);
 			this.getActionBar().setHomeButtonEnabled(true);
 		}
@@ -405,7 +400,8 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				setListVisible(2);
 				break;
 			case (int)R.id.help_menu_item:
-				showHelpDialog();
+				intent = new Intent(this, HelpActivity.class);
+				startActivity(intent);
 				break;
 			case (int)R.id.read_bookmark:
 				intent = new Intent(ReadBookActivity.this, BookmarkPaliActivity.class);
@@ -783,12 +779,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		
 	}
 
-	private void showHelpDialog() {
-		final Dialog helpDialog = new Dialog(this, android.R.style.Theme_NoTitleBar);
-		helpDialog.setContentView(R.layout.help_dialog);
-		helpDialog.show();
-	}
-
 	public String getTrans() {
 		String vols = Integer.toString(selected_volume-1);
 		String[] list = res.getStringArray(R.array.sut_m_list);
@@ -845,166 +835,5 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	    	}
 	    }
 	}
-	
-	// downloading functions
-	
-	private void startDownloader() {
-		final Context context = this;
-    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    	builder.setTitle(getString(R.string.db_not_found));
-    	builder.setMessage(getString(R.string.confirm_download));
-    	builder.setCancelable(false);
-    	builder.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if(isInternetOn()) {
-					downloadFile("http://static.sirimangalo.org/pali/ATPK/ATPK.zip", "ATPK.zip");
-				} else {
-					AlertDialog.Builder builder = new AlertDialog.Builder(context);
-					builder.setTitle(getString(R.string.internet_not_connected));
-					builder.setMessage(getString(R.string.check_your_connection));
-					builder.setCancelable(false);
-					builder.setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							finish();
-						}
-					});
-					builder.show();
-				}
-			}
-		});
-    	
-    	builder.setNegativeButton(getString(R.string.no), new DialogInterface.OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				finish();
-			}
-		});
-    	
-    	builder.show();
-	}
-
-
-	public boolean isInternetOn() {
-	    ConnectivityManager cm =
-	        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
-	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
-	        return true;
-	    }
-	    return false;
-	}
-    
-    private void uncompressFile(String fileName) {
-    	final Context context = this; 
-    	String zipFile = Environment.getExternalStorageDirectory() + File.separator + fileName; 
-    	String unzipLocation = Environment.getExternalStorageDirectory() + File.separator; 
-    	final Decompress d = new Decompress(zipFile, unzipLocation); 
-    	unzipProgressDialog = new ProgressDialog(this);
-    	unzipProgressDialog.setCancelable(false);
-    	unzipProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-    	unzipProgressDialog.setMessage(getString(R.string.unzipping_db));
-    	Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				d.unzip();
-				handler.post(new Runnable() {
-					
-					@Override
-					public void run() {
-						if(unzipProgressDialog.isShowing()) {
-							unzipProgressDialog.dismiss();
-							Toast.makeText(context, getString(R.string.unzipped), Toast.LENGTH_SHORT).show();
-							finish();
-						}
-					}
-				});
-			}
-		});
-    	thread.start();
-    	unzipProgressDialog.show();
-    	    
-    }
-
-    private class DownloadFile extends AsyncTask<String, Integer, String> {
-        @Override
-        protected String doInBackground(String... sUrl) {
-            try {
-                URL url = new URL(sUrl[0]);
-                URLConnection connection = url.openConnection();
-                connection.connect();
-                // this will be useful so that you can show a typical 0-100% progress bar
-                int fileLength = connection.getContentLength();
-
-	    		File SDCardRoot = Environment.getExternalStorageDirectory();
-	    		//create a new file, specifying the path, and the filename
-	    		//which we want to save the file as.
-	    		File file = new File(SDCardRoot,"ATPK.zip");
-                
-                // download the file
-                InputStream input = new BufferedInputStream(url.openStream());
-                OutputStream output = new FileOutputStream(file);
-
-                byte data[] = new byte[1024];
-                long total = 0;
-                int count;
-                while ((count = input.read(data)) != -1) {
-                    total += count;
-                    // publishing the progress....
-                    publishProgress((int) (total * 100 / fileLength));
-                    output.write(data, 0, count);
-                }
-
-                output.flush();
-                output.close();
-                input.close();
-            } catch (Exception e) {
-            }
-            return null;
-        }
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            downloadProgressDialog.show();
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... progress) {
-            super.onProgressUpdate(progress);
-            downloadProgressDialog.setProgress(progress[0]);
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-			if(downloadProgressDialog.isShowing()) {
-				downloadProgressDialog.setProgress(totalDowloadSize);
-				downloadProgressDialog.setMessage(getString(R.string.finish));
-				downloadProgressDialog.dismiss();
-			}
-				//start uncompress the zip file
-				uncompressFile("ATPK.zip");
-		}
-
-    }
-
-    
-    // copy from http://www.androidsnippets.org/snippets/193/index.html
-    private void downloadFile(String urlText, final String fileName) {
-        downloadProgressDialog = new ProgressDialog(this);
-        downloadProgressDialog.setCancelable(false);
-        downloadProgressDialog.setMessage(getString(R.string.downloading));
-        downloadProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        downloadProgressDialog.setProgress(0);
-        
-     // execute this when the downloader must be fired
-        DownloadFile downloadFile = new DownloadFile();
-        downloadFile.execute(urlText);
-    }
-    
-
 	
 }

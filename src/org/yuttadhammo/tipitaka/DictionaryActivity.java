@@ -22,6 +22,8 @@ import android.widget.Button;
 import android.database.DatabaseUtils;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
+
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.BufferedReader;
@@ -62,6 +64,22 @@ public class DictionaryActivity extends Activity {
 		super.onCreate (savedInstanceState);
         db = new MainTipitakaDBAdapter(this);
 
+        try {
+        	db.open();
+        	if(db.isOpened()) {
+        		db.close();
+        	} else {
+            	Downloader dl = new Downloader(this);
+            	dl.startDownloader("http://static.sirimangalo.org/pali/ATPK/ATPK.zip", "ATPK.zip");
+        		return;
+        	}
+        } catch (SQLiteException e) {
+			Log.e ("Tipitaka","error:", e);
+        	Downloader dl = new Downloader(this);
+        	dl.startDownloader("http://static.sirimangalo.org/pali/ATPK/ATPK.zip", "ATPK.zip");
+        	return;
+        }
+        
 		setContentView (R.layout.cped);
 		prefs = getPreferences (MODE_PRIVATE);
 		
@@ -106,7 +124,7 @@ public class DictionaryActivity extends Activity {
 			setTitleWithMessage (word);
 		int api = Integer.parseInt(Build.VERSION.SDK);
 		
-		if (api >= 11) {
+		if (api >= 14) {
 			this.getActionBar().setHomeButtonEnabled(true);
 		}
 	}
@@ -137,18 +155,6 @@ public class DictionaryActivity extends Activity {
 		@Override
 		public void onClick (View v) {
 			lookupWord ();
-		}
-	}
-	
-	private class LookupTextKeyListener implements OnKeyListener {
-		@Override
-		public boolean onKey (View view, int keyCode, KeyEvent event) {
-			if (keyCode == KeyEvent.KEYCODE_ENTER) {
-				wv.setSelected (true);
-				lookupWord ();
-				return true;
-			}
-			return false;
 		}
 	}
 

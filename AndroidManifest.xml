@@ -87,6 +87,12 @@
 		  	android:label="@string/search_dialog"
 			android:theme="@style/SwitchTheme"
             />
+        <activity 
+			android:theme="@style/SwitchTheme"
+			android:name=".QuizActivity"
+			android:noHistory="true"
+			android:label="@string/quiz_title"
+        />
         
         <activity 
 			android:theme="@style/SwitchTheme"

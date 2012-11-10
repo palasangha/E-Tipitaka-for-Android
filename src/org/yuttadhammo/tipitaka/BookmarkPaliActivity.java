@@ -190,7 +190,7 @@ public class BookmarkPaliActivity extends Activity {
 		});
 		int api = Integer.parseInt(Build.VERSION.SDK);
 		
-		if (api >= 11) {
+		if (api >= 14) {
 			this.getActionBar().setHomeButtonEnabled(true);
 		}		
 	}

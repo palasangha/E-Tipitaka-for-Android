@@ -24,8 +24,10 @@
     <string name="search_page">Android Tipitaka - Search Results</string>
     <string name="search_dialog">Android Tipitaka - Search</string>
     <string name="dict_title">Android Tipitaka - Dictionaries</string>
+    <string name="quiz_title">Android Tipitaka - Quiz</string>
     <string name="preferences_title">Android Tipitaka - Preferences</string>
     <string name="help_dialog">Android Tipitaka - Help and About</string>
+    <string name="quiz">Quiz</string>
     <string name="not_found">Term not found</string>
     <string name="goto_page">Go to section</string>
     <string name="goto_item">Go to paragraph</string>
@@ -222,5 +224,10 @@
     <string name="text_button_cancel">Cancel</string>
     <string name="text_button_cancel_verify">Cancel Verification</string>
     <string name="enter_query">Enter search query</string>
+    
+	<string name="correct">Correct!</string>
+	<string name="incorrect">Incorrect!</string>
+	<string name="question">What is the meaning of %s?</string>
+	
 
 </resources>

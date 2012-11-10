@@ -18,6 +18,9 @@
 	<item android:id="@+id/english_menu_item"
   		  android:icon="@drawable/ati"
           android:title="@string/english" />
+	<item android:id="@+id/quiz_menu_item"
+		  android:icon="@android:drawable/ic_menu_agenda"
+          android:title="@string/quiz" />
 	<item android:id="@+id/preferences_menu_item"
   		  android:icon="@android:drawable/ic_menu_manage"
           android:title="@string/preferences" />

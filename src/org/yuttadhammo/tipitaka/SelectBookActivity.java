@@ -1,11 +1,13 @@
 package org.yuttadhammo.tipitaka;
 
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -40,6 +42,7 @@ public class SelectBookActivity extends Activity {
 	private String[] volumeNumbers;
 
 	
+	@SuppressLint("NewApi")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,7 +54,13 @@ public class SelectBookActivity extends Activity {
         
         final Context context = getApplicationContext();
         prefs =  PreferenceManager.getDefaultSharedPreferences(context);
-        
+
+		@SuppressWarnings("deprecation")
+		int api = Integer.parseInt(Build.VERSION.SDK);
+		
+		if (api >= 14) {
+			this.getActionBar().setHomeButtonEnabled(true);
+		}
         
         final Resources res = getResources();
         final String [] cnames = res.getStringArray(R.array.category);
@@ -207,7 +216,9 @@ public class SelectBookActivity extends Activity {
 		//Log.i("Tipitaka","Menu clicked ID: " + item.getItemId() + " vs. "+ R.id.preferences_menu_item);
 		Intent intent;
 		switch (item.getItemId()) {
-	    	
+        case android.R.id.home:
+            finish();
+            return true;	    	
 			case (int)R.id.bookmark_menu_item:
 				intent = new Intent(this, BookmarkPaliActivity.class);
 				Bundle dataBundle = new Bundle();
@@ -236,6 +247,11 @@ public class SelectBookActivity extends Activity {
 				break;
 			case (int)R.id.english_menu_item:
 				intent = new Intent(this, EnglishActivity.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(intent);
+				break;
+			case (int)R.id.quiz_menu_item:
+				intent = new Intent(this, QuizActivity.class);
 				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivity(intent);
 				break;

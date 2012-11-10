@@ -8,9 +8,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import android.util.Log;
 
 import android.annotation.SuppressLint;
@@ -71,8 +68,6 @@ public class EnglishActivity extends Activity {
     private ProgressDialog downloadProgressDialog;
     private ProgressDialog unzipProgressDialog;
 	private Handler handler = new Handler();
-    private int totalDownloadSize;
-    private int downloadedSize;
     public WebView ewv;
 
 	private String ATI_PATH;
@@ -98,17 +93,18 @@ public class EnglishActivity extends Activity {
 			ATI_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "ati_website";
 			file = new File(Environment.getExternalStorageDirectory(), "ATI.zip" );
 			if (file.exists()) {
-				uncompressFile("ATI.zip");
+				Downloader dl = new Downloader(this);
+				dl.uncompressFile("ATI.zip");
 			}
 			else {
-				startDownloader(true);
+				startDownload(false);
 			}
 			return;
 		}
 
 		int api = Integer.parseInt(Build.VERSION.SDK);
 		
-		if (api >= 11) {
+		if (api >= 14) {
 			this.getActionBar().setHomeButtonEnabled(true);
 		}
 		
@@ -164,40 +160,10 @@ public class EnglishActivity extends Activity {
 		    return false;
     }
     
-    private void uncompressFile(String fileName) {
-    	String zipFile = Environment.getExternalStorageDirectory() + File.separator + fileName; 
-    	String unzipLocation = Environment.getExternalStorageDirectory() + File.separator; 
-    	final Decompress d = new Decompress(zipFile, unzipLocation); 
-    	unzipProgressDialog = new ProgressDialog(EnglishActivity.this);
-    	unzipProgressDialog.setCancelable(false);
-    	unzipProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-    	unzipProgressDialog.setMessage(getString(R.string.unzipping_ati));
-    	Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				d.unzip();
-				handler.post(new Runnable() {
-					
-					@Override
-					public void run() {
-						if(unzipProgressDialog.isShowing()) {
-							unzipProgressDialog.dismiss();
-							replaceCSS();
-							Toast.makeText(EnglishActivity.this, getString(R.string.unzipped_ati), Toast.LENGTH_SHORT).show();
-							showActivity();
-						}
-					}
-				});
-			}
-		});
-    	thread.start();
-    	unzipProgressDialog.show();
-    	    
-    }
-    
+
     // copy from http://www.androidsnippets.org/snippets/193/index.html
-    private void downloadFile(final String bulk, final String fileName) {
-        downloadProgressDialog = new ProgressDialog(EnglishActivity.this);
+    private void downloadFile() {
+        downloadProgressDialog = new ProgressDialog(this);
         downloadProgressDialog.setCancelable(false);
         downloadProgressDialog.setMessage(getString(R.string.downloading));
         downloadProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -212,7 +178,7 @@ public class EnglishActivity extends Activity {
 
 			         // Create client and set our specific user-agent string
 			         HttpClient client = new DefaultHttpClient();
-			         HttpGet request = new HttpGet(bulk);
+			         HttpGet request = new HttpGet("http://www.accesstoinsight.org/tech/download/bulk/bulk.html");
 			    	 HttpResponse response = client.execute(request);	    	 
 		            // Check if server response is valid
 		            StatusLine status = response.getStatusLine();
@@ -240,85 +206,19 @@ public class EnglishActivity extends Activity {
 
 		    		Log.i("Tipitaka","File to download: "+version);
 
-					String urlText = bulk.replace("bulk.html",version);
+					String urlText = "http://www.accesstoinsight.org/tech/download/bulk/"+version;
 		    		
 		    		Log.i("Tipitaka","Downloading "+urlText);
+	            	Downloader dl = new Downloader(EnglishActivity.this);
+	            	dl.startDownloader(urlText, "ATI.zip");
 
-		    		//set the download URL, a url that points to a file on the internet
-		    		//this is the file to be downloaded
-		    		final URL url = new URL(urlText);
-
-		    		//create the new connection
-		    		final HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-
-		    		//set up some things on the connection
-		    		urlConnection.setRequestMethod("GET");
-		    		urlConnection.setDoOutput(true);
-		    		
-					//and connect!
-		    		urlConnection.connect();
-
-		    		//set the path where we want to save the file
-		    		//in this case, going to save it on the root directory of the
-		    		//sd card.
-		    		final File SDCardRoot = Environment.getExternalStorageDirectory();
-		    		//create a new file, specifying the path, and the filename
-		    		//which we want to save the file as.
-		    		final File file = new File(SDCardRoot,fileName);
-		    		final String savedFileName = fileName;
-
-
-		    		//this will be used in reading the data from the internet
-		    		final InputStream inputStream1 = urlConnection.getInputStream();
-		    		//this is the total size of the file
-		    		totalDownloadSize = urlConnection.getContentLength();
-		    		//variable to store total downloaded bytes
-		    		downloadedSize = 0;
-
-		            downloadProgressDialog.setMax(totalDownloadSize);
-		            
-					//this will be used to write the downloaded data into the file we created
-		    		FileOutputStream fileOutput = new FileOutputStream(file);    		
-		    		//create a buffer...
-		    		byte[] buffer = new byte[1024];
-		    		int bufferLength = 0; //used to store a temporary size of the buffer
-		    		//now, read through the input buffer and write the contents to the file
-		    		while ( (bufferLength = inputStream1.read(buffer)) > 0 ) {
-		    			//add the data in the buffer to the file in the file output stream (the file on the sd card
-		    			fileOutput.write(buffer, 0, bufferLength);
-		    			//add up the size so we know how much is downloaded
-		    			downloadedSize += bufferLength;
-		    			//this is where you would do something to report the prgress, like this maybe
-		    			//updateProgress(downloadedSize, totalSize);
-
-		    			handler.post(new Runnable() {
-							@Override
-							public void run() {
-								if(downloadedSize < totalDownloadSize) {
-									downloadProgressDialog.setProgress(downloadedSize);
-								} else {
-									if(downloadProgressDialog.isShowing()) {
-										downloadProgressDialog.setProgress(totalDownloadSize);
-										downloadProgressDialog.setMessage(getString(R.string.finish));
-										downloadProgressDialog.dismiss();
-										//start uncompress the zip file
-										uncompressFile(savedFileName);
-									}
-								}
-							}
-						});
-
-		    		}
-		    		//close the output stream when done
-		    		fileOutput.close();
-				} catch (IOException e) {
+				}
+				catch (IOException e) {
 		    		e.printStackTrace();
 		    	}    	
-				
 			}
 		});
-		thread.start();
-		downloadProgressDialog.show();
+    	thread.start();
     }
     
     
@@ -329,13 +229,8 @@ public class EnglishActivity extends Activity {
 		startActivity(intent);
     	return true;
     }
-	private void showHelpDialog() {
-		final Dialog helpDialog = new Dialog(this, android.R.style.Theme_NoTitleBar);
-		helpDialog.setContentView(R.layout.help_dialog);
-		helpDialog.show();
-	}
 
-	private void startDownloader(boolean close) {
+	private void startDownload(boolean close) {
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	builder.setTitle(getString(R.string.ati_not_found));
     	builder.setMessage(getString(R.string.confirm_download_ati));
@@ -348,7 +243,7 @@ public class EnglishActivity extends Activity {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				if(isInternetOn()) {
-					downloadFile("http://www.accesstoinsight.org/tech/download/bulk/bulk.html", "ATI.zip");
+					downloadFile();
 				} else {
 					AlertDialog.Builder builder = new AlertDialog.Builder(EnglishActivity.this);
 					builder.setTitle(getString(R.string.internet_not_connected));
@@ -376,7 +271,7 @@ public class EnglishActivity extends Activity {
     	
     	builder.show();
 	}
-
+	
 	private void showDownloadError(){
 		AlertDialog.Builder builder = new AlertDialog.Builder(EnglishActivity.this);
 		builder.setTitle(getString(R.string.internet_not_connected));
@@ -446,7 +341,7 @@ public class EnglishActivity extends Activity {
 				ewv.loadUrl("file://"+ATI_PATH+"/html/index.html");
 				break;
 			case (int)R.id.update_archive:
-				startDownloader(false);
+				startDownload(false);
 				break;
 			case (int)R.id.dict_menu_item:
 				intent = new Intent(this, DictionaryActivity.class);
