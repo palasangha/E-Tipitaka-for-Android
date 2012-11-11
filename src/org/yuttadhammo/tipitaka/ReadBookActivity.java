@@ -34,6 +34,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -71,13 +72,15 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	private SharedPreferences prefs;
 	private MainTipitakaDBAdapter mainTipitakaDBAdapter;
 
-	private PaliTextView textContent;
+	private static PaliTextView textContent;
 	private String headerText = "";
 	private ListView idxList;
 	private ScrollView scrollview;
 	private RelativeLayout textshell;
 	
 	private static Button dictButton;
+	private static LinearLayout dictBar;
+	private static TextView defText;
 	
 	private int selected_volume;
 	private int selected_page;
@@ -136,15 +139,23 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	protected int lastPosition;
 	private ArrayList<String> titles;
 	private String volumeTitle;
+	private float smallSize;
+	private static Context context;
+	public static boolean isLookingUp = false;
+	private static boolean lookupDefs;
 
 	@SuppressLint("NewApi")
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        final Context context = getApplicationContext();
+        context = getApplicationContext();
         prefs =  PreferenceManager.getDefaultSharedPreferences(context);
 		font = Typeface.createFromAsset(getAssets(), "verajjan.ttf");      
+        textSize = Float.parseFloat(prefs.getString("base_text_size", "16"));
+        smallSize = Float.parseFloat(Double.toString(textSize*0.75));
+        
+        lookupDefs = prefs.getBoolean("show_defs", true);
         
         read =  View.inflate(this, R.layout.read, null);
         setContentView(read);
@@ -162,12 +173,14 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         textshell = (RelativeLayout) read.findViewById(R.id.shell_text);
       
 		textContent.setTypeface(font);
-        textSize = Float.parseFloat(prefs.getString("base_text_size", "16"));
         
 		textContent.setTextSize(textSize);
 		textContent.setMovementMethod(new ScrollingMovementMethod());
 		
+		dictBar = (LinearLayout) findViewById(R.id.dict_bar);
+		defText = (TextView) findViewById(R.id.def_text);
 		dictButton = (Button) findViewById(R.id.dict_button);
+		defText.setTextSize(smallSize);
 		
 		dictButton.setOnClickListener(new OnClickListener() {
 
@@ -576,10 +589,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		textContent.setTextSize(textSize);
 	}
 
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-	}	
+
 	
 	private void saveReadingState(String _lang, int page, int scrollPosition) {
 		SharedPreferences.Editor editor = prefs.edit();
@@ -826,14 +836,85 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		    super(context);
 		}
 	    @Override   
-	    protected void onSelectionChanged(int selStart, int selEnd) { 
-	    	if(selEnd > selStart) {
-	    		dictButton.setVisibility(View.VISIBLE);
+	    protected void onSelectionChanged(int s, int e) { 
+    		defText.setVisibility(View.INVISIBLE);
+	    	if(s > -1 && e > s) {
+	    		dictBar.setVisibility(View.VISIBLE);
+				String selectedWord = textContent.getText().toString().substring(s,e);
+				if(!selectedWord.contains(" ") && lookupDefs && !isLookingUp ) {
+					LookupDefinition ld = new LookupDefinition();
+					ld.execute(selectedWord);
+				}
 	    	}
-		    else {
-	    		dictButton.setVisibility(View.GONE);
-	    	}
+		    else
+		    	dictBar.setVisibility(View.INVISIBLE);
+	    }
+	    private class LookupDefinition extends AsyncTask<String, Integer, String> {
+	    	private MainTipitakaDBAdapter db;
+			private String definition;
+
+	    	@Override
+	        protected String doInBackground(String... words) {
+	        	String query = PaliUtils.toVel(words[0]);
+	        	//Log.d ("Tipitaka", "looking up: "+query);
+				
+				db = new MainTipitakaDBAdapter(context);
+	    		db.open();
+
+				String[] declensions = getResources().getStringArray(R.array.declensions);
+				ArrayList<String> endings = new ArrayList<String>(); 
+				for(String declension : declensions) {
+					String[] decArray = TextUtils.split(declension, ",");
+					String ending = decArray[0];
+					int offset = Integer.parseInt(decArray[1]);
+					int min = Integer.parseInt(decArray[2]);
+					String add = decArray[3];
+					if(query.length() > min && query.endsWith(ending)) {
+						endings.add(TextUtils.substring(query, 0, query.length()-ending.length()+offset)+add);
+						//Log.d ("Tipitaka", "adding ending: " + endings.get(endings.size()-1));
+					}
+				}
+				if(endings.isEmpty())
+					return null;
+
+				String endstring = "'"+TextUtils.join("','", endings)+"'";
+
+				Cursor c = db.dictQueryEndings("cped",endstring);	
+	    		
+		    	if(c == null || c.getCount() == 0) {
+					c = db.dictQuery("cped",query);
+
+			    	if(c == null || c.getCount() == 0)
+						return null;
+		    	}
+		    	c.moveToFirst();
+		    	definition = "<b>"+PaliUtils.toUni(c.getString(0))+":</b> "+c.getString(1);
+				return null;
+	        }
+	        @Override
+	        protected void onPreExecute() {
+	            super.onPreExecute();
+	            isLookingUp = true;
+	        }
+
+	        @Override
+	        protected void onProgressUpdate(Integer... progress) {
+	            super.onProgressUpdate(progress);
+	        }
+
+	        @Override
+	        protected void onPostExecute(String result) {
+	            super.onPostExecute(result);
+				db.close();
+	            if(definition != null) {
+	            	defText.setText(Html.fromHtml(definition));
+		    		defText.setVisibility(View.VISIBLE);
+	            }
+	            isLookingUp = false;
+	            
+			}
+
 	    }
 	}
-	
+
 }

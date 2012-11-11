@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Typeface;
@@ -22,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 
 public class QuizActivity extends Activity {
@@ -42,6 +44,7 @@ public class QuizActivity extends Activity {
 	private TextView rightText;
 	private TextView resultText;
 	private TextView questionText;
+	private QuizAdapter adapter;
 
 	@SuppressLint("NewApi")
 	@Override
@@ -86,7 +89,7 @@ public class QuizActivity extends Activity {
         	return;
         }
         grid = (GridView) findViewById(R.id.buttons);
-        QuizAdapter adapter = new QuizAdapter();
+        adapter = new QuizAdapter();
         adapter.initQuiz();
         grid.setAdapter(adapter);
         
@@ -102,6 +105,18 @@ public class QuizActivity extends Activity {
         questionText.setTextSize(largeSize);
         questionText.setTypeface(font);
 	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		QuizButton[] oldButtons = adapter.buttons;
+		adapter = new QuizAdapter(oldButtons);
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+        	grid.setNumColumns(2);
+        else
+        	grid.setNumColumns(1);
+        grid.setAdapter(adapter);		
+	}	
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -157,12 +172,24 @@ public class QuizActivity extends Activity {
 		private int rpos;
 		private String[] rtext;
 		private ArrayList<String[]> values;
-		private QuizButton[] buttons;
+		public QuizButton[] buttons;
 		
-	    public View getView(final int position, View convertView, ViewGroup parent) {
+	    public QuizAdapter(QuizButton[] oldButtons) {
+			this.buttons = oldButtons;
+		}
+
+		public QuizAdapter() {
+			
+		}
+
+		public View getView(final int position, View convertView, ViewGroup parent) {
 	    	
 	        Button i = (Button)View.inflate(context, R.layout.quiz_button, null);
-	        int pixels = grid.getHeight()/2;
+	        
+	        int pixels = grid.getHeight()/4;
+	        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+	        	pixels = grid.getHeight()/2;
+	        
 	        i.setHeight(pixels);
 	        i.setText(buttons[position].getText()[1]);
 	        i.setTextSize(largeSize);
@@ -248,7 +275,7 @@ public class QuizActivity extends Activity {
     		rtotal++;
         	resultText.setText(R.string.correct);
         	resultText.setTextColor(0xFF00CC00);
-            QuizAdapter adapter = new QuizAdapter();
+            adapter = new QuizAdapter();
             adapter.initQuiz();
             grid.setAdapter(adapter);
     	}

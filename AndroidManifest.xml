@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="org.yuttadhammo.tipitaka"
-      android:versionName="6.1" android:versionCode="46">
+      android:versionName="7.0" android:versionCode="47">
     <uses-sdk android:minSdkVersion="8"  android:targetSdkVersion="16"/>
 
 	<uses-permission android:name="android.permission.INTERNET" />
@@ -18,13 +18,9 @@
                       android:anyDensity="true"/>
     
     <application android:label="@string/app_name" android:icon="@drawable/logo">
-    	<!-- 
-        <provider android:name=".ATPKSearchSuggestionProvider"
-              android:authorities="org.yuttadhammo.tipitaka.ATPKSearchSuggestionProvider" />
-     	-->
         <activity android:name=".SelectBookActivity"
         		  android:theme="@style/SwitchTheme"
-        		  android:configChanges="orientation|keyboardHidden"
+        		  android:configChanges="orientation|screenSize|keyboardHidden"
                   android:label="@string/app_name"
                   >
             <intent-filter>
@@ -35,19 +31,19 @@
 
 		<activity android:name=".ReadBookActivity"
 				  android:theme="@style/SwitchTheme"
-				  android:configChanges="orientation|keyboardHidden"
+        		  android:configChanges="orientation|screenSize|keyboardHidden"
 				  android:label="@string/read_page">
 		</activity>
 
 		<activity android:name=".EnglishActivity"
 				  android:theme="@style/SwitchTheme"
-				  android:configChanges="orientation|keyboardHidden"
+        		  android:configChanges="orientation|screenSize|keyboardHidden"
 				  android:label="@string/english_page">
 		</activity>
 
 		<activity android:name=".SearchActivity"
 				  android:theme="@style/SwitchTheme"
-				  android:configChanges="orientation|keyboardHidden"
+        		  android:configChanges="orientation|screenSize|keyboardHidden"
 				  android:label="@string/search_page"
 				  android:exported="false">
             <meta-data android:name="android.app.searchable"
@@ -59,13 +55,13 @@
 		<activity 
 			android:name=".BookmarkPaliActivity"
 			android:theme="@style/SwitchTheme"
-			android:configChanges="orientation|keyboardHidden"
+			android:configChanges="orientation|screenSize|keyboardHidden"
 			android:noHistory="true"
 			android:label="@string/bookmark_page"
 		/>
 		<activity 
 			android:name=".BookmarkEnglishActivity"
-			android:configChanges="orientation|keyboardHidden"
+			android:configChanges="orientation|screenSize|keyboardHidden"
 			android:noHistory="true"
 			android:theme="@style/SwitchTheme"
 		/>
@@ -77,6 +73,7 @@
         />
         <activity 
 			android:theme="@style/SwitchTheme"
+			android:configChanges="orientation|screenSize|keyboardHidden"
 			android:name=".DictionaryActivity"
 			android:noHistory="true"
 			android:label="@string/dict_title"
@@ -84,11 +81,13 @@
 		
         <activity 
             android:name="SearchDialog"
+			android:configChanges="orientation|screenSize|keyboardHidden"
 		  	android:label="@string/search_dialog"
 			android:theme="@style/SwitchTheme"
             />
         <activity 
 			android:theme="@style/SwitchTheme"
+			android:configChanges="orientation|screenSize|keyboardHidden"
 			android:name=".QuizActivity"
 			android:noHistory="true"
 			android:label="@string/quiz_title"

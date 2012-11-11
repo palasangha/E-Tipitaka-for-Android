@@ -201,6 +201,8 @@
 	<string name="prefText">Text Preferences</string>
 	<string name="prefBaseSize">Tipitaka Font Size</string>
 	<string name="prefShowVar">Show Variants</string>
+	<string name="prefShowDefs">Show Definitions</string>
+	<string name="prefShowDefNote">When highlighting a word, show a concise definition</string>
 	<string name="prefMisc">Misc Preferences</string>
 	<string name="prefDataDir">Database Location</string>
 	<string name="prefAtiDir">ATI Location</string>
