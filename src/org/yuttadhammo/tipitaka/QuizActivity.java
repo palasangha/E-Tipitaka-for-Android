@@ -62,12 +62,6 @@ public class QuizActivity extends Activity {
         resultText = (TextView)layout.findViewById(R.id.result_text);
         questionText = (TextView)layout.findViewById(R.id.question_text);
 
-        wrongText.setTextSize(textSize);
-        rightText.setTextSize(textSize);
-        resultText.setTextSize(textSize);
-        questionText.setTextSize(largeSize);
-        questionText.setTypeface(font);
-
 		@SuppressWarnings("deprecation")
 		int api = Integer.parseInt(Build.VERSION.SDK);
 		
@@ -98,6 +92,16 @@ public class QuizActivity extends Activity {
         
 	}
 
+
+	@Override
+	protected void onResume(){
+		super.onResume();
+        wrongText.setTextSize(largeSize);
+        rightText.setTextSize(largeSize);
+        resultText.setTextSize(textSize);
+        questionText.setTextSize(largeSize);
+        questionText.setTypeface(font);
+	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

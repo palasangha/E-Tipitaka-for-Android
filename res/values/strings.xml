@@ -100,6 +100,7 @@
 	<string name="error_found">Error found</string>
 	<string name="db_not_found">Database not found</string>
 	<string name="ati_not_found">Download Archive</string>
+	<string name="ati_version">Getting latest version…</string>
 	<string name="cannot_write">Unable to write database</string>
 	<string name="export_success">Database moved to internal storage</string>
 	<string name="import_success">Database moved to SD card</string>

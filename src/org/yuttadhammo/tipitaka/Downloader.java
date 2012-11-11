@@ -185,11 +185,17 @@ public class Downloader {
 
     }
     
-    // copy from http://www.androidsnippets.org/snippets/193/index.html
+    public void downloadFile(String url, String file) {
+		this._url = url;
+		this._file = file;
+		downloadFile();
+    }
+
+    
     private void downloadFile() {
     	
         downloadProgressDialog = new ProgressDialog(activity);
-        downloadProgressDialog.setCancelable(false);
+        downloadProgressDialog.setCancelable(true);
         downloadProgressDialog.setMessage(activity.getString(R.string.downloading));
         downloadProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         downloadProgressDialog.setProgress(0);

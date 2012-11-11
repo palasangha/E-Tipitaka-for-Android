@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteException;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -64,12 +65,31 @@ public class SearchDialog extends Activity {
 	private SharedPreferences prefs;	
 	private View searchView;
 	private Typeface font;
+	private MainTipitakaDBAdapter db;
 		   	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
         searchView =  View.inflate(this, R.layout.search_dialog, null);
         setContentView(searchView);
+
+        db = new MainTipitakaDBAdapter(this);
+
+        try {
+        	db.open();
+        	if(db.isOpened()) {
+        		db.close();
+        	} else {
+            	Downloader dl = new Downloader(this);
+            	dl.startDownloader("http://static.sirimangalo.org/pali/ATPK/ATPK.zip", "ATPK.zip");
+        		return;
+        	}
+        } catch (SQLiteException e) {
+			Log.e ("Tipitaka","error:", e);
+        	Downloader dl = new Downloader(this);
+        	dl.startDownloader("http://static.sirimangalo.org/pali/ATPK/ATPK.zip", "ATPK.zip");
+        	return;
+        }
         
         context = this;
 		

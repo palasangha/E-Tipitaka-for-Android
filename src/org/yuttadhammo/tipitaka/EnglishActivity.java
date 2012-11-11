@@ -1,12 +1,14 @@
 package org.yuttadhammo.tipitaka;
 
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import android.util.Log;
 
@@ -21,6 +23,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -49,6 +52,8 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import java.io.ByteArrayOutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 
 
 
@@ -159,66 +164,74 @@ public class EnglishActivity extends Activity {
 		    }
 		    return false;
     }
-    
 
-    // copy from http://www.androidsnippets.org/snippets/193/index.html
+
+    private class ReadFile extends AsyncTask<String, Integer, String> {
+        private String version;
+
+		@Override
+        protected String doInBackground(String... sUrl) {
+            try {
+                URL url = new URL(sUrl[0]);
+                URLConnection connection = url.openConnection();
+                connection.connect();
+                // this will be useful so that you can show a typical 0-100% progress bar
+                int fileLength = connection.getContentLength();
+
+
+                
+                // download the file
+                InputStream input = new BufferedInputStream(url.openStream());
+
+	            ByteArrayOutputStream content = new ByteArrayOutputStream();
+
+	            // Read response into a buffered stream
+	            int readBytes = 0;
+	            while ((readBytes = input.read(sBuffer)) != -1) {
+	                content.write(sBuffer, 0, readBytes);
+	            }
+	            //rename to actual url
+	            String contentString = content.toString();
+	    		contentString = contentString.replaceAll("[\n\r]","");
+	    		version = contentString.replaceAll(".*URL=([-a-z0-9.]*\\.zip).*","$1");
+
+                input.close();
+            } catch (Exception e) {
+            }
+            return null;
+        }
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            downloadProgressDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+			if(downloadProgressDialog.isShowing()) {
+				downloadProgressDialog.dismiss();
+			}
+    		Log.i("Tipitaka","File to download: "+version);
+
+			String urlText = "http://www.accesstoinsight.org/tech/download/bulk/"+version;
+    		
+    		Log.i("Tipitaka","Downloading "+urlText);
+        	Downloader dl = new Downloader(EnglishActivity.this);
+        	dl.downloadFile(urlText, "ATI.zip");
+        }
+
+    }
+
+
     private void downloadFile() {
         downloadProgressDialog = new ProgressDialog(this);
-        downloadProgressDialog.setCancelable(false);
-        downloadProgressDialog.setMessage(getString(R.string.downloading));
-        downloadProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        downloadProgressDialog.setProgress(0);
-		
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {					
-					//what we need: http://www.accesstoinsight.org/tech/download/bulk/ati-2012.05.18.17.zip
-					//what we search for: URL=ati-2012.05.18.17.zip"
+        downloadProgressDialog.setCancelable(true);
+        downloadProgressDialog.setMessage(getString(R.string.ati_version));
+        downloadProgressDialog.setIndeterminate(true);
 
-			         // Create client and set our specific user-agent string
-			         HttpClient client = new DefaultHttpClient();
-			         HttpGet request = new HttpGet("http://www.accesstoinsight.org/tech/download/bulk/bulk.html");
-			    	 HttpResponse response = client.execute(request);	    	 
-		            // Check if server response is valid
-		            StatusLine status = response.getStatusLine();
-		            if (status.getStatusCode() != HTTP_STATUS_OK) {
-						downloadProgressDialog.dismiss();
-						showDownloadError();
-						return;
-		            }
-
-		            // Pull content stream from response
-		            HttpEntity entity = response.getEntity();
-		            InputStream inputStream = entity.getContent();
-
-		            ByteArrayOutputStream content = new ByteArrayOutputStream();
-
-		            // Read response into a buffered stream
-		            int readBytes = 0;
-		            while ((readBytes = inputStream.read(sBuffer)) != -1) {
-		                content.write(sBuffer, 0, readBytes);
-		            }
-		            //rename to actual url
-		            String contentString = content.toString();
-		    		contentString = contentString.replaceAll("[\n\r]","");
-		    		String version = contentString.replaceAll(".*URL=([-a-z0-9.]*\\.zip).*","$1");
-
-		    		Log.i("Tipitaka","File to download: "+version);
-
-					String urlText = "http://www.accesstoinsight.org/tech/download/bulk/"+version;
-		    		
-		    		Log.i("Tipitaka","Downloading "+urlText);
-	            	Downloader dl = new Downloader(EnglishActivity.this);
-	            	dl.startDownloader(urlText, "ATI.zip");
-
-				}
-				catch (IOException e) {
-		    		e.printStackTrace();
-		    	}    	
-			}
-		});
-    	thread.start();
+        ReadFile rf = new ReadFile();
+        rf.execute("http://www.accesstoinsight.org/tech/download/bulk/bulk.html");
     }
     
     
@@ -234,7 +247,7 @@ public class EnglishActivity extends Activity {
     	AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	builder.setTitle(getString(R.string.ati_not_found));
     	builder.setMessage(getString(R.string.confirm_download_ati));
-    	builder.setCancelable(false);
+    	builder.setCancelable(true);
     	
     	final boolean Close = close;
     	
@@ -270,20 +283,6 @@ public class EnglishActivity extends Activity {
 		});
     	
     	builder.show();
-	}
-	
-	private void showDownloadError(){
-		AlertDialog.Builder builder = new AlertDialog.Builder(EnglishActivity.this);
-		builder.setTitle(getString(R.string.internet_not_connected));
-		builder.setMessage(getString(R.string.check_your_connection));
-		builder.setCancelable(false);
-		builder.setNeutralButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				finish();
-			}
-		});
-		builder.show();
 	}
 	
 	private void memoItem() {
