@@ -13,11 +13,10 @@
 		android:layout_height="wrap_content"
 		android:padding="10dp"
 		android:textSize="16dp"
-		android:lineSpacingExtra="2dip"
-		android:singleLine="true"
+		android:scrollHorizontally="true"
 		android:text=""
 		android:gravity="center"
-	/>
+		/>
 	<LinearLayout
 	  android:layout_width="match_parent"
 	  android:layout_height="wrap_content"

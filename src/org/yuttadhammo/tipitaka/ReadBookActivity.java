@@ -45,6 +45,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -152,8 +153,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         context = getApplicationContext();
         prefs =  PreferenceManager.getDefaultSharedPreferences(context);
 		font = Typeface.createFromAsset(getAssets(), "verajjan.ttf");      
-        textSize = Float.parseFloat(prefs.getString("base_text_size", "16"));
-        smallSize = Float.parseFloat(Double.toString(textSize*0.75));
         
         lookupDefs = prefs.getBoolean("show_defs", true);
         
@@ -171,16 +170,14 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         textContent = (PaliTextView) read.findViewById(R.id.main_text);
         scrollview = (ScrollView) read.findViewById(R.id.scroll_text);
         textshell = (RelativeLayout) read.findViewById(R.id.shell_text);
-      
-		textContent.setTypeface(font);
-        
-		textContent.setTextSize(textSize);
-		textContent.setMovementMethod(new ScrollingMovementMethod());
-		
 		dictBar = (LinearLayout) findViewById(R.id.dict_bar);
 		defText = (TextView) findViewById(R.id.def_text);
 		dictButton = (Button) findViewById(R.id.dict_button);
-		defText.setTextSize(smallSize);
+
+		textContent.setTypeface(font);
+		defText.setTypeface(font);
+        
+		textContent.setMovementMethod(new ScrollingMovementMethod());
 		
 		dictButton.setOnClickListener(new OnClickListener() {
 
@@ -573,7 +570,10 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		if(size.equals(""))
 			size = "16";
 		textSize = Float.parseFloat(size);
+        smallSize = Float.parseFloat(Double.toString(textSize*0.75));
 		textContent.setTextSize(textSize);
+		defText.setTextSize(smallSize);
+
 		if(searchDialog != null) {
 			searchDialog.updateHistoryList();
 		}
@@ -582,11 +582,14 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	@Override
 	protected void onResume() {
 		super.onResume();
+
 		String size = prefs.getString("base_text_size", "16");
         if(size.equals(""))
         	size = "16";
 		textSize = Float.parseFloat(size);
+        smallSize = Float.parseFloat(Double.toString(textSize*0.75));
 		textContent.setTextSize(textSize);
+		defText.setTextSize(smallSize);
 	}
 
 
@@ -835,16 +838,21 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		{
 		    super(context);
 		}
+		
 	    @Override   
 	    protected void onSelectionChanged(int s, int e) { 
     		defText.setVisibility(View.INVISIBLE);
 	    	if(s > -1 && e > s) {
-	    		dictBar.setVisibility(View.VISIBLE);
 				String selectedWord = textContent.getText().toString().substring(s,e);
-				if(!selectedWord.contains(" ") && lookupDefs && !isLookingUp ) {
-					LookupDefinition ld = new LookupDefinition();
-					ld.execute(selectedWord);
-				}
+	    		if(selectedWord.contains(" "))
+	    			dictBar.setVisibility(View.INVISIBLE);
+	    		else {
+    	    		dictBar.setVisibility(View.VISIBLE);
+					if(lookupDefs && !isLookingUp) {
+						LookupDefinition ld = new LookupDefinition();
+						ld.execute(selectedWord);
+					}
+	    		}
 	    	}
 		    else
 		    	dictBar.setVisibility(View.INVISIBLE);

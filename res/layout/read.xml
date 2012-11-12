@@ -49,16 +49,16 @@
 				android:layout_height="wrap_content"
 				android:padding="10dp"
 				android:textSize="16dp"
-				android:singleLine="true"
 				android:visibility="invisible"
 			  	android:background="#FFFFFF"
-			/>
+				android:scrollHorizontally="true"
+				/>
 			<Button 
 				android:id="@+id/dict_button"
 				android:layout_height="wrap_content"
 				android:layout_width="120dp"
 				android:text="@string/dict"
-			/>
+				/>
 		</LinearLayout>
 	</RelativeLayout>
 </LinearLayout>

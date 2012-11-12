@@ -53,13 +53,14 @@
 				android:singleLine="true"
 			  	android:background="#FFFFFF"
 				android:visibility="invisible"
-			/>
+				android:scrollHorizontally="true"
+				/>
 			<Button 
 				android:id="@+id/dict_button"
 				android:layout_height="wrap_content"
 				android:layout_width="120dp"
 				android:text="@string/dict"
-			/>
+				/>
 		</LinearLayout>
 	</RelativeLayout>
 </LinearLayout>

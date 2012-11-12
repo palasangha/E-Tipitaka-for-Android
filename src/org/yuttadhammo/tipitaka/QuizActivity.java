@@ -54,8 +54,6 @@ public class QuizActivity extends Activity {
         this.context = this;
         prefs =  PreferenceManager.getDefaultSharedPreferences(this);
 		font = Typeface.createFromAsset(getAssets(), "verajjan.ttf");      
-        textSize = Float.parseFloat(prefs.getString("base_text_size", "16"));
-        largeSize = Float.parseFloat(Double.toString(textSize*1.5));
         
         layout =  View.inflate(this, R.layout.quiz, null);
         setContentView(layout);
@@ -64,6 +62,8 @@ public class QuizActivity extends Activity {
         rightText = (TextView)layout.findViewById(R.id.right_text);
         resultText = (TextView)layout.findViewById(R.id.result_text);
         questionText = (TextView)layout.findViewById(R.id.question_text);
+        
+        questionText.setTypeface(font);
 
 		@SuppressWarnings("deprecation")
 		int api = Integer.parseInt(Build.VERSION.SDK);
@@ -89,6 +89,9 @@ public class QuizActivity extends Activity {
         	return;
         }
         grid = (GridView) findViewById(R.id.buttons);
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+        	grid.setNumColumns(2);
+        
         adapter = new QuizAdapter();
         adapter.initQuiz();
         grid.setAdapter(adapter);
@@ -99,10 +102,12 @@ public class QuizActivity extends Activity {
 	@Override
 	protected void onResume(){
 		super.onResume();
-        wrongText.setTextSize(largeSize);
+        textSize = Float.parseFloat(prefs.getString("base_text_size", "16"));
+        largeSize = Float.parseFloat(Double.toString(textSize*1.5));
+		wrongText.setTextSize(largeSize);
         rightText.setTextSize(largeSize);
-        resultText.setTextSize(textSize);
-        questionText.setTextSize(largeSize);
+        resultText.setTextSize(largeSize);
+        questionText.setTextSize(textSize);
         questionText.setTypeface(font);
 	}
 
@@ -192,7 +197,8 @@ public class QuizActivity extends Activity {
 	        
 	        i.setHeight(pixels);
 	        i.setText(buttons[position].getText()[1]);
-	        i.setTextSize(largeSize);
+	        i.setTextSize(textSize);
+	        i.setTypeface(font);
 	        
         	i.setOnClickListener(new View.OnClickListener() {
 				@Override
