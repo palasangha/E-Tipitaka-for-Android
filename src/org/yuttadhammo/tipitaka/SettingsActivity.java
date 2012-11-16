@@ -9,6 +9,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
 
+import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -75,6 +76,24 @@ public class SettingsActivity extends PreferenceActivity {
 			
 		});
 
+		final CheckBoxPreference volNav = (CheckBoxPreference) findPreference("vol_nav");
+		final CheckBoxPreference volRev = (CheckBoxPreference) findPreference("vol_nav_reverse");
+		if(volNav.isChecked())
+			volRev.setEnabled(true);
+		else
+			volRev.setEnabled(false);
 		
+		volNav.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+
+			public boolean onPreferenceChange(Preference preference,
+					Object newValue) {
+				if(volNav.isChecked())
+					volRev.setEnabled(false);
+				else
+					volRev.setEnabled(true);
+				return true;
+			}
+			
+		});
 	}
 }

@@ -109,25 +109,9 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	public int oldpage = 0;
 	public int newpage = 0;
 
-	//Gestures
-
-    private static final int SWIPE_MIN_LENGTH = 30;
-    private static final int SWIPE_MAX_OFF_PATH = 100;
-
     private String[] volumes;
 	private Typeface font;
 
-	// Curl state. We are flipping none, left or right page.
-
-    private static final int CURL_NONE = 0;
-	private static final int CURL_LEFT = 1;
-	private static final int CURL_RIGHT = 2;
-	private static final int CURL_CANCEL = 3;
-
-	private int mCurlState = CURL_NONE;
-	private PointF mDragStartPos = new PointF();
-	private PointF mDragLastPos = new PointF();
-	
 	// save read pages for highlighting in the results list
 
 	private ArrayList<String> savedReadPages = null;
@@ -294,18 +278,34 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			
 		}
 	
-		scrollview.setOnTouchListener(new View.OnTouchListener() {
+		OnTouchListener otl = new View.OnTouchListener() {
+
+		    private int SWIPE_MIN_LENGTH = 80;
+		    private int SWIPE_MAX_OFF_PATH = 100;
+		    
+		    private int TURN_NONE = 0;
+			private int TURN_LEFT = 1;
+			private int TURN_RIGHT = 2;
+			private int TURN_CANCEL = 3;
+
+			private int mCurlState = TURN_NONE;
+			private PointF mDragStartPos = new PointF();
+			private PointF mDragLastPos = new PointF();
+			private PointF mStartPos = new PointF();
 			
-            public boolean onTouch(View v, MotionEvent me) {    			
+            public boolean onTouch(View v, MotionEvent me) {
+            	if(!prefs.getBoolean("fling_nav", true))
+            		return false;
+            	
     			//Log.i("Tipitaka","touched");
     			PointF mPos = new PointF();
     			// Store pointer position.
     			mPos.set(me.getX(), me.getY());
-
+    			
     			switch (me.getAction()) {
     				case MotionEvent.ACTION_DOWN: {
     	    			//Log.i("Tipitaka","touched down");
-    	
+
     					// Once we receive pointer down event its position is mapped to
     					// right or left edge of page and that'll be the position from where
     					// user is holding the paper to make curl happen.
@@ -313,45 +313,56 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
     				}
     				case MotionEvent.ACTION_MOVE: {
     					//Log.i("Tipitaka","Moving: "+mPos.x +" " + mDragStartPos.x);
-    					if(mCurlState == CURL_NONE) {
+    					if(mCurlState == TURN_NONE) {
         					if(mDragStartPos.x == 0)
             					mDragStartPos.set(mPos);
     						//Log.i("Tipitaka","Starting Moving");
-    						if(mPos.x < mDragStartPos.x)
-    							mCurlState = CURL_LEFT;
-    						else if(mPos.x > mDragStartPos.x)
-    							mCurlState = CURL_RIGHT;
+    						if(mPos.x < mDragStartPos.x) {
+    							mCurlState = TURN_LEFT;
+    	    					mStartPos = mPos;
+    						}
+    						else if(mPos.x > mDragStartPos.x) {
+    							mCurlState = TURN_RIGHT;
+    	    					mStartPos = mPos;
+    						}
     					
     						//Log.i("Tipitaka","curling: "+mCurlState);
     					}
-    					else if(mCurlState == CURL_LEFT && mPos.x > mDragLastPos.x || mCurlState == CURL_RIGHT && mPos.x < mDragLastPos.x) {
-	    		    		//Log.i("Tipitaka","curl cancel: "+mCurlState+" "+mPos.x +" " + mDragLastPos.x);
-	   						mCurlState = CURL_CANCEL;
+    					else if(mCurlState == TURN_LEFT && mPos.x > mDragLastPos.x || mCurlState == TURN_RIGHT && mPos.x < mDragLastPos.x) {
+	    		    		//Log.i("Tipitaka","curl cancel due to reverse: "+mCurlState+" "+mPos.x +" " + mDragLastPos.x);
+	   						mCurlState = TURN_CANCEL;
+    					}
+    					else if(Math.abs(mStartPos.y-mPos.y) > SWIPE_MAX_OFF_PATH) {
+	    		    		//Log.i("Tipitaka","curl cancel due to off path by "+(Math.abs(mStartPos.y-mPos.y))+" "+mPos.y +" " + mStartPos.y);
+	   						mCurlState = TURN_CANCEL;
     					}
     					break;
     				}
     				case MotionEvent.ACTION_CANCEL:
     				case MotionEvent.ACTION_UP: {
-		    			//Log.i("Tipitaka","touch up: "+mCurlState + " " +mPos.x + " " +(mDragStartPos.x - ReadBookActivity.SWIPE_MIN_LENGTH) + " " + Math.abs(mPos.y-mDragStartPos.y));
+		    			//Log.i("Tipitaka","touch up: "+mCurlState + " " +mPos.x + " " +(mDragStartPos.x - SWIPE_MIN_LENGTH) + " " + Math.abs(mPos.y-mDragStartPos.y));
 		    			if(Math.abs(mPos.y-mDragStartPos.y) < SWIPE_MAX_OFF_PATH) {
-	    					if (mCurlState == CURL_LEFT && mPos.x < (mDragStartPos.x - SWIPE_MIN_LENGTH)) {
+	    					if (mCurlState == TURN_LEFT && mPos.x < (mDragStartPos.x - SWIPE_MIN_LENGTH)) {
 	    						//Log.i("Tipitaka","end curl left");
 	    						readNext();
 	    					}
-	    					else if (mCurlState == CURL_RIGHT && mPos.x > (mDragStartPos.x + SWIPE_MIN_LENGTH)) {
+	    					else if (mCurlState == TURN_RIGHT && mPos.x > (mDragStartPos.x + SWIPE_MIN_LENGTH)) {
 	    						//Log.i("Tipitaka","end curl right");
 	    						readPrev();
 	    					}
 		    			}
 		    			mDragStartPos = new PointF();
-   						mCurlState = CURL_NONE;
+   						mCurlState = TURN_NONE;
     					break;
     				}
     			}
     			mDragLastPos = mPos;
 				return false;
             }       
-        });
+        };
+		
+		textContent.setOnTouchListener(otl);
+		scrollview.setOnTouchListener(otl);
 	}
 
     @Override
@@ -362,27 +373,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
     	return true;
     }
     
-	
-	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		if(keyCode == KeyEvent.KEYCODE_BACK) {
-			Intent result = new Intent();
-			//Toast.makeText(this, savedReadPages.toString(), Toast.LENGTH_SHORT).show();
-			
-			String [] tmp = new String[savedReadPages.size()];
-			savedReadPages.toArray(tmp);
-
-			result.putExtra("READ_PAGES", tmp);
-			setResult(RESULT_CANCELED, result);
-				
-			this.finish();
-			return true;
-		} else {
-			return super.onKeyUp(keyCode, event);
-		}
-	}
-
-	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
@@ -448,6 +438,64 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		return true;
 	}	
 
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		switch(keyCode){
+			case KeyEvent.KEYCODE_MENU:
+				break;
+			case KeyEvent.KEYCODE_SEARCH:
+				break;
+			case KeyEvent.KEYCODE_BACK:
+				break;
+			case KeyEvent.KEYCODE_VOLUME_UP:
+				if(prefs.getBoolean("vol_nav", false)) {
+					if(prefs.getBoolean("vol_nav_reverse", false))
+						readPrev();
+					else
+						readNext();
+					return true;
+				}
+				break;
+			case KeyEvent.KEYCODE_VOLUME_DOWN:
+				if(prefs.getBoolean("vol_nav", false)) {
+					if(prefs.getBoolean("vol_nav_reverse", false))
+						readNext();
+					else
+						readPrev();
+					return true;
+				}
+				break;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		switch(keyCode){
+			case KeyEvent.KEYCODE_MENU:
+				break;
+			case KeyEvent.KEYCODE_SEARCH:
+				break;
+			case KeyEvent.KEYCODE_BACK:
+				Intent result = new Intent();
+				//Toast.makeText(this, savedReadPages.toString(), Toast.LENGTH_SHORT).show();
+				
+				String [] tmp = new String[savedReadPages.size()];
+				savedReadPages.toArray(tmp);
+
+				result.putExtra("READ_PAGES", tmp);
+				setResult(RESULT_CANCELED, result);
+					
+				this.finish();
+				return true;
+			case KeyEvent.KEYCODE_VOLUME_UP:
+			case KeyEvent.KEYCODE_VOLUME_DOWN:
+		        return true;
+		}
+
+	    return super.onKeyUp(keyCode, event);
+	}
+	
 	private void saveBookmark(int volume, int item, int page, String language) {
 		memoDialog = new Dialog(ReadBookActivity.this);
 		memoDialog.setContentView(R.layout.memo_dialog);
@@ -687,8 +735,12 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		
 		content = content.replaceAll("\\^b\\^", "<b>");
 		content = content.replaceAll("\\^eb\\^", "</b>");
-		
 		content = content.replaceAll("\\^a\\^[^^]+\\^ea\\^", "");
+		content = content.replaceAll("'''", "’”");
+		content = content.replaceAll("''", "”");
+		content = content.replaceAll("'", "’");
+		content = content.replaceAll("``", "“");
+		content = content.replaceAll("`", "‘");
 		
 		
 		content = content.replaceAll("([AIUEOKGCJTDNPBMYRLVSHaiueokgcjtdnpbmyrlvshāīūṭḍṅṇṁṃñḷĀĪŪṬḌṄṆṀṂÑḶ])0", "$1.");

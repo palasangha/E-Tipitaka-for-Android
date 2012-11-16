@@ -203,6 +203,15 @@
 	<string name="prefShowVar">Show Variants</string>
 	<string name="prefShowDefs">Show Definitions</string>
 	<string name="prefShowDefNote">When highlighting a word, show a concise definition</string>
+
+	<string name="prefNav">Navigation Preferences</string>
+	<string name="prefFlingNav">Fling to Navigate</string>
+	<string name="prefFlingNavDesc">allows dragging finger left or right on text to navigate</string>
+	<string name="prefVolNav">Volume Buttons Navigate</string>
+	<string name="prefVolNavDesc">allows use of volume buttons to navigate in text</string>
+	<string name="prefVolNavReverse">Reverse Volume Buttons</string>
+	<string name="prefVolNavReverseDesc">if enabled, volume up goes to previous and volume down goes to next section</string>
+		
 	<string name="prefMisc">Misc Preferences</string>
 	<string name="prefDataDir">Database Location</string>
 	<string name="prefAtiDir">ATI Location</string>
