@@ -21,20 +21,12 @@
 		android:layout_width="match_parent"
 	    android:id="@+id/shell_text"
 		android:layout_height="wrap_content">
-		<ScrollView
-		    android:id="@+id/scroll_text"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-		    >
-			<view class="org.yuttadhammo.tipitaka.ReadBookActivity$PaliTextView" style="?android:attr/textViewStyle"
-					android:id="@+id/main_text"
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:padding="10dp"
-					android:textSize="16dp"
-					android:lineSpacingExtra="2dip"
-			/>
-		</ScrollView>
+	    <android.support.v4.view.ViewPager
+		    xmlns:android="http://schemas.android.com/apk/res/android"
+		    android:id="@+id/pager"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent">
+		</android.support.v4.view.ViewPager>
 		<LinearLayout
 		    android:id="@+id/dict_bar"
 			android:layout_width="match_parent"

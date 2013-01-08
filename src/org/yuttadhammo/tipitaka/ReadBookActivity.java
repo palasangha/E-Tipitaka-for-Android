@@ -1,51 +1,39 @@
 package org.yuttadhammo.tipitaka;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.method.ScrollingMovementMethod;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -58,22 +46,20 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.graphics.PointF;
 import android.graphics.Typeface;
 
-import android.view.inputmethod.InputMethodManager;
-import android.view.View.OnLongClickListener;
 
+public class ReadBookActivity extends FragmentActivity {
 
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-
-
-public class ReadBookActivity extends Activity { //implements OnGesturePerformedListener {
+	// page flipping
+	
+    private static int NUM_PAGES = 3;
+    private ViewPager mPager;
+    private ScreenSlidePagerAdapter mPagerAdapter;
+    
 	private SharedPreferences prefs;
 	private MainTipitakaDBAdapter mainTipitakaDBAdapter;
 
-	private static PaliTextView textContent;
 	private String headerText = "";
 	private ListView idxList;
 	private ScrollView scrollview;
@@ -125,6 +111,8 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 	private ArrayList<String> titles;
 	private String volumeTitle;
 	private float smallSize;
+	private String scrollString;
+	private static PaliTextView textContent;
 	private static Context context;
 	public static boolean isLookingUp = false;
 	private static boolean lookupDefs;
@@ -151,17 +139,16 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         
         res = getResources();
 
-        textContent = (PaliTextView) read.findViewById(R.id.main_text);
         scrollview = (ScrollView) read.findViewById(R.id.scroll_text);
         textshell = (RelativeLayout) read.findViewById(R.id.shell_text);
 		dictBar = (LinearLayout) findViewById(R.id.dict_bar);
 		defText = (TextView) findViewById(R.id.def_text);
 		dictButton = (Button) findViewById(R.id.dict_button);
 
-		textContent.setTypeface(font);
-		defText.setTypeface(font);
+        mPager = (ViewPager) findViewById(R.id.pager);
+
+        defText.setTypeface(font);
         
-		textContent.setMovementMethod(new ScrollingMovementMethod());
 		
 		dictButton.setOnClickListener(new OnClickListener() {
 
@@ -217,7 +204,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		int api = Integer.parseInt(Build.VERSION.SDK);
 		
 		if (api >= 14) {
-			textContent.setTextIsSelectable(true);
 			this.getActionBar().setHomeButtonEnabled(true);
 		}
 		
@@ -245,6 +231,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 				keywords = dataBundle.getString("QUERY");
 				searchCall = true;
 				isJump = true;
+				scrollString = keywords.split("\\s+")[0].replace('+', ' ');
 			} else if(dataBundle.containsKey("ITEM")) {
 				isJump = true;
 				jumpItem = dataBundle.getInt("ITEM");
@@ -275,96 +262,10 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 			  	}
 			});
 			updatePage();
-			
 		}
-	
-		OnTouchListener otl = new View.OnTouchListener() {
 
-		    private int SWIPE_MIN_LENGTH = 80;
-		    private int SWIPE_MAX_OFF_PATH = 100;
-		    
-		    private int TURN_NONE = 0;
-			private int TURN_LEFT = 1;
-			private int TURN_RIGHT = 2;
-			private int TURN_CANCEL = 3;
-
-			private int mCurlState = TURN_NONE;
-			private PointF mDragStartPos = new PointF();
-			private PointF mDragLastPos = new PointF();
-			private PointF mStartPos = new PointF();
-			
-            public boolean onTouch(View v, MotionEvent me) {
-            	if(!prefs.getBoolean("fling_nav", true))
-            		return false;
-            	
-    			//Log.i("Tipitaka","touched");
-    			PointF mPos = new PointF();
-    			// Store pointer position.
-    			mPos.set(me.getX(), me.getY());
-    			
-    			switch (me.getAction()) {
-    				case MotionEvent.ACTION_DOWN: {
-    	    			//Log.i("Tipitaka","touched down");
-
-    					// Once we receive pointer down event its position is mapped to
-    					// right or left edge of page and that'll be the position from where
-    					// user is holding the paper to make curl happen.
-    	
-    				}
-    				case MotionEvent.ACTION_MOVE: {
-    					//Log.i("Tipitaka","Moving: "+mPos.x +" " + mDragStartPos.x);
-    					if(mCurlState == TURN_NONE) {
-        					if(mDragStartPos.x == 0)
-            					mDragStartPos.set(mPos);
-    						//Log.i("Tipitaka","Starting Moving");
-    						if(mPos.x < mDragStartPos.x) {
-    							mCurlState = TURN_LEFT;
-    	    					mStartPos = mPos;
-    						}
-    						else if(mPos.x > mDragStartPos.x) {
-    							mCurlState = TURN_RIGHT;
-    	    					mStartPos = mPos;
-    						}
-    					
-    						//Log.i("Tipitaka","curling: "+mCurlState);
-    					}
-    					else if(mCurlState == TURN_LEFT && mPos.x > mDragLastPos.x || mCurlState == TURN_RIGHT && mPos.x < mDragLastPos.x) {
-	    		    		//Log.i("Tipitaka","curl cancel due to reverse: "+mCurlState+" "+mPos.x +" " + mDragLastPos.x);
-	   						mCurlState = TURN_CANCEL;
-    					}
-    					else if(Math.abs(mStartPos.y-mPos.y) > SWIPE_MAX_OFF_PATH) {
-	    		    		//Log.i("Tipitaka","curl cancel due to off path by "+(Math.abs(mStartPos.y-mPos.y))+" "+mPos.y +" " + mStartPos.y);
-	   						mCurlState = TURN_CANCEL;
-    					}
-    					break;
-    				}
-    				case MotionEvent.ACTION_CANCEL:
-    				case MotionEvent.ACTION_UP: {
-		    			//Log.i("Tipitaka","touch up: "+mCurlState + " " +mPos.x + " " +(mDragStartPos.x - SWIPE_MIN_LENGTH) + " " + Math.abs(mPos.y-mDragStartPos.y));
-		    			if(Math.abs(mPos.y-mDragStartPos.y) < SWIPE_MAX_OFF_PATH) {
-	    					if (mCurlState == TURN_LEFT && mPos.x < (mDragStartPos.x - SWIPE_MIN_LENGTH)) {
-	    						//Log.i("Tipitaka","end curl left");
-	    						readNext();
-	    					}
-	    					else if (mCurlState == TURN_RIGHT && mPos.x > (mDragStartPos.x + SWIPE_MIN_LENGTH)) {
-	    						//Log.i("Tipitaka","end curl right");
-	    						readPrev();
-	    					}
-		    			}
-		    			mDragStartPos = new PointF();
-   						mCurlState = TURN_NONE;
-    					break;
-    				}
-    			}
-    			mDragLastPos = mPos;
-				return false;
-            }       
-        };
-		
-		textContent.setOnTouchListener(otl);
-		scrollview.setOnTouchListener(otl);
 	}
-
+	
     @Override
     public boolean onSearchRequested() {
 		Intent intent = new Intent(this, SearchDialog.class);
@@ -618,8 +519,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		if(size.equals(""))
 			size = "16";
 		textSize = Float.parseFloat(size);
-        smallSize = Float.parseFloat(Double.toString(textSize*0.75));
-		textContent.setTextSize(textSize);
+		smallSize = Float.parseFloat(Double.toString(textSize*0.75));
 		defText.setTextSize(smallSize);
 
 		if(searchDialog != null) {
@@ -636,7 +536,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         	size = "16";
 		textSize = Float.parseFloat(size);
         smallSize = Float.parseFloat(Double.toString(textSize*0.75));
-		textContent.setTextSize(textSize);
 		defText.setTextSize(smallSize);
 	}
 
@@ -665,50 +564,136 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 
 	private void updatePage() {
 
-		if(firstPage) {
-			firstPage = false;
-			updateText();
-			return;
-		}
-	
 		// hide index
 		if(splitPane == null)
 			setListVisible(1);
 	
+        // Instantiate a ViewPager and a PagerAdapter.
+		Spanned[] pta = {pageText(-1),pageText(0),pageText(1)};
+		if(pta[0] == null || pta[2] == null) 
+			NUM_PAGES = 2;
+		else 
+			NUM_PAGES = 3;
+		Log.i("Tipitaka",NUM_PAGES + " pages");
 		
-		// fade out
-		if(textContent.getVisibility() == View.VISIBLE) {
-			Animation anim = AnimationUtils.loadAnimation(ReadBookActivity.this, android.R.anim.fade_out);
-			anim.setAnimationListener(new Animation.AnimationListener()
-			{
-				public void onAnimationEnd(Animation animation)
-				{
-					updateText();
+
+        if(pta[0] == null) {
+        	firstPage = true;
+		    pta = new Spanned[]{pta[1],pta[2],pta[2]};
+        }
+
+        
+        mPagerAdapter = new ScreenSlidePagerAdapter(this.getSupportFragmentManager(),pta);
+        mPager.setAdapter(mPagerAdapter);
+		if(NUM_PAGES == 3 || pta[2] == null)
+			mPager.setCurrentItem(1);
+
+		
+        mPager.setOnPageChangeListener(new OnPageChangeListener() {
+
+			@Override
+			public void onPageScrollStateChanged(int arg0) {
+			}
+
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onPageSelected(int arg0) {
+				Log.i("Tipitaka","selected page "+arg0);
+
+				Spanned[] pta = mPagerAdapter.pta;
+				if (arg0 == 2 || firstPage) {
+					Log.i("Tipitaka","next page: " + (lastPosition+1));
+					lastPosition++;
+				    
+				    Spanned spanned = pageText(1);
+					if(firstPage) {
+						Log.i("Tipitaka","second page");
+						firstPage = false;
+						NUM_PAGES = 3;
+						pta = new Spanned[]{pta[0],pta[1],spanned};
+					}					
+					else if(spanned == null) {
+						Log.i("Tipitaka","last page");
+				    	NUM_PAGES = 2;
+						pta = new Spanned[]{pta[1],pta[2],null};
+					}
+					else { 
+						NUM_PAGES = 3;
+						pta = new Spanned[]{pta[1],pta[2],spanned};
+					}
+					mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(),pta);
 				}
-	
-				public void onAnimationRepeat(Animation animation)
-				{
-					// Do nothing!
+				else if (arg0 == 0) {
+					Log.i("Tipitaka","previous page: " + (lastPosition-1));
+					lastPosition--;
+				    Spanned spanned = pageText(-1);
+					if(spanned == null){
+						Log.i("Tipitaka","first page");
+						firstPage = true;
+						NUM_PAGES = 2;
+					}
+					else {
+						NUM_PAGES = 3;
+						pta = new Spanned[]{spanned,pta[0],pta[1]};
+					}
+		            mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(),pta);
 				}
-	
-				public void  onAnimationStart(Animation animation)
-				{
-					// Do nothing!
-				}
-			});
-			textContent.startAnimation(anim);
-		}
-		else
-			updateText();
+				else return;
+		        mPager.setAdapter(mPagerAdapter);	
+				if(NUM_PAGES == 3)
+					mPager.setCurrentItem(1);
+				Log.i("Tipitaka",NUM_PAGES + " pages");
+			}
+        	
+        });
 		
 	}
+
+
+	@SuppressLint("NewApi")
+	private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
+		
+    	Spanned[] pta;
+    	
+        public ScreenSlidePagerAdapter(FragmentManager supportFragmentManager,
+				Spanned[] pta) {
+            super(supportFragmentManager);
+            this.pta = pta;
+		}
+
+
+		@Override
+        public Fragment getItem(int position) {
+            ScreenSlidePageFragment sspf = new ScreenSlidePageFragment(pta[position], scrollString);
+            return sspf;
+        }
+      @Override
+        public int getCount() {
+            return NUM_PAGES;
+        }
+
+    }
 	
-	private void updateText() {
+	private Spanned pageText(int modifier) {
+		int getPosition = lastPosition+modifier;
+
 		
 		//Log.i ("Tipitaka","get volume: "+selected_volume);
 		savedReadPages.add(selected_volume+":"+(lastPosition+1));
 		mainTipitakaDBAdapter.open();
-		Cursor cursor = mainTipitakaDBAdapter.getContent(selected_volume, lastPosition, lang);
+		Cursor cursor = mainTipitakaDBAdapter.getContent(selected_volume, getPosition, lang);
+		if(cursor == null || cursor.getCount() == 0) {
+			cursor.close();
+			mainTipitakaDBAdapter.close();
+			return null;
+		}
+		
+		
 		cursor.moveToFirst();
 		//Log.i ("Tipitaka","db cursor length: "+cursor.getCount());
 		String title = cursor.getString(2);
@@ -716,18 +701,6 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		
 		if(content == null)
 			content = "";
-
-		// highlight keywords (yellow)
-		if(keywords.trim().length() > 0) {
-			keywords = keywords.replace('+', ' ');
-			String [] tokens = keywords.split("\\s+");
-			Arrays.sort(tokens, new StringLengthComparator());
-			Collections.reverse(Arrays.asList(tokens));
-			for(String token: tokens) {
-				content = content.replace(token, "<font color='#888800'>"+token+"</font>");
-			}
-		}
-		
 		content = content.replaceAll("\\[[0-9]+\\]", "");
 
 		// highlight items numbers (orange)
@@ -741,9 +714,23 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		content = content.replaceAll("'", "’");
 		content = content.replaceAll("``", "“");
 		content = content.replaceAll("`", "‘");
-		
-		
 		content = content.replaceAll("([AIUEOKGCJTDNPBMYRLVSHaiueokgcjtdnpbmyrlvshāīūṭḍṅṇṁṃñḷĀĪŪṬḌṄṆṀṂÑḶ])0", "$1.");
+	
+		// highlight keywords (yellow)
+		if(keywords.trim().length() > 0) {
+			Log.i("Tipitaka","keywords: "+ keywords);
+			keywords = keywords.replace('+', ' ');
+			String [] tokens = keywords.split("\\s+");
+			Arrays.sort(tokens, new StringLengthComparator());
+			Collections.reverse(Arrays.asList(tokens));
+			for(String token: tokens) {
+				content = content.replace(token, "<font color='#888800'>"+token+"</font>");
+			}
+		}
+		
+
+		
+		
 		
 		if(prefs.getBoolean("show_var", true))
 			content = content.replaceAll("\\{([^}]+)\\}", "<font color='#7D7D7D'>[$1]</font>");
@@ -754,48 +741,12 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
 		headerText = volumeTitle+", " + title;
 		content = "<font color='#888800'>"+headerText+"</font><br/><br/>"+content.replace("\n", "<br/>");
 		Spanned html = Html.fromHtml(content);
-		textContent.setText(html);
 						
 		savedItems = cursor.getString(0);	
 		cursor.close();
 		mainTipitakaDBAdapter.close();
 		
 		volumes = res.getStringArray(R.array.volume_names);
-
-		String i_tmp = "";
-		if(searchCall) {
-			searchCall = false;
-			i_tmp = keywords.split("\\s+")[0].replace('+', ' ');
-		} else {
-			i_tmp = "[" + Utils.arabic2thai(Integer.toString(jumpItem), getResources()) + "]";
-		}
-
-		if(isJump && toPosition == -1 && textContent != null && textContent.getLayout() != null) {
-			int offset =  textContent.getText().toString().indexOf(i_tmp);
-			final int jumpLine = textContent.getLayout().getLineForOffset(offset);
-			
-			textContent.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					int y=0;
-					if(jumpLine > 2)
-						y = textContent.getLayout().getLineTop(jumpLine-2);
-					else
-						y = textContent.getLayout().getLineTop(0);
-					scrollview.scrollTo(0, y);
-				}
-			},300);
-		} else if(isJump && toPosition > -1) {
-			textContent.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					scrollview.scrollTo(0, toPosition);
-					toPosition = -1;
-				}
-			},300);
-		} else {
-			//scrollview.fullScroll(View.FOCUS_UP);
-		}
 
 	// update index
 		
@@ -813,34 +764,8 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
         idxList.setSelectionFromTop(index, top);
 		
 
-		if(idxList.getVisibility() == View.VISIBLE && splitPane == null)
-			return;
+		return html;
 
-		// fade in
-
-		Animation anim = AnimationUtils.loadAnimation(ReadBookActivity.this, android.R.anim.fade_in);
-		anim.setAnimationListener(new Animation.AnimationListener()
-		{
-			public void onAnimationEnd(Animation animation)
-			{
-				if(!isJump)
-					scrollview.scrollTo(0, 0);
-				isJump = false;
-				newpage = oldpage;
-			}
-
-			public void onAnimationRepeat(Animation animation)
-			{
-				// Do nothing!
-			}
-
-			public void  onAnimationStart(Animation animation)
-			{
-				// Do nothing!
-			}
-		});
-		textContent.startAnimation(anim);
-		textContent.setVisibility(View.VISIBLE);
 		
 	}
 

@@ -18,22 +18,12 @@
 	    android:id="@+id/shell_text"
 		android:layout_height="match_parent"
 		android:layout_width="match_parent">
-		<ScrollView
-		    android:id="@+id/scroll_text"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-		    >
-			<view class="org.yuttadhammo.tipitaka.ReadBookActivity$PaliTextView" 
-			    style="?android:attr/textViewStyle"
-				android:id="@+id/main_text"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:padding="10dp"
-				android:textSize="16dp"
-				android:lineSpacingExtra="2dip"
-				android:visibility="gone"
-			/>
-		</ScrollView>
+	    <android.support.v4.view.ViewPager
+		    xmlns:android="http://schemas.android.com/apk/res/android"
+		    android:id="@+id/pager"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent">
+		</android.support.v4.view.ViewPager>	
 		<LinearLayout
 		    android:id="@+id/dict_bar"
 			android:layout_width="match_parent"
@@ -48,7 +38,7 @@
 				android:layout_weight="1"
 				android:layout_height="wrap_content"
 				android:padding="10dp"
-				android:textSize="16dp"
+				android:textSize="16sp"
 				android:visibility="invisible"
 			  	android:background="#FFFFFF"
 				android:scrollHorizontally="true"

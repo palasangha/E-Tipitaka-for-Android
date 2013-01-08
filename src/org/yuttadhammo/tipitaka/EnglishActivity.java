@@ -337,7 +337,8 @@ public class EnglishActivity extends Activity {
 				}
 				break;
 			case (int)R.id.home:
-				ewv.loadUrl("file://"+ATI_PATH+"/html/index.html");
+				if(ewv != null)
+					ewv.loadUrl("file://"+ATI_PATH+"/html/index.html");
 				break;
 			case (int)R.id.update_archive:
 				startDownload(false);

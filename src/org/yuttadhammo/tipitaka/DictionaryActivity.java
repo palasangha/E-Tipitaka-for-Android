@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Button;
 import android.database.DatabaseUtils;
 import android.content.ContentValues;
+import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 
@@ -30,6 +31,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Set;
 
 
 public class DictionaryActivity extends Activity {
@@ -392,18 +394,14 @@ public class DictionaryActivity extends Activity {
 	@Override
 	protected void onPause () {
 		super.onPause ();
-		
-		SharedPreferences.Editor ed = prefs.edit ();
+		if(prefs == null)
+			return;
+		SharedPreferences.Editor ed = prefs.edit();
 		ed.putString (WORD_KEY, word);
 		ed.putString (HTML_KEY, html);
 		ed.putString (LOOKUP_TEXT_KEY, lookup_text.getText ().toString ());
 		ed.putBoolean (LOOKUP_TEXT_IS_FOCUSED_KEY, lookup_button.isFocused ());
 		ed.commit ();
-	}
-
-	@Override
-	protected void onResume () {
-		super.onResume ();
 	}
 
 	private void setTitleWithMessage (String m) {
