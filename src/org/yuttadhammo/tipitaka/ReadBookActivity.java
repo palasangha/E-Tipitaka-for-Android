@@ -34,6 +34,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.OnHierarchyChangeListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -54,7 +55,7 @@ public class ReadBookActivity extends FragmentActivity {
 	// page flipping
 	
     private static int NUM_PAGES = 3;
-    private ViewPager mPager;
+    private static ViewPager mPager;
     private ScreenSlidePagerAdapter mPagerAdapter;
     
 	private SharedPreferences prefs;
@@ -139,14 +140,27 @@ public class ReadBookActivity extends FragmentActivity {
         
         res = getResources();
 
-        scrollview = (ScrollView) read.findViewById(R.id.scroll_text);
         textshell = (RelativeLayout) read.findViewById(R.id.shell_text);
 		dictBar = (LinearLayout) findViewById(R.id.dict_bar);
 		defText = (TextView) findViewById(R.id.def_text);
 		dictButton = (Button) findViewById(R.id.dict_button);
 
         mPager = (ViewPager) findViewById(R.id.pager);
+        mPager.setOnHierarchyChangeListener(new OnHierarchyChangeListener() {
 
+			@Override
+			public void onChildViewAdded(View arg0, View arg1) {
+				textContent = (PaliTextView) mPager.getChildAt(mPager.getCurrentItem()).findViewById(R.id.main_text);
+				
+			}
+
+			@Override
+			public void onChildViewRemoved(View arg0, View arg1) {
+				// TODO Auto-generated method stub
+				
+			}
+        	
+        });
         defText.setTypeface(font);
         
 		
@@ -587,7 +601,6 @@ public class ReadBookActivity extends FragmentActivity {
         mPager.setAdapter(mPagerAdapter);
 		if(NUM_PAGES == 3 || pta[2] == null)
 			mPager.setCurrentItem(1);
-
 		
         mPager.setOnPageChangeListener(new OnPageChangeListener() {
 
@@ -645,17 +658,31 @@ public class ReadBookActivity extends FragmentActivity {
 				}
 				else return;
 		        mPager.setAdapter(mPagerAdapter);	
-				if(NUM_PAGES == 3)
+				if(NUM_PAGES == 3) {
+					arg0 = 1;
 					mPager.setCurrentItem(1);
+				}
 				Log.i("Tipitaka",NUM_PAGES + " pages");
+				Log.i("","mpager: "+mPager.getChildCount());
+				textContent = (PaliTextView) mPager.getChildAt(arg0).findViewById(R.id.main_text);
+				scrollview = (ScrollView) mPager.getChildAt(arg0).findViewById(R.id.scroll_text);
+				if(scrollString != null) {
+					Log.i("",scrollString);
+					int offset =  textContent.getText().toString().indexOf(scrollString);
+					int jumpLine = textContent.getLayout().getLineForOffset(offset);
+					int y=0;
+					if(jumpLine > 2)
+						y = textContent.getLayout().getLineTop(jumpLine-2);
+					else
+						y = textContent.getLayout().getLineTop(0);
+					scrollview.scrollTo(0, y);
+				}
 			}
         	
         });
-		
 	}
 
 
-	@SuppressLint("NewApi")
 	private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
 		
     	Spanned[] pta;
@@ -669,7 +696,7 @@ public class ReadBookActivity extends FragmentActivity {
 
 		@Override
         public Fragment getItem(int position) {
-            ScreenSlidePageFragment sspf = new ScreenSlidePageFragment(pta[position], scrollString);
+            ScreenSlidePageFragment sspf = new ScreenSlidePageFragment(position,pta[position], scrollString);
             return sspf;
         }
       @Override
@@ -817,11 +844,15 @@ public class ReadBookActivity extends FragmentActivity {
 		}
 		
 	    @Override   
-	    protected void onSelectionChanged(int s, int e) { 
-    		defText.setVisibility(View.INVISIBLE);
+	    protected void onSelectionChanged(int s, int e) {
+	    	if(mPager.getChildCount() == 0)
+	    		return;
+			defText.setVisibility(View.INVISIBLE);
 	    	if(s > -1 && e > s) {
-				String selectedWord = textContent.getText().toString().substring(s,e);
-	    		if(selectedWord.contains(" "))
+				
+				String selectedWord = this.getText().toString().substring(s,e);
+	    		Log.i("Selected word",selectedWord);
+				if(selectedWord.contains(" "))
 	    			dictBar.setVisibility(View.INVISIBLE);
 	    		else {
     	    		dictBar.setVisibility(View.VISIBLE);
@@ -879,7 +910,7 @@ public class ReadBookActivity extends FragmentActivity {
 	        @Override
 	        protected void onPreExecute() {
 	            super.onPreExecute();
-	            isLookingUp = true;
+	            isLookingUp = false;
 	        }
 
 	        @Override
