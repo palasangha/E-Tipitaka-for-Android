@@ -389,7 +389,7 @@ public class SearchDialog extends Activity {
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 	    if (keyCode == KeyEvent.KEYCODE_BACK) {
-	    	if(searchText.getText().toString().trim().length() > 0 || 
+	    	if(searchText != null && searchText.getText().toString().trim().length() > 0 || 
 	    		codeText.getText().toString().trim().length() > 0 ||
 	    		numberText.getText().toString().trim().length() > 0) {
 	    		searchText.setText("");

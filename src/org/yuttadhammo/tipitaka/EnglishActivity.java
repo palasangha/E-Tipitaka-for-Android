@@ -65,14 +65,12 @@ public class EnglishActivity extends Activity {
 	
 	private boolean firstPage = true;
 
-	private static final int HTTP_STATUS_OK = 200;
-    private static byte[] sBuffer = new byte[512];
+	private static byte[] sBuffer = new byte[512];
 	
 	public String lang = "pali";
     private eBookmarkDBAdapter ebookmarkDBAdapter;
     private ProgressDialog downloadProgressDialog;
-    private ProgressDialog unzipProgressDialog;
-	private Handler handler = new Handler();
+    private Handler handler = new Handler();
     public WebView ewv;
 
 	private String ATI_PATH;
@@ -175,8 +173,7 @@ public class EnglishActivity extends Activity {
                 URL url = new URL(sUrl[0]);
                 URLConnection connection = url.openConnection();
                 connection.connect();
-                // this will be useful so that you can show a typical 0-100% progress bar
-                int fileLength = connection.getContentLength();
+                connection.getContentLength();
 
 
                 
@@ -332,7 +329,7 @@ public class EnglishActivity extends Activity {
 				memoItem();
 				break;
 			case (int)R.id.forward:
-				if (ewv.canGoForward()) {
+				if (ewv != null && ewv.canGoForward()) {
 					ewv.goForward();
 				}
 				break;
