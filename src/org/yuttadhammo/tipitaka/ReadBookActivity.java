@@ -1,36 +1,22 @@
 package org.yuttadhammo.tipitaka;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Spanned;
@@ -60,10 +46,6 @@ import android.widget.Toast;
 
 import android.graphics.PointF;
 import android.graphics.Typeface;
-
-import android.view.inputmethod.InputMethodManager;
-import android.view.View.OnLongClickListener;
-
 
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -361,7 +343,7 @@ public class ReadBookActivity extends Activity { //implements OnGesturePerformed
             }       
         };
 		
-		textContent.setOnTouchListener(otl);
+		//textContent.setOnTouchListener(otl);
 		scrollview.setOnTouchListener(otl);
 	}
 
