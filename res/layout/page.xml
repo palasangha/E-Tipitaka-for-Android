@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scroll_text"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@drawable/background"
+    >
+    <view class="org.yuttadhammo.tipitaka.ReadBookActivity$PaliTextView" 
+	    style="?android:attr/textViewStyle"
+		android:id="@+id/main_text"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:padding="10dp"
+		android:textSize="16sp"
+		android:text="test"
+		android:lineSpacingExtra="2dip"
+	/>
+</ScrollView>

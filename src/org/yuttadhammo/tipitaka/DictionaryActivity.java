@@ -370,7 +370,8 @@ public class DictionaryActivity extends Activity {
 					break;
 	
 				case R.id.menu_top:
-					wv.scrollTo(0,0);
+					if(wv != null)
+						wv.scrollTo(0,0);
 					break;
 /*				case R.id.menu_plus:
 					wv.zoomIn();

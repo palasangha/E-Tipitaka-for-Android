@@ -119,7 +119,9 @@ public class Downloader {
 			}
 		});
     	thread.start();
-    	unzipProgressDialog.show();
+    	if (!activity.isFinishing()) {
+        	unzipProgressDialog.show();
+        }
     	    
     }
 
