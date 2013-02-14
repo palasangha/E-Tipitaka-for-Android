@@ -285,7 +285,48 @@ public class ReadBookActivity extends FragmentActivity {
 		}
 
 	}
+
 	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+
+		saveReadingState("thai", 1, 0);
+		saveReadingState("pali", 1, 0);
+		
+		//if (dbhelper != null && dbhelper.isOpened())
+		//	dbhelper.close();
+		//if(bookmarkDBAdapter != null)
+		//	bookmarkDBAdapter.close();
+	}
+	
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+		String size = prefs.getString("base_text_size", "16");
+		if(size.equals(""))
+			size = "16";
+		textSize = Float.parseFloat(size);
+		smallSize = Float.parseFloat(Double.toString(textSize*0.75));
+		defText.setTextSize(smallSize);
+
+		if(searchDialog != null) {
+			searchDialog.updateHistoryList();
+		}
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		String size = prefs.getString("base_text_size", "16");
+        if(size.equals(""))
+        	size = "16";
+		textSize = Float.parseFloat(size);
+        smallSize = Float.parseFloat(Double.toString(textSize*0.75));
+		defText.setTextSize(smallSize);
+	}
+
     @Override
     public boolean onSearchRequested() {
 		Intent intent = new Intent(this, SearchDialog.class);
@@ -518,47 +559,6 @@ public class ReadBookActivity extends FragmentActivity {
 			}
 		}
 	}
-	
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-
-		saveReadingState("thai", 1, 0);
-		saveReadingState("pali", 1, 0);
-		
-		//if (dbhelper != null && dbhelper.isOpened())
-		//	dbhelper.close();
-		//if(bookmarkDBAdapter != null)
-		//	bookmarkDBAdapter.close();
-	}
-	
-	@Override
-	protected void onRestart() {
-		super.onRestart();
-		String size = prefs.getString("base_text_size", "16");
-		if(size.equals(""))
-			size = "16";
-		textSize = Float.parseFloat(size);
-		smallSize = Float.parseFloat(Double.toString(textSize*0.75));
-		defText.setTextSize(smallSize);
-
-		if(searchDialog != null) {
-			searchDialog.updateHistoryList();
-		}
-	}
-	
-	@Override
-	protected void onResume() {
-		super.onResume();
-
-		String size = prefs.getString("base_text_size", "16");
-        if(size.equals(""))
-        	size = "16";
-		textSize = Float.parseFloat(size);
-        smallSize = Float.parseFloat(Double.toString(textSize*0.75));
-		defText.setTextSize(smallSize);
-	}
-
 
 	
 	private void saveReadingState(String _lang, int page, int scrollPosition) {
@@ -680,27 +680,45 @@ public class ReadBookActivity extends FragmentActivity {
 		            mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(),pta);
 				}
 				else return;
-		        mPager.setAdapter(mPagerAdapter);	
+		        mPager.setAdapter(mPagerAdapter);
+		        if(mPager.getChildCount() == 0) {
+					Spanned[] pta1 = {pageText(-1),pageText(0),pageText(1)};
+					pta = pta1;
+		            mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(),pta);
+		            mPager.setAdapter(mPagerAdapter);
+
+		        }
 				if(NUM_PAGES == 3 || lastPage) {
 					arg0 = 1;
 					mPager.setCurrentItem(1);
 				}
+				
 				Log.i("Tipitaka",NUM_PAGES + " pages");
 				Log.i("","mpager: "+mPager.getChildCount());
-				textContent = (PaliTextView) mPager.getChildAt(arg0).findViewById(R.id.main_text);
-				scrollview = (ScrollView) mPager.getChildAt(arg0).findViewById(R.id.scroll_text);
+				View v = mPager.getChildAt(arg0);
+				if(v != null) {
+					textContent = (PaliTextView) v.findViewById(R.id.main_text);
+					scrollview = (ScrollView) v.findViewById(R.id.scroll_text);
+				}
 			    
 				// save index and top position
 				
-		        int index = idxList.getFirstVisiblePosition();
-		        View v = idxList.getChildAt(0);
-		        int top = (v == null) ? 0 : v.getTop();
-
+		        View tv = idxList.getChildAt(0);
+		        View iv = idxList.getChildAt(0);
+		        int top = 0;
+		        if(iv != null) {
+			        if(iv.getTop() < 0 && tv != null) 
+			        	top = iv.getTop()-tv.getTop();
+			        else if (iv.getBottom() > read.getHeight())
+			        	top = read.getHeight() - iv.getHeight();
+			        else
+			        	top = iv.getTop();
+		        }
 				IndexItemAdapter adapter = new IndexItemAdapter(ReadBookActivity.this, R.layout.index_list_item, R.id.title, titles, lastPosition);
 				idxList.setAdapter(adapter);
 		
 		        // restore
-		        idxList.setSelectionFromTop(index, top);
+		        idxList.setSelectionFromTop(lastPosition, top);
 			}
         	
         });
