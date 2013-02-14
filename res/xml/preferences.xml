@@ -12,20 +12,6 @@
 						android:title="@string/prefShowDefs"
 						android:defaultValue="True"/>
    	</PreferenceCategory>                       
-	<PreferenceCategory android:title="@string/prefNav">
-		<CheckBoxPreference android:key="fling_nav"
-			android:title="@string/prefFlingNav"
-			android:summary="@string/prefFlingNavDesc"
-			android:defaultValue="True"/>
-   		<CheckBoxPreference android:key="vol_nav"
-			android:title="@string/prefVolNav"
-			android:summary="@string/prefVolNavDesc"
-			android:defaultValue="True"/>
-  	   	<CheckBoxPreference android:key="vol_nav_reverse"
-			android:title="@string/prefVolNavReverse"
-			android:summary="@string/prefVolNavReverseDesc"
-			android:defaultValue="False"/>
-	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/prefMisc">
    		<EditTextPreference android:key="data_dir"
 						android:title="@string/prefDataDir"

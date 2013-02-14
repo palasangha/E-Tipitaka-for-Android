@@ -76,24 +76,6 @@ public class SettingsActivity extends PreferenceActivity {
 			
 		});
 
-		final CheckBoxPreference volNav = (CheckBoxPreference) findPreference("vol_nav");
-		final CheckBoxPreference volRev = (CheckBoxPreference) findPreference("vol_nav_reverse");
-		if(volNav.isChecked())
-			volRev.setEnabled(true);
-		else
-			volRev.setEnabled(false);
-		
-		volNav.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 
-			public boolean onPreferenceChange(Preference preference,
-					Object newValue) {
-				if(volNav.isChecked())
-					volRev.setEnabled(false);
-				else
-					volRev.setEnabled(true);
-				return true;
-			}
-			
-		});
 	}
 }
