@@ -26,13 +26,16 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.OnHierarchyChangeListener;
 import android.widget.AdapterView;
@@ -53,14 +56,14 @@ public class ReadBookActivity extends FragmentActivity {
 
 	// page flipping
 	
-    private static int NUM_PAGES = 3;
-    private static ViewPager mPager;
+    public static final String TAG = "ReadBookActivity";
+	private static ViewPager mPager;
     private ScreenSlidePagerAdapter mPagerAdapter;
     
-	private SharedPreferences prefs;
-	private MainTipitakaDBAdapter mainTipitakaDBAdapter;
+	private static SharedPreferences prefs;
+	private static MainTipitakaDBAdapter mainTipitakaDBAdapter;
 
-	private String headerText = "";
+	private static String headerText = "";
 	private ListView idxList;
 	private static ScrollView scrollview;
 	private RelativeLayout textshell;
@@ -69,15 +72,15 @@ public class ReadBookActivity extends FragmentActivity {
 	private static LinearLayout dictBar;
 	private static TextView defText;
 	
-	private int selected_volume;
+	private static int selected_volume;
 	private int selected_page;
 	
 	private View read;
-	private String keywords = "";
+	private static String keywords = "";
 	private Dialog itemsDialog;
 	private Dialog memoDialog;
-	private String savedItems;
-	private String lang = "pali";
+	private static String savedItems;
+	private static String lang = "pali";
 	private float textSize = 0f;
 	private String bmLang;
 	private int bmVolume;
@@ -90,26 +93,24 @@ public class ReadBookActivity extends FragmentActivity {
 	public int oldpage = 0;
 	public int newpage = 0;
 
-    private String[] volumes;
+    private static String[] volumes;
 	private Typeface font;
 
 	// save read pages for highlighting in the results list
 
-	private ArrayList<String> savedReadPages = null;
+	private static ArrayList<String> savedReadPages = null;
 
 
-	private boolean firstPage = true;
-
-	public Resources res;
+	public static Resources res;
 	private LinearLayout splitPane;
 	protected int lastPosition;
 	private ArrayList<String> titles;
-	private String volumeTitle;
+	private static String volumeTitle;
 	private float smallSize;
 	private static String scrollString;
-	private int currentPage;
-	private String[] headers = new String[3];
 	protected boolean lastPage;
+	private int NUM_PAGES = 0;
+	public static Spanned spannedText;
 	private static PaliTextView textContent;
 	private static Context context;
 	public static boolean isLookingUp = false;
@@ -159,6 +160,32 @@ public class ReadBookActivity extends FragmentActivity {
 			}
         	
         });
+        
+        mPager.setOnPageChangeListener(new OnPageChangeListener() {
+
+			@Override
+			public void onPageScrollStateChanged(int arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onPageSelected(int arg0) {
+				int modifier = (lastPosition == arg0-1?1:(lastPosition == arg0+1?-1:0));
+				lastPosition = arg0;
+
+				updateIndexList(modifier);
+		        
+			}
+        	
+        });
+        
         defText.setTypeface(font);
         
 		
@@ -233,8 +260,8 @@ public class ReadBookActivity extends FragmentActivity {
 			lastPosition = dataBundle.getInt("PAGE");
 			Log.i("Initial Page Number: ",lastPosition+"");
 			
-			if (!dataBundle.containsKey("FIRSTPAGE"))
-				firstPage = false;
+			if (!dataBundle.containsKey("FIRSTPAGE")) {
+			}
 			
 			lang = dataBundle.getString("LANG");
 			
@@ -250,6 +277,8 @@ public class ReadBookActivity extends FragmentActivity {
 			mainTipitakaDBAdapter.open();
 			Cursor cursor = mainTipitakaDBAdapter.getContent(selected_volume);
 
+			NUM_PAGES = cursor.getCount();
+			
 			cursor.moveToFirst();
 
 			while (!cursor.isAfterLast()) {
@@ -266,26 +295,52 @@ public class ReadBookActivity extends FragmentActivity {
 				@Override
 				public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 					lastPosition = position;
-					firstPage = false;
 					
-				     // save index and top position
-					
-			        int index = idxList.getFirstVisiblePosition();
-			        View v = idxList.getChildAt(0);
-			        int top = (v == null) ? 0 : v.getTop();
-			
-					updatePage();
-			
-			        // restore
-			        idxList.setSelectionFromTop(index, top);
+					mPager.setCurrentItem(lastPosition);
 			  	}
 			});
-			updatePage();
+
+	        mPagerAdapter = new ScreenSlidePagerAdapter(this.getSupportFragmentManager());
+	        mPager.setAdapter(mPagerAdapter);
+			IndexItemAdapter adapter = new IndexItemAdapter(ReadBookActivity.this, R.layout.index_list_item, R.id.title, titles, lastPosition);
+			idxList.setAdapter(adapter);
+	        updatePage(0);
 		}
 
 	}
 
 	
+	protected void updateIndexList(int modifier) {
+        int index = idxList.getFirstVisiblePosition();
+        View v = idxList.getChildAt(0);
+        int top = (v == null) ? 0 : v.getTop();
+
+        int firstPosition = index - idxList.getHeaderViewsCount(); // This is the same as child #0
+        int wantedChild = lastPosition - firstPosition;
+        int bottom = 0;
+        
+        if(modifier != 0) {
+	        // Say, first visible position is 8, you want position 10, wantedChild will now be 2
+	        // So that means your view is child #2 in the ViewGroup:
+	        if (wantedChild < 0 || wantedChild >= idxList.getChildCount()) {
+	          Log.w(TAG, "Unable to get view for desired position, because it's not being displayed on screen.");
+	        }
+	        else {
+		        // Could also check if wantedPosition is between listView.getFirstVisiblePosition() and listView.getLastVisiblePosition() instead.
+		        View vv = idxList.getChildAt(wantedChild);
+				bottom = vv.getHeight();
+	        }
+        }
+        
+		IndexItemAdapter adapter = new IndexItemAdapter(ReadBookActivity.this, R.layout.index_list_item, R.id.title, titles, lastPosition);
+		idxList.setAdapter(adapter);
+		
+		top -= (bottom*modifier);
+		// restore
+        idxList.setSelectionFromTop(index, top);		
+	}
+
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
@@ -472,7 +527,7 @@ public class ReadBookActivity extends FragmentActivity {
 		Button memoBtn = (Button)memoDialog.findViewById(R.id.memo_btn);
 		memoText = (EditText)memoDialog.findViewById(R.id.memo_text);
 		memoText.setTypeface(font);
-		memoText.setText(headers[currentPage]);
+		memoText.setText(headerText);
 		
 		memoBtn.setOnClickListener(new OnClickListener() {
 			@Override
@@ -504,7 +559,7 @@ public class ReadBookActivity extends FragmentActivity {
 	
 	private void prepareBookmark() {
 		String [] items = savedItems.split("\\s+");
-		selected_page = lastPosition-1+currentPage;
+		selected_page = lastPosition-1;
 
 		if(items.length > 1) {
 			itemsDialog = new Dialog(ReadBookActivity.this);						
@@ -572,204 +627,63 @@ public class ReadBookActivity extends FragmentActivity {
 	private void readNext() {
 		if(lastPosition+1 < idxList.getCount()) {
 			lastPosition++;
-			updatePage();
+			updatePage(1);
 		}		
 	}
 	
 	private void readPrev() {
 		if(lastPosition > 0) {
 			lastPosition--;
-			updatePage();
+			updatePage(-1);
 		}		
 	}
 
-	private void updatePage() {
+	private void updatePage(int modifier) {
 
 		// hide index
 		if(splitPane == null)
 			setListVisible(1);
 	
-		Spanned[] pta = {pageText(-1),pageText(0),pageText(1)};
-
-        if(pta[0] == null) { // first page
-			NUM_PAGES = 2;
-        	currentPage = 0;
-        	firstPage = true;
-		    pta = new Spanned[]{pta[1],pta[2],pta[2]};
-		    headers[0] = headers[1];
-		    headers[1] = headers[2];
-        }
-        else if (pta[2] == null) { // last page
-			NUM_PAGES = 2;
-			currentPage = 1;
-        }
-		else { // some page
-			NUM_PAGES = 3;
-			currentPage = 1;
-		}
-
+		mPager.setCurrentItem(lastPosition);
         
-        mPagerAdapter = new ScreenSlidePagerAdapter(this.getSupportFragmentManager(),pta);
-        mPager.setAdapter(mPagerAdapter);
-		
-        mPager.setOnPageChangeListener(new OnPageChangeListener() {
-
-			@Override
-			public void onPageScrollStateChanged(int arg0) {
-			}
-
-			@Override
-			public void onPageScrolled(int arg0, float arg1, int arg2) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void onPageSelected(int arg0) {
-				Log.i("Tipitaka","selected page "+arg0);
-
-				Spanned[] pta = mPagerAdapter.pta;
-				if (arg0 == 2 || firstPage) {
-					Log.i("Tipitaka","next page: " + (lastPosition+1));
-					lastPosition++;
-				    headers[0] = headers[1];
-				    headers[1] = headers[2];
-				    
-				    Spanned spanned = pageText(1);
-					if(firstPage) {
-						Log.i("Tipitaka","second page");
-						firstPage = false;
-						NUM_PAGES = 3;
-						pta = new Spanned[]{pta[0],pta[1],spanned};
-						
-						currentPage = 0;
-					}					
-					else if(spanned == null) {
-						Log.i("Tipitaka","last page");
-						lastPage = true;
-				    	NUM_PAGES = 2;
-						pta = new Spanned[]{pta[1],pta[2],null};
-						currentPage = 1;
-					}
-					else { 
-						NUM_PAGES = 3;
-						pta = new Spanned[]{pta[1],pta[2],spanned};
-						currentPage = 1;
-					}
-					mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(),pta);
-				}
-				else if (arg0 == 0) {
-					lastPosition--;
-					Log.i("Tipitaka","previous page: " + lastPosition);
-
-				    headers[2] = headers[1];
-				    headers[1] = headers[0];					
-
-					Spanned spanned = pageText(-1);
-					
-					if(spanned == null){
-						Log.i("Tipitaka","first page");
-						firstPage = true;
-						NUM_PAGES = 2;
-						currentPage = 0;
-					}
-					else {
-						NUM_PAGES = 3;
-						pta = new Spanned[]{spanned,pta[0],pta[1]};
-						currentPage = 1;
-					}
-		            mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(),pta);
-				}
-				else return;
-		        mPager.setAdapter(mPagerAdapter);
-		        if(mPager.getChildCount() == 0) {
-					Spanned[] pta1 = {pageText(-1),pageText(0),pageText(1)};
-					pta = pta1;
-		            mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(),pta);
-		            mPager.setAdapter(mPagerAdapter);
-
-		        }
-				if(NUM_PAGES == 3 || lastPage) {
-					arg0 = 1;
-					mPager.setCurrentItem(1);
-				}
-				
-				Log.i("Tipitaka",NUM_PAGES + " pages");
-				Log.i("","mpager: "+mPager.getChildCount());
-				View v = mPager.getChildAt(arg0);
-				if(v != null) {
-					textContent = (PaliTextView) v.findViewById(R.id.main_text);
-					scrollview = (ScrollView) v.findViewById(R.id.scroll_text);
-				}
-			    
-				// save index and top position
-				
-		        View tv = idxList.getChildAt(0);
-		        View iv = idxList.getChildAt(0);
-		        int top = 0;
-		        if(iv != null) {
-			        if(iv.getTop() < 0 && tv != null) 
-			        	top = iv.getTop()-tv.getTop();
-			        else if (iv.getBottom() > read.getHeight())
-			        	top = read.getHeight() - iv.getHeight();
-			        else
-			        	top = iv.getTop();
-		        }
-				IndexItemAdapter adapter = new IndexItemAdapter(ReadBookActivity.this, R.layout.index_list_item, R.id.title, titles, lastPosition);
-				idxList.setAdapter(adapter);
-		
-		        // restore
-		        idxList.setSelectionFromTop(lastPosition, top);
-			}
-        	
-        });
-        
-		if(NUM_PAGES == 3 || pta[2] == null) {
-			mPager.setCurrentItem(1);
-		}
-        
-		IndexItemAdapter adapter = new IndexItemAdapter(ReadBookActivity.this, R.layout.index_list_item, R.id.title, titles, lastPosition);
-		idxList.setAdapter(adapter);
+		updateIndexList(modifier);
 
 	}
 
 
 	private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
 		
-    	Spanned[] pta;
-    	
-        public ScreenSlidePagerAdapter(FragmentManager supportFragmentManager,
-				Spanned[] pta) {
+        public ScreenSlidePagerAdapter(FragmentManager supportFragmentManager) {
             super(supportFragmentManager);
-            this.pta = pta;
 		}
 
 
 		@Override
         public Fragment getItem(int position) {
-            ScreenSlidePageFragment sspf = new ScreenSlidePageFragment(position,pta[position], scrollString);
+            ScreenSlidePageFragment sspf = new ScreenSlidePageFragment();
+            Bundle args = new Bundle();
+            args.putInt("position", position);
+            sspf.setArguments(args);
             return sspf;
         }
-      @Override
+		@Override
         public int getCount() {
-            return NUM_PAGES;
+			return NUM_PAGES;
         }
 
     }
 	
-	private Spanned pageText(int modifier) {
-		int getPosition = lastPosition+modifier;
-		
+	private static void pageText(int position) {
 		//Log.i ("Tipitaka","get volume: "+selected_volume);
-		savedReadPages.add(selected_volume+":"+(lastPosition+1));
+		savedReadPages.add(selected_volume+":"+(position+1));
 		mainTipitakaDBAdapter.open();
-		Cursor cursor = mainTipitakaDBAdapter.getContent(selected_volume, getPosition, lang);
+		Cursor cursor = mainTipitakaDBAdapter.getContent(selected_volume, position, lang);
+		
 		if(cursor == null || cursor.getCount() == 0) {
 			cursor.close();
 			mainTipitakaDBAdapter.close();
-			return null;
+			return;
 		}
-		
 		
 		cursor.moveToFirst();
 		//Log.i ("Tipitaka","db cursor length: "+cursor.getCount());
@@ -812,7 +726,6 @@ public class ReadBookActivity extends FragmentActivity {
 		
 		title = formatTitle(title);
 		headerText = volumeTitle+", " + title;
-		headers[modifier+1] =  headerText;
 		content = "<font color='#888800'>"+headerText+"</font><br/><br/>"+content.replace("\n", "<br/>");
 		Spanned html = Html.fromHtml(content);
 						
@@ -822,9 +735,7 @@ public class ReadBookActivity extends FragmentActivity {
 		
 		volumes = res.getStringArray(R.array.volume_names);
 
-		return html;
-
-		
+		spannedText = html;
 	}
 
 	public String getTrans() {
@@ -847,7 +758,7 @@ public class ReadBookActivity extends FragmentActivity {
 		
 	}
 
-	public String formatTitle(String title) {
+	public static String formatTitle(String title) {
 		title = title.replaceAll("\\^+", "^");
 		title = title.replaceAll("^\\^", "");
 		title = title.replaceAll("\\^$", "");
@@ -994,4 +905,37 @@ public class ReadBookActivity extends FragmentActivity {
 		}
 	}
 
+	public static class ScreenSlidePageFragment extends Fragment {
+		private ViewGroup rootView;
+	    public PaliTextView textView;
+
+		@SuppressLint("NewApi")
+		@Override
+	    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+	            Bundle savedInstanceState) {
+	        rootView = (ViewGroup) inflater.inflate(
+	                R.layout.page, container, false);
+            int position = this.getArguments().getInt("position");
+			pageText(position);
+	        textView = (PaliTextView) rootView.findViewById(R.id.main_text);
+	        textView.setText(spannedText);
+			Typeface font = Typeface.createFromAsset(this.getActivity().getAssets(), "verajjan.ttf");      
+	        textView.setTypeface(font);
+	        SharedPreferences prefs =  PreferenceManager.getDefaultSharedPreferences(this.getActivity());
+			String size = prefs.getString("base_text_size", "16");
+			if(size.equals(""))
+				size = "16";
+			Float textSize = Float.parseFloat(size);
+			textView.setTextSize(textSize);
+			textView.setMovementMethod(LinkMovementMethod.getInstance());
+			@SuppressWarnings("deprecation")
+			int api = Integer.parseInt(Build.VERSION.SDK);
+			
+			if (api >= 14) {
+				textView.setTextIsSelectable(true);
+			}
+			
+	        return rootView;
+	    }
+	}
 }
