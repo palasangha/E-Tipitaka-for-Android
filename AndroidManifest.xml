@@ -77,7 +77,12 @@
 			android:name=".DictionaryActivity"
 			android:noHistory="true"
 			android:label="@string/dict_title"
-        />
+		>
+			<intent-filter>
+				<action android:name="org.yuttadhammo.tipitaka.LOOKUP"/>
+				<category android:name="android.intent.category.DEFAULT" />
+		    </intent-filter>
+		</activity>
 		
         <activity 
             android:name="SearchDialog"
