@@ -65,7 +65,6 @@ public class ReadBookActivity extends FragmentActivity {
 
 	private static String headerText = "";
 	private ListView idxList;
-	private static ScrollView scrollview;
 	private RelativeLayout textshell;
 	
 	private static Button dictButton;
@@ -110,8 +109,9 @@ public class ReadBookActivity extends FragmentActivity {
 	private static String scrollString;
 	protected boolean lastPage;
 	private int NUM_PAGES = 0;
+	public static ScrollView scrollview;
+	protected static PaliTextView textContent;
 	public static Spanned spannedText;
-	private static PaliTextView textContent;
 	private static Context context;
 	public static boolean isLookingUp = false;
 	private static boolean lookupDefs;
@@ -144,22 +144,6 @@ public class ReadBookActivity extends FragmentActivity {
 		dictButton = (Button) findViewById(R.id.dict_button);
 
         mPager = (ViewPager) findViewById(R.id.pager);
-        mPager.setOnHierarchyChangeListener(new OnHierarchyChangeListener() {
-
-			@Override
-			public void onChildViewAdded(View arg0, View arg1) {
-				textContent = (PaliTextView) arg0.findViewById(R.id.main_text);
-				scrollview = (ScrollView) arg0.findViewById(R.id.scroll_text);
-
-			}
-
-			@Override
-			public void onChildViewRemoved(View arg0, View arg1) {
-				// TODO Auto-generated method stub
-				
-			}
-        	
-        });
         
         mPager.setOnPageChangeListener(new OnPageChangeListener() {
 
@@ -179,7 +163,7 @@ public class ReadBookActivity extends FragmentActivity {
 			public void onPageSelected(int arg0) {
 				int modifier = (lastPosition == arg0-1?1:(lastPosition == arg0+1?-1:0));
 				lastPosition = arg0;
-
+				
 				updateIndexList(modifier);
 		        
 			}
@@ -193,6 +177,11 @@ public class ReadBookActivity extends FragmentActivity {
 
 			@Override
 			public void onClick(View v) {
+				View fc = mPager.getFocusedChild();
+				if(fc == null)
+					return;
+				textContent = (PaliTextView) fc.findViewById(R.id.main_text);
+
 				if(!textContent.hasSelection())
 					return;
 				int s=textContent.getSelectionStart();
@@ -885,6 +874,12 @@ public class ReadBookActivity extends FragmentActivity {
 	    @Override
 	    protected void onLayout (boolean changed, int left, int top, int right, int bottom){
 			if(scrollString != null) {
+				View fc = mPager.getFocusedChild();
+				if(fc == null)
+					return;
+				
+				textContent = (PaliTextView) fc.findViewById(R.id.main_text);
+				scrollview = (ScrollView) fc.findViewById(R.id.scroll_text);
 				if(textContent.getLayout() == null)
 					return;
 				Log.i("Tipitaka","Keyword to scroll: "+scrollString);
