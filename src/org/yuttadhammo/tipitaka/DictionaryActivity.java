@@ -60,6 +60,8 @@ public class DictionaryActivity extends Activity {
 	private SharedPreferences prefs;
 	private WebView wv;
 
+	private String TAG = "DictionaryActivity";
+
 	@SuppressLint("NewApi")
 	@Override
 	public void onCreate (Bundle savedInstanceState) {
@@ -110,17 +112,23 @@ public class DictionaryActivity extends Activity {
 			prefs.getString (HTML_KEY, loadResToString (R.raw.index))
 		);
 		Bundle extras = this.getIntent().getExtras();
-		if(extras != null && extras.containsKey("word")) {
-
-			SharedPreferences.Editor ed = prefs.edit ();
-			ed.putInt (DICT_KEY, extras.getInt("dict"));
-			ed.commit();
-			dict = extras.getInt("dict");
-			
-			setTitleWithMessage (word);
-			lookup_text.setText(PaliUtils.toVel(extras.getString("word")));
-			wv.setSelected (true);
-			lookupWord ();
+		if(extras != null) {
+			String received = null;
+			if(extras.containsKey("word"))
+				received = extras.getString("word");
+			else if (extras.containsKey(Intent.EXTRA_TEXT))
+				received = extras.getCharSequence(Intent.EXTRA_TEXT).toString();
+			if(received != null) {
+				SharedPreferences.Editor ed = prefs.edit ();
+				ed.putInt (DICT_KEY, extras.getInt("dict"));
+				ed.commit();
+				dict = extras.getInt("dict");
+				
+				setTitleWithMessage (received);
+				lookup_text.setText(PaliUtils.toVel(received));
+				wv.setSelected (true);
+				lookupWord ();
+			}
 		}
 		else
 			setTitleWithMessage (word);

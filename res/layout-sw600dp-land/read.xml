@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:fillViewport="true"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:background="@drawable/background"
-  android:orientation="horizontal"
-  android:id="@+id/split_pane"
-  >
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:fillViewport="true"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@drawable/background"
+	android:orientation="horizontal"
+	android:id="@+id/split_pane"
+	>
 	<ListView
 		android:layout_width="@dimen/left600"
 		android:layout_height="match_parent"
 		android:id="@+id/index_list"/>
-	<View
-	    android:layout_width="2dip"
+	<ImageView
+	    android:src="@drawable/list_item_border"
+	    android:layout_width="8dip"
 	    android:layout_height="match_parent"
 	/>
 	<RelativeLayout
@@ -22,11 +23,10 @@
 	    android:id="@+id/shell_text"
 		android:layout_height="wrap_content">
 	    <android.support.v4.view.ViewPager
-		    xmlns:android="http://schemas.android.com/apk/res/android"
 		    android:id="@+id/pager"
 		    android:layout_width="match_parent"
-		    android:layout_height="match_parent">
-		</android.support.v4.view.ViewPager>
+		    android:layout_height="match_parent"
+		    />
 		<LinearLayout
 		    android:id="@+id/dict_bar"
 			android:layout_width="match_parent"

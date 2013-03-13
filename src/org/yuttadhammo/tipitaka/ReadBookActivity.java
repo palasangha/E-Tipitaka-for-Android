@@ -295,7 +295,8 @@ public class ReadBookActivity extends FragmentActivity {
 				@Override
 				public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 					lastPosition = position;
-					
+					if(splitPane == null)
+						setListVisible(1);
 					mPager.setCurrentItem(lastPosition);
 			  	}
 			});
@@ -308,38 +309,6 @@ public class ReadBookActivity extends FragmentActivity {
 		}
 
 	}
-
-	
-	protected void updateIndexList(int modifier) {
-        int index = idxList.getFirstVisiblePosition();
-        View v = idxList.getChildAt(0);
-        int top = (v == null) ? 0 : v.getTop();
-
-        int firstPosition = index - idxList.getHeaderViewsCount(); // This is the same as child #0
-        int wantedChild = lastPosition - firstPosition;
-        int bottom = 0;
-        
-        if(modifier != 0) {
-	        // Say, first visible position is 8, you want position 10, wantedChild will now be 2
-	        // So that means your view is child #2 in the ViewGroup:
-	        if (wantedChild < 0 || wantedChild >= idxList.getChildCount()) {
-	          Log.w(TAG, "Unable to get view for desired position, because it's not being displayed on screen.");
-	        }
-	        else {
-		        // Could also check if wantedPosition is between listView.getFirstVisiblePosition() and listView.getLastVisiblePosition() instead.
-		        View vv = idxList.getChildAt(wantedChild);
-				bottom = vv.getHeight();
-	        }
-        }
-        
-		IndexItemAdapter adapter = new IndexItemAdapter(ReadBookActivity.this, R.layout.index_list_item, R.id.title, titles, lastPosition);
-		idxList.setAdapter(adapter);
-		
-		top -= (bottom*modifier);
-		// restore
-        idxList.setSelectionFromTop(index, top);		
-	}
-
 
 	@Override
 	protected void onDestroy() {
@@ -626,15 +595,17 @@ public class ReadBookActivity extends FragmentActivity {
 	
 	private void readNext() {
 		if(lastPosition+1 < idxList.getCount()) {
-			lastPosition++;
-			updatePage(1);
+			if(splitPane == null)
+				setListVisible(1);
+			mPager.setCurrentItem(lastPosition+1);
 		}		
 	}
 	
 	private void readPrev() {
 		if(lastPosition > 0) {
-			lastPosition--;
-			updatePage(-1);
+			if(splitPane == null)
+				setListVisible(1);
+			mPager.setCurrentItem(lastPosition-1);
 		}		
 	}
 
@@ -648,6 +619,44 @@ public class ReadBookActivity extends FragmentActivity {
         
 		updateIndexList(modifier);
 
+	}
+
+	private void updateIndexList(int modifier) {
+		
+		Log.i(TAG,"update index list modifier: "+modifier);
+		
+        int index = idxList.getFirstVisiblePosition();
+        View v = idxList.getChildAt(0);
+        int top = (v == null) ? 0 : v.getTop();
+
+        int firstPosition = index - idxList.getHeaderViewsCount(); // This is the same as child #0
+        int wantedChild = lastPosition - firstPosition;
+        int bottom = 0;
+        
+        if(modifier != 0) {
+	        // Say, first visible position is 8, you want position 10, wantedChild will now be 2
+	        // So that means your view is child #2 in the ViewGroup:
+	        if (wantedChild < 0 || wantedChild >= idxList.getChildCount()) {
+	          Log.w(TAG, "Unable to get view for desired position, because it's not being displayed on screen.");
+	        }
+	        else {
+		        // Could also check if wantedPosition is between listView.getFirstVisiblePosition() and listView.getLastVisiblePosition() instead.
+		        View vv = idxList.getChildAt(wantedChild);
+		        View vl = idxList.getChildAt(wantedChild-1);
+				if(vl != null)
+					bottom = vl.getHeight();
+	        }
+        }
+        
+		IndexItemAdapter adapter = new IndexItemAdapter(ReadBookActivity.this, R.layout.index_list_item, R.id.title, titles, lastPosition);
+		idxList.setAdapter(adapter);
+		
+		top -= (bottom*modifier);
+		
+		Log.i(TAG,"top modifier: "+top);
+		
+		// restore
+        idxList.setSelectionFromTop(index, top);		
 	}
 
 
