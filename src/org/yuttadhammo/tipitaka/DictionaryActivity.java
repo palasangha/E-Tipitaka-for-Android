@@ -10,13 +10,15 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.view.inputmethod.EditorInfo;
 import android.webkit.WebView;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Button;
 import android.database.DatabaseUtils;
@@ -33,8 +35,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockActivity;
 
-public class DictionaryActivity extends Activity {
+
+public class DictionaryActivity extends SherlockActivity {
 	//private DBHelper dbh;
 	private MainTipitakaDBAdapter db;
 
@@ -54,13 +59,15 @@ public class DictionaryActivity extends Activity {
 	private int dict = 0;  // 0 = CPED, 1 = DPPN, 2 = PED
 
 	private String html, word;
-	private TextView lookup_text;
-	private Button lookup_button;
+	private EditText lookupText;
+	private Button lookupButton;
 	
 	private SharedPreferences prefs;
 	private WebView wv;
 
 	private String TAG = "DictionaryActivity";
+
+	private ActionBar actionBar;
 
 	@SuppressLint("NewApi")
 	@Override
@@ -90,21 +97,41 @@ public class DictionaryActivity extends Activity {
 		wv            = (WebView) findViewById (R.id.webview);
 		wv.getSettings().setBuiltInZoomControls(true);
 		wv.getSettings().setSupportZoom(true);
+
+		actionBar = getSupportActionBar();
+		actionBar.setHomeButtonEnabled(true);
+		actionBar.setDisplayHomeAsUpEnabled(true);
 		
-		lookup_text   = (TextView) findViewById (R.id.lookup_text);
-		lookup_button = (Button) findViewById (R.id.lookup_button);
+		lookupText   = (EditText) findViewById (R.id.lookup_text);
+		lookupButton = (Button) findViewById (R.id.lookup_button);
+		
+		lookupText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+		    @Override
+		    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+		        if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+		        	lookupWord();
+		            return true;
+		        }
+		        return false;
+		    }
+		});
 		
 		dict = prefs.getInt (DICT_KEY, 0); // default to PED
 
 		word = prefs.getString (WORD_KEY, "");
 		
 		if (prefs.getBoolean (LOOKUP_TEXT_IS_FOCUSED_KEY, true)) {
-			lookup_text.requestFocus ();
+			lookupText.requestFocus ();
 		} else {
 			wv.requestFocus ();
 		}
 		
-		lookup_button.setOnClickListener (new LookupButtonClickListener ());
+		lookupButton.setOnClickListener (new OnClickListener() {
+			@Override
+			public void onClick (View v) {
+				lookupWord ();
+			}
+		});
 		
 
 
@@ -119,13 +146,17 @@ public class DictionaryActivity extends Activity {
 			else if (extras.containsKey(Intent.EXTRA_TEXT))
 				received = extras.getCharSequence(Intent.EXTRA_TEXT).toString();
 			if(received != null) {
-				SharedPreferences.Editor ed = prefs.edit ();
-				ed.putInt (DICT_KEY, extras.getInt("dict"));
-				ed.commit();
-				dict = extras.getInt("dict");
+				if(extras.containsKey("dict")) {
+					dict = extras.getInt("dict");
+					SharedPreferences.Editor ed = prefs.edit ();
+					ed.putInt (DICT_KEY, extras.getInt("dict"));
+					ed.commit();
+				}
+				else 
+					dict = 4;
 				
 				setTitleWithMessage (received);
-				lookup_text.setText(PaliUtils.toVel(received));
+				lookupText.setText(PaliUtils.toVel(received));
 				wv.setSelected (true);
 				lookupWord ();
 			}
@@ -138,6 +169,107 @@ public class DictionaryActivity extends Activity {
 			this.getActionBar().setHomeButtonEnabled(true);
 		}
 	}
+
+
+	@Override
+	public boolean onCreateOptionsMenu (Menu menu) {
+	    MenuInflater inflater = getSupportMenuInflater();
+	    inflater.inflate(R.menu.cped_menu, menu);
+	    
+	    Menu sub = menu.findItem(R.id.menu_dict).getSubMenu();
+	    sub.setGroupCheckable(R.id.group_dict, true, true);
+		sub.getItem(dict).setChecked(true);
+	    
+	    return true;
+	}
+
+
+
+	@Override
+	public boolean onOptionsItemSelected (MenuItem item) {
+		if(item.isCheckable()) {
+			item.setChecked(true);
+			SharedPreferences.Editor ed = prefs.edit ();
+			switch(item.getItemId()) {
+		        case R.id.menu_PED:
+					dict = 0;
+					break;
+				case R.id.menu_CPED:
+					dict = 1;
+					break;
+				case R.id.menu_CEPD:
+					dict = 2;
+					break;
+				case R.id.menu_DPPN:
+					dict = 3;
+					break;
+				case R.id.menu_MULTI:
+					dict = 4;
+					break;
+			}
+			this.word = null;
+			ed.putInt (DICT_KEY, dict);
+			ed.commit ();
+			lookupWord();
+		}
+		else {
+			Intent intent;
+			switch (item.getItemId()) {
+		        case android.R.id.home:
+		            // app icon in action bar clicked; go home
+		        	finish();
+		            return true;
+				case R.id.menu_english:
+					intent = new Intent(this, EnglishActivity.class);
+					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					startActivity(intent);
+					break;
+	
+				case R.id.menu_top:
+					if(wv != null)
+						wv.scrollTo(0,0);
+					break;
+/*				case R.id.menu_plus:
+					wv.zoomIn();
+					break;
+				case R.id.menu_minus:
+					wv.zoomOut();
+					break;*/
+			}
+		}
+		
+		return super.onOptionsItemSelected (item);
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		this.word = null;
+		return true;
+	}
+	
+	@Override
+	protected void onPause () {
+		super.onPause ();
+		if(prefs == null)
+			return;
+		SharedPreferences.Editor ed = prefs.edit();
+		ed.putString (WORD_KEY, word);
+		ed.putString (HTML_KEY, html);
+		ed.putString (LOOKUP_TEXT_KEY, lookupText.getText ().toString ());
+		ed.putBoolean (LOOKUP_TEXT_IS_FOCUSED_KEY, lookupButton.isFocused ());
+		ed.commit ();
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if (db != null) {
+			db.close();
+		}
+
+	}
+
 	
 	
 	private void displayLoadingPage () {
@@ -160,13 +292,6 @@ public class DictionaryActivity extends Activity {
     	wv.loadDataWithBaseURL ("", html, null, "utf-8", null);
 	}
 
-
-	private class LookupButtonClickListener implements OnClickListener {
-		@Override
-		public void onClick (View v) {
-			lookupWord ();
-		}
-	}
 
 	private String loadResToString (int resId) {
 
@@ -196,7 +321,7 @@ public class DictionaryActivity extends Activity {
 
 	
 	private void lookupWord () {
-		lookupWord (lookup_text.getText ().toString ());
+		lookupWord (lookupText.getText ().toString ());
 	}
 
 	private void lookupWord (String query) {
@@ -322,97 +447,6 @@ public class DictionaryActivity extends Activity {
 	}
 
 
-	@Override
-	public boolean onCreateOptionsMenu (Menu menu) {
-	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.cped_menu, menu);
-	    
-	    Menu sub = menu.findItem(R.id.menu_dict).getSubMenu();
-	    sub.setGroupCheckable(R.id.group_dict, true, true);
-		sub.getItem(dict).setChecked(true);
-	    
-	    return true;
-	}
-
-
-
-	@Override
-	public boolean onOptionsItemSelected (MenuItem item) {
-		if(item.isCheckable()) {
-			item.setChecked(true);
-			SharedPreferences.Editor ed = prefs.edit ();
-			switch(item.getItemId()) {
-		        case R.id.menu_PED:
-					dict = 0;
-					break;
-				case R.id.menu_CPED:
-					dict = 1;
-					break;
-				case R.id.menu_CEPD:
-					dict = 2;
-					break;
-				case R.id.menu_DPPN:
-					dict = 3;
-					break;
-				case R.id.menu_MULTI:
-					dict = 4;
-					break;
-			}
-			this.word = null;
-			ed.putInt (DICT_KEY, dict);
-			ed.commit ();
-			lookupWord();
-		}
-		else {
-			switch (item.getItemId()) {
-		        case android.R.id.home:
-		            // app icon in action bar clicked; go home
-		        	Intent intent = new Intent(this, SelectBookActivity.class);
-		            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-		            startActivity(intent);
-		            return true;
-				case R.id.menu_english:
-					intent = new Intent(this, EnglishActivity.class);
-					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					startActivity(intent);
-					break;
-	
-				case R.id.menu_top:
-					if(wv != null)
-						wv.scrollTo(0,0);
-					break;
-/*				case R.id.menu_plus:
-					wv.zoomIn();
-					break;
-				case R.id.menu_minus:
-					wv.zoomOut();
-					break;*/
-			}
-		}
-		
-		return super.onOptionsItemSelected (item);
-	}
-
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		super.onPrepareOptionsMenu(menu);
-		this.word = null;
-		return true;
-	}
-	
-	@Override
-	protected void onPause () {
-		super.onPause ();
-		if(prefs == null)
-			return;
-		SharedPreferences.Editor ed = prefs.edit();
-		ed.putString (WORD_KEY, word);
-		ed.putString (HTML_KEY, html);
-		ed.putString (LOOKUP_TEXT_KEY, lookup_text.getText ().toString ());
-		ed.putBoolean (LOOKUP_TEXT_IS_FOCUSED_KEY, lookup_button.isFocused ());
-		ed.commit ();
-	}
-
 	private void setTitleWithMessage (String m) {
 		if (m == null || m.equals (""))
 			setTitle (getResources ().getText (R.string.app_name));
@@ -420,15 +454,6 @@ public class DictionaryActivity extends Activity {
 			setTitle (getResources ().getText (R.string.app_name) + " - " + m + " in " + DICT_ARRAY[dict]);
 	}
 	
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		if (db != null) {
-			db.close();
-		}
-
-	}
-
 	public String[] convertStreamToString(int[] tno) throws IOException {
 		String[] texts = new String[tno.length];
 		try {

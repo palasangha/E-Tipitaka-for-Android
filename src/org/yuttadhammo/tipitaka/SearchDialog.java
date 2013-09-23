@@ -1,5 +1,8 @@
 package org.yuttadhammo.tipitaka;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockActivity;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -17,11 +20,12 @@ import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MenuItem;
+import com.actionbarsherlock.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -38,7 +42,7 @@ import android.widget.CheckBox;
 
 import android.graphics.Typeface;
 
-public class SearchDialog extends Activity {
+public class SearchDialog extends SherlockActivity {
 
 	private boolean b1;
 	private boolean b2;
@@ -66,6 +70,10 @@ public class SearchDialog extends Activity {
 	private View searchView;
 	private Typeface font;
 	private MainTipitakaDBAdapter db;
+	private ActionBar actionBar;
+	private CheckBox cbm;
+	private CheckBox cba;
+	private CheckBox cbt;
 		   	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +98,11 @@ public class SearchDialog extends Activity {
         	dl.startDownloader("http://static.sirimangalo.org/pali/ATPK/ATPK.zip", "ATPK.zip");
         	return;
         }
-        
+
+		actionBar = getSupportActionBar();
+		actionBar.setHomeButtonEnabled(true);
+		actionBar.setDisplayHomeAsUpEnabled(true);
+      
         context = this;
 		
 		prefs =  PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -99,47 +111,23 @@ public class SearchDialog extends Activity {
 
 		font = Typeface.createFromAsset(getAssets(), "verajjan.ttf");
 		
-		final CheckBox cbm = (CheckBox) searchView.findViewById(R.id.cb_mul);
-		final CheckBox cba = (CheckBox) searchView.findViewById(R.id.cb_att);
-		final CheckBox cbt = (CheckBox) searchView.findViewById(R.id.cb_tik);
+		cbm = (CheckBox) searchView.findViewById(R.id.cb_mul);
+		cba = (CheckBox) searchView.findViewById(R.id.cb_att);
+		cbt = (CheckBox) searchView.findViewById(R.id.cb_tik);
+		
 		cbm.setTypeface(font);
 		cba.setTypeface(font);
 		cbt.setTypeface(font);
 		
 		searchHistoryDBAdapter = new SearchHistoryDBAdapter(this);
     	searchResultsDBAdapter = new SearchResultsDBAdapter(this);
-		
+
 		Button queryBtn = (Button) findViewById(R.id.query_btn);
 		queryBtn.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				String query = searchText.getText().toString();
-				b1 = ((CheckBox) searchView.findViewById(R.id.cb_vin)).isChecked();
-				b2 = ((CheckBox) searchView.findViewById(R.id.cb_sut)).isChecked();
-				b3 = ((CheckBox) searchView.findViewById(R.id.cb_abhi)).isChecked();
-				b4 = ((CheckBox) searchView.findViewById(R.id.cb_etc)).isChecked();
-				
-				b5 = cbm.isChecked();
-				b6 = cba.isChecked();
-				b7 = cbt.isChecked();
-				
-				if(query.trim().length() > 0) {
-	        		query = query.replace("aa", "ā").replace("ii", "ī").replace("uu", "ū").replace(".t", "ṭ").replace(".d", "ḍ").replace("\"n", "ṅ").replace(".n", "ṇ").replace(".m", "ṃ").replace("~n", "ñ").replace(".l", "ḷ");
-	        		Intent intent = new Intent(context, SearchActivity.class);
-	        		Bundle dataBundle = new Bundle();
-	        		dataBundle.putString("LANG", "pali");
-	        		dataBundle.putString("QUERY", query);
-	        		dataBundle.putBoolean("b1", b1);
-	        		dataBundle.putBoolean("b2", b2);
-	        		dataBundle.putBoolean("b3", b3);
-	        		dataBundle.putBoolean("b4", b4);
-	        		dataBundle.putBoolean("b5", b5);
-	        		dataBundle.putBoolean("b6", b6);
-	        		dataBundle.putBoolean("b7", b7);
-	        		intent.putExtras(dataBundle);
-	        		startActivity(intent);
-				}
+				searchText();
 			}
 		});
 		
@@ -190,6 +178,16 @@ public class SearchDialog extends Activity {
 		});
 		
 		searchText = (EditText) findViewById(R.id.search_text);
+    	searchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+		    @Override
+		    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+		        if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+		        	searchText();
+		            return true;
+		        }
+		        return false;
+		    }
+		});
 		searchText.addTextChangedListener(new TextWatcher() {
 			
 			@Override
@@ -301,6 +299,35 @@ public class SearchDialog extends Activity {
 		
 	}
 	
+	protected void searchText() {
+		String query = searchText.getText().toString();
+		b1 = ((CheckBox) searchView.findViewById(R.id.cb_vin)).isChecked();
+		b2 = ((CheckBox) searchView.findViewById(R.id.cb_sut)).isChecked();
+		b3 = ((CheckBox) searchView.findViewById(R.id.cb_abhi)).isChecked();
+		b4 = ((CheckBox) searchView.findViewById(R.id.cb_etc)).isChecked();
+		
+		b5 = cbm.isChecked();
+		b6 = cba.isChecked();
+		b7 = cbt.isChecked();
+		
+		if(query.trim().length() > 0) {
+    		query = query.replace("aa", "ā").replace("ii", "ī").replace("uu", "ū").replace(".t", "ṭ").replace(".d", "ḍ").replace("\"n", "ṅ").replace(".n", "ṇ").replace(".m", "ṃ").replace("~n", "ñ").replace(".l", "ḷ");
+    		Intent intent = new Intent(context, SearchActivity.class);
+    		Bundle dataBundle = new Bundle();
+    		dataBundle.putString("LANG", "pali");
+    		dataBundle.putString("QUERY", query);
+    		dataBundle.putBoolean("b1", b1);
+    		dataBundle.putBoolean("b2", b2);
+    		dataBundle.putBoolean("b3", b3);
+    		dataBundle.putBoolean("b4", b4);
+    		dataBundle.putBoolean("b5", b5);
+    		dataBundle.putBoolean("b6", b6);
+    		dataBundle.putBoolean("b7", b7);
+    		intent.putExtras(dataBundle);
+    		startActivity(intent);
+		}		
+	}
+
 	private class ResultsCursorAdapter extends SimpleCursorAdapter {
 
 		private int markedPosition = -1;
@@ -927,10 +954,7 @@ public class SearchDialog extends Activity {
 		
 		switch (item.getItemId()) {
 	        case android.R.id.home:
-	            // app icon in action bar clicked; go home
-	            Intent intent = new Intent(this, SelectBookActivity.class);
-	            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-	            startActivity(intent);
+	            finish();
 	            return true;
 		}
 		return false;

@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
@@ -31,9 +35,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
@@ -52,7 +56,7 @@ import android.widget.Toast;
 
 import android.graphics.Typeface;
 
-public class ReadBookActivity extends FragmentActivity {
+public class ReadBookActivity extends SherlockFragmentActivity {
 
 	// page flipping
 	
@@ -101,7 +105,6 @@ public class ReadBookActivity extends FragmentActivity {
 
 
 	public static Resources res;
-	private LinearLayout splitPane;
 	protected int lastPosition;
 	private ArrayList<String> titles;
 	private static String volumeTitle;
@@ -109,6 +112,8 @@ public class ReadBookActivity extends FragmentActivity {
 	private static String scrollString;
 	protected boolean lastPage;
 	private int NUM_PAGES = 0;
+	private SlidingMenu slideMenu;
+	private ActionBar actionBar;
 	public static ScrollView scrollview;
 	protected static PaliTextView textContent;
 	public static Spanned spannedText;
@@ -116,7 +121,6 @@ public class ReadBookActivity extends FragmentActivity {
 	public static boolean isLookingUp = false;
 	private static boolean lookupDefs;
 
-	@SuppressLint("NewApi")
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -135,7 +139,7 @@ public class ReadBookActivity extends FragmentActivity {
         savedReadPages = new ArrayList<String>();
 
         bookmarkDBAdapter = new BookmarkDBAdapter(this);
-        
+
         res = getResources();
 
         textshell = (RelativeLayout) read.findViewById(R.id.shell_text);
@@ -143,6 +147,21 @@ public class ReadBookActivity extends FragmentActivity {
 		defText = (TextView) findViewById(R.id.def_text);
 		dictButton = (Button) findViewById(R.id.dict_button);
 
+        slideMenu = new SlidingMenu(this);
+        slideMenu.setMode(SlidingMenu.LEFT);
+        slideMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+        //menu.setShadowWidthRes(0);
+        //menu.setShadowDrawable(R.drawable.shadow);
+        slideMenu.setBehindWidthRes(R.dimen.slide_width);
+        slideMenu.setFadeDegree(0.35f);
+        slideMenu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
+        slideMenu.setMenu(R.layout.slide);
+		slideMenu.setSlidingEnabled(false);
+		
+		actionBar = getSupportActionBar();
+		actionBar.setHomeButtonEnabled(true);
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		
         mPager = (ViewPager) findViewById(R.id.pager);
         
         mPager.setOnPageChangeListener(new OnPageChangeListener() {
@@ -203,10 +222,7 @@ public class ReadBookActivity extends FragmentActivity {
 
         // index button
 
-        idxList = (ListView) read.findViewById(R.id.index_list);
-        
-        // used to test for split pane 
-        splitPane = (LinearLayout) findViewById(R.id.split_pane);
+        idxList = (ListView) slideMenu.findViewById(R.id.index_list);
         
         try {
         	mainTipitakaDBAdapter.open();
@@ -228,13 +244,6 @@ public class ReadBookActivity extends FragmentActivity {
 //		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 //		imm.hideSoftInputFromWindow(textContent.getWindowToken(), 0);
 
-		@SuppressWarnings("deprecation")
-		int api = Integer.parseInt(Build.VERSION.SDK);
-		
-		if (api >= 14) {
-			this.getActionBar().setHomeButtonEnabled(true);
-		}
-		
 		read.requestLayout();
         
 		titles = new ArrayList<String>();
@@ -284,8 +293,6 @@ public class ReadBookActivity extends FragmentActivity {
 				@Override
 				public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 					lastPosition = position;
-					if(splitPane == null)
-						setListVisible(1);
 					mPager.setCurrentItem(lastPosition);
 			  	}
 			});
@@ -351,7 +358,7 @@ public class ReadBookActivity extends FragmentActivity {
     
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-	    MenuInflater inflater = getMenuInflater();
+	    MenuInflater inflater = this.getSupportMenuInflater();
 	    inflater.inflate(R.menu.read_menu, menu);
 	    return true;
 	}
@@ -368,13 +375,11 @@ public class ReadBookActivity extends FragmentActivity {
 		switch (item.getItemId()) {
 	        case android.R.id.home:
 	            // app icon in action bar clicked; go home
-	            intent = new Intent(this, SelectBookActivity.class);
-	            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-	            startActivity(intent);
+	            finish();
 	            return true;
 			case R.id.index:
-				setListVisible(2);
-				break;
+				slideMenu.toggle();
+				break;	            
 			case (int)R.id.help_menu_item:
 				intent = new Intent(this, HelpActivity.class);
 				startActivity(intent);
@@ -550,31 +555,6 @@ public class ReadBookActivity extends FragmentActivity {
 		}		
 	}
 			
-	private void setListVisible(int i) {
-		Log.i("Tipitaka","set list visible: "+i);
-		if(i == 0) { // show list, hide text
-			if(splitPane == null)
-				textshell.setVisibility(View.GONE);
-			idxList.setVisibility(View.VISIBLE);
-		}
-		else if(i == 1) { // hide list, show text
-			idxList.setVisibility(View.GONE);
-			textshell.setVisibility(View.VISIBLE);
-		}
-		else if(i == 2) { // hide/show list (button pressed)
-			if(idxList.getVisibility() == View.VISIBLE) {
-				textshell.setVisibility(View.VISIBLE);
-				idxList.setVisibility(View.GONE);
-			}
-			else {
-				if(splitPane == null)
-					textshell.setVisibility(View.GONE);
-				idxList.setVisibility(View.VISIBLE);
-			}
-		}
-	}
-
-	
 	private void saveReadingState(String _lang, int page, int scrollPosition) {
 		SharedPreferences.Editor editor = prefs.edit();
     	editor.putInt(_lang+":PAGE", page);
@@ -584,16 +564,12 @@ public class ReadBookActivity extends FragmentActivity {
 	
 	private void readNext() {
 		if(lastPosition+1 < idxList.getCount()) {
-			if(splitPane == null)
-				setListVisible(1);
 			mPager.setCurrentItem(lastPosition+1);
 		}		
 	}
 	
 	private void readPrev() {
 		if(lastPosition > 0) {
-			if(splitPane == null)
-				setListVisible(1);
 			mPager.setCurrentItem(lastPosition-1);
 		}		
 	}
@@ -601,8 +577,6 @@ public class ReadBookActivity extends FragmentActivity {
 	private void updatePage(int modifier) {
 
 		// hide index
-		if(splitPane == null)
-			setListVisible(1);
 	
 		mPager.setCurrentItem(lastPosition);
         

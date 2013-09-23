@@ -18,8 +18,9 @@
 		<EditText 
 		    android:id="@+id/lookup_text"
 		    android:inputType="text"
+		    android:imeOptions="actionSearch"
 		    android:hint="@string/enter_query"
-			android:textSize="22dp"
+			android:textSize="22sp"
 			android:singleLine="true"
 			android:layout_width="0dp"
 			android:layout_height="match_parent"

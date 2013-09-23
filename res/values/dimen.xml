@@ -2,4 +2,5 @@
 <resources>
     <dimen name="left600">250dp</dimen>
     <dimen name="left800">320dp</dimen>
+    <dimen name="slide_width">320dp</dimen>
 </resources>

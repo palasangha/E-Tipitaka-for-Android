@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Arrays;
+
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockActivity;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -20,9 +24,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -40,7 +44,7 @@ import android.widget.Toast;
 import android.graphics.Typeface;
 
 
-public class SearchActivity extends Activity {
+public class SearchActivity extends SherlockActivity {
     /** Called when the activity is first created. */
 	private MainTipitakaDBAdapter mainTipitakaDBAdapter = null;
 	private Handler handler = new Handler();
@@ -115,6 +119,7 @@ public class SearchActivity extends Activity {
 	private String [] readPages = null;
 
 	private Typeface font;
+	private ActionBar actionBar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -126,7 +131,11 @@ public class SearchActivity extends Activity {
     	searchHistoryDBAdapter.open();        
         
         setContentView(R.layout.results_list);
-        
+
+		actionBar = getSupportActionBar();
+		actionBar.setHomeButtonEnabled(true);
+		actionBar.setDisplayHomeAsUpEnabled(true);
+      
         Context context = getApplicationContext();
         prefs =  PreferenceManager.getDefaultSharedPreferences(context);
 
@@ -1383,10 +1392,7 @@ public class SearchActivity extends Activity {
 		
 		switch (item.getItemId()) {
 	        case android.R.id.home:
-	            // app icon in action bar clicked; go home
-	            intent = new Intent(this, SelectBookActivity.class);
-	            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-	            startActivity(intent);
+	            finish();
 	            return true;
 
 			case (int)R.id.zoom_in_result:
@@ -1434,7 +1440,7 @@ public class SearchActivity extends Activity {
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-	    MenuInflater inflater = getMenuInflater();
+	    MenuInflater inflater = getSupportMenuInflater();
 	    inflater.inflate(R.menu.search_menu, menu);
 	    
 	    return true;

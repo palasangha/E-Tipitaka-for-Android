@@ -30,9 +30,9 @@ import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 
@@ -51,13 +51,17 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockActivity;
+
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
 
 
-public class EnglishActivity extends Activity {
+public class EnglishActivity extends SherlockActivity {
 	private View english;
 	
 	private SharedPreferences zoomPref;
@@ -75,13 +79,19 @@ public class EnglishActivity extends Activity {
 
 	private String ATI_PATH;
 
+	private ActionBar actionBar;
+
 
 	@SuppressLint("NewApi")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate (savedInstanceState);
 
-        zoomPref = getSharedPreferences("english_zoom", MODE_PRIVATE);
+		actionBar = getSupportActionBar();
+		actionBar.setHomeButtonEnabled(true);
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		
+        zoomPref = PreferenceManager.getDefaultSharedPreferences(this);
 		
 		if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
 			Log.d("Tipitaka", "No SDCARD");
@@ -317,9 +327,7 @@ public class EnglishActivity extends Activity {
 		switch (item.getItemId()) {
 	        case android.R.id.home:
 	            // app icon in action bar clicked; go home
-	            intent = new Intent(this, SelectBookActivity.class);
-	            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-	            startActivity(intent);
+	            finish();
 	            return true;
 			case (int)R.id.pali:
 				intent = new Intent(this, SelectBookActivity.class);
@@ -361,7 +369,7 @@ public class EnglishActivity extends Activity {
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-	    MenuInflater inflater = getMenuInflater();
+	    MenuInflater inflater = getSupportMenuInflater();
 	    inflater.inflate(R.menu.english_menu, menu);
 	    return true;
 
@@ -470,7 +478,7 @@ public class EnglishActivity extends Activity {
 	}
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if ((keyCode == KeyEvent.KEYCODE_BACK) && ewv.canGoBack()) {
+		if (ewv != null && keyCode == KeyEvent.KEYCODE_BACK && ewv.canGoBack()) {
 			ewv.goBack();
 			return true;
 		}
