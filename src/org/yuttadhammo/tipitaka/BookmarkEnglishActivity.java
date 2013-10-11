@@ -330,11 +330,7 @@ public class BookmarkEnglishActivity extends Activity {
 				return true; // don't pass click event to others
 			}
 		});
-		int api = Integer.parseInt(Build.VERSION.SDK);
 		
-		if (api >= 14) {
-			this.getActionBar().setHomeButtonEnabled(true);
-		}		
 	}
 	
 	private void updateItemList() {
