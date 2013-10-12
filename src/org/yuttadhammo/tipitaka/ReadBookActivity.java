@@ -294,6 +294,7 @@ public class ReadBookActivity extends SherlockFragmentActivity {
 				public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
 					lastPosition = position;
 					mPager.setCurrentItem(lastPosition);
+					slideMenu.toggle();
 			  	}
 			});
 
