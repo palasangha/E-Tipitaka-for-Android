@@ -58,10 +58,15 @@ import com.actionbarsherlock.app.SherlockActivity;
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 
 public class EnglishActivity extends SherlockActivity {
+	
+	private String TAG = "EnglishActivity";
+	
 	private View english;
 	
 	private SharedPreferences zoomPref;
@@ -180,7 +185,11 @@ public class EnglishActivity extends SherlockActivity {
 		@Override
         protected String doInBackground(String... sUrl) {
             try {
-                URL url = new URL(sUrl[0]);
+
+            	Log.d(TAG, "reading remote ATI file...");
+            	
+            	
+            	URL url = new URL(sUrl[0]);
                 URLConnection connection = url.openConnection();
                 connection.connect();
                 connection.getContentLength();
@@ -199,8 +208,12 @@ public class EnglishActivity extends SherlockActivity {
 	            }
 	            //rename to actual url
 	            String contentString = content.toString();
-	    		contentString = contentString.replaceAll("[\n\r]","");
-	    		version = contentString.replaceAll(".*URL=([-a-z0-9.]*\\.zip).*","$1");
+	            
+	            Pattern p = Pattern.compile("URL=([-/a-z0-9.]*\\.zip)");
+	            Matcher m = p.matcher(contentString);
+
+	            if (m.find())
+	                version = m.group(1);
 
                 input.close();
             } catch (Exception e) {
@@ -221,7 +234,11 @@ public class EnglishActivity extends SherlockActivity {
 			}
     		Log.i("Tipitaka","File to download: "+version);
 
-			String urlText = "http://www.accesstoinsight.org/tech/download/bulk/"+version;
+    		if(version == null) {
+				Toast.makeText(EnglishActivity.this, getString(R.string.ati_error), Toast.LENGTH_SHORT).show();
+    			return;
+    		}
+			String urlText = "http://www.accesstoinsight.org/tech/download/"+version;
     		
     		Log.i("Tipitaka","Downloading "+urlText);
         	Downloader dl = new Downloader(EnglishActivity.this);
@@ -238,7 +255,7 @@ public class EnglishActivity extends SherlockActivity {
         downloadProgressDialog.setIndeterminate(true);
 
         ReadFile rf = new ReadFile();
-        rf.execute("http://www.accesstoinsight.org/tech/download/bulk/bulk.html");
+        rf.execute("http://www.accesstoinsight.org/tech/download/zipfile.html");
     }
     
     
@@ -251,7 +268,10 @@ public class EnglishActivity extends SherlockActivity {
     }
 
 	private void startDownload(boolean close) {
-    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	
+		Log.d(TAG, "starting ATI download...");
+		
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
     	builder.setTitle(getString(R.string.ati_not_found));
     	builder.setMessage(getString(R.string.confirm_download_ati));
     	builder.setCancelable(true);

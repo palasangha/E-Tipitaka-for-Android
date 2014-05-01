@@ -145,7 +145,7 @@ public class MainTipitakaDBAdapter {
  		//volume--;
     	String selection = "";
     	
-    	String[] tokens = query.split("\\s+");
+    	String[] tokens = query.split("\\+");
     	
     	selection = selection + "volume = '" + volume + "'";
     	for(int i=0; i<tokens.length; i++) {

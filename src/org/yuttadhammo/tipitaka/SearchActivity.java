@@ -145,13 +145,7 @@ public class SearchActivity extends SherlockActivity {
         line2Size = prefs.getFloat("Line2Size", 12f);        
         
         statusText = (TextView) this.findViewById(R.id.result_status);
-        statusText.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				//Toast.makeText(SearchActivity.this, "OK", Toast.LENGTH_SHORT).show();
-			}
-		});
-        
+
         TextView vinaiLabel = (TextView) SearchActivity.this.findViewById(R.id.vinai_label);
         vinaiLabel.setOnClickListener(new View.OnClickListener() {
 			@Override

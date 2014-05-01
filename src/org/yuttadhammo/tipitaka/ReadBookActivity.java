@@ -19,6 +19,7 @@ import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -69,7 +70,6 @@ public class ReadBookActivity extends SherlockFragmentActivity {
 
 	private static String headerText = "";
 	private ListView idxList;
-	private RelativeLayout textshell;
 	
 	private static Button dictButton;
 	private static LinearLayout dictBar;
@@ -142,7 +142,6 @@ public class ReadBookActivity extends SherlockFragmentActivity {
 
         res = getResources();
 
-        textshell = (RelativeLayout) read.findViewById(R.id.shell_text);
 		dictBar = (LinearLayout) findViewById(R.id.dict_bar);
 		defText = (TextView) findViewById(R.id.def_text);
 		dictButton = (Button) findViewById(R.id.dict_button);
@@ -168,13 +167,11 @@ public class ReadBookActivity extends SherlockFragmentActivity {
 
 			@Override
 			public void onPageScrollStateChanged(int arg0) {
-				// TODO Auto-generated method stub
 				
 			}
 
 			@Override
 			public void onPageScrolled(int arg0, float arg1, int arg2) {
-				// TODO Auto-generated method stub
 				
 			}
 
@@ -267,7 +264,7 @@ public class ReadBookActivity extends SherlockFragmentActivity {
 			
 			if (dataBundle.containsKey("QUERY")) {
 				keywords = dataBundle.getString("QUERY");
-				scrollString = keywords.split("\\s+")[0].replace('+', ' ');
+				scrollString = keywords.split("\\+")[0];
 			} 
 			
 			// create index
@@ -605,7 +602,6 @@ public class ReadBookActivity extends SherlockFragmentActivity {
 	        }
 	        else {
 		        // Could also check if wantedPosition is between listView.getFirstVisiblePosition() and listView.getLastVisiblePosition() instead.
-		        View vv = idxList.getChildAt(wantedChild);
 		        View vl = idxList.getChildAt(wantedChild-1);
 				if(vl != null)
 					bottom = vl.getHeight();
@@ -684,7 +680,7 @@ public class ReadBookActivity extends SherlockFragmentActivity {
 		if(keywords.trim().length() > 0) {
 			Log.i("Tipitaka","keywords: "+ keywords);
 			keywords = keywords.replace('+', ' ');
-			String [] tokens = keywords.split("\\s+");
+			String [] tokens = keywords.split("\\+");
 			Arrays.sort(tokens, new StringLengthComparator());
 			Collections.reverse(Arrays.asList(tokens));
 			for(String token: tokens) {
@@ -848,24 +844,32 @@ public class ReadBookActivity extends SherlockFragmentActivity {
 	    }
 	    @Override
 	    protected void onLayout (boolean changed, int left, int top, int right, int bottom){
-			if(scrollString != null) {
-				View fc = mPager.getFocusedChild();
-				if(fc == null)
-					return;
-				
-				textContent = (PaliTextView) fc.findViewById(R.id.main_text);
-				scrollview = (ScrollView) fc.findViewById(R.id.scroll_text);
-				if(textContent.getLayout() == null)
-					return;
-				Log.i("Tipitaka","Keyword to scroll: "+scrollString);
-				int offset =  textContent.getText().toString().indexOf(scrollString);
-				int jumpLine = textContent.getLayout().getLineForOffset(offset);
-				int y=0;
-				if(jumpLine > 2)
-					y = textContent.getLayout().getLineTop(jumpLine-2);
-				else
-					y = textContent.getLayout().getLineTop(0);
-				scrollview.scrollTo(0, y);
+	    	if(scrollString != null) {
+		    	 new CountDownTimer(500, 500) {
+
+		    	     public void onTick(long millisUntilFinished) {
+		    	     }
+
+		    	     public void onFinish() {
+		 				View fc = mPager.getFocusedChild();
+						if(fc == null)
+							return;
+						
+						textContent = (PaliTextView) fc.findViewById(R.id.main_text);
+						scrollview = (ScrollView) fc.findViewById(R.id.scroll_text);
+						if(textContent.getLayout() == null)
+							return;
+						Log.i("Tipitaka","Keyword to scroll: "+scrollString);
+						int offset =  textContent.getText().toString().indexOf(scrollString);
+						int jumpLine = textContent.getLayout().getLineForOffset(offset);
+						int y=0;
+						if(jumpLine > 2)
+							y = textContent.getLayout().getLineTop(jumpLine-2);
+						else
+							y = textContent.getLayout().getLineTop(0);
+						scrollview.scrollTo(0, y);
+		    	     }
+		    	  }.start();
 			}
 	    }
 	}
@@ -874,7 +878,6 @@ public class ReadBookActivity extends SherlockFragmentActivity {
 
 		public IndexListView(Context context) {
 			super(context);
-			// TODO Auto-generated constructor stub
 		}
 		
 		@Override
