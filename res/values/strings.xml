@@ -198,7 +198,8 @@
     <string name="plus">Zoom In</string>
 
 	<string name="index">Index</string>
-
+	<string name="find">Find in page</string>
+	
 	<string name="prefText">Text Preferences</string>
 	<string name="prefBaseSize">Tipitaka Font Size</string>
 	<string name="prefShowVar">Show Variants</string>

@@ -7,10 +7,18 @@
 	android:fillViewport="true"
 	android:background="@drawable/background"
 	>
-    <android.support.v4.view.ViewPager
+	<LinearLayout
+	    android:id="@+id/search"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+		android:layout_alignParentTop="true"
+	  	android:orientation="horizontal"
+		/>	
+	<android.support.v4.view.ViewPager
 	    android:id="@+id/pager"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
+		android:layout_below="@id/search"
 	    />
 	<LinearLayout
 	    android:id="@+id/dict_bar"
@@ -18,7 +26,7 @@
 		android:layout_height="wrap_content"
 		android:visibility="gone"
 	  	android:orientation="horizontal"
-		android:layout_alignParentTop="true"
+		android:layout_below="@id/search"
 	  	>
 		<TextView
 		    android:id="@+id/def_text"
@@ -34,8 +42,9 @@
 		<Button 
 			android:id="@+id/dict_button"
 			android:layout_height="wrap_content"
-			android:layout_width="120dp"
+			android:layout_width="wrap_content"
 			android:text="@string/dict"
+			android:textSize="16sp"
 			/>
 	</LinearLayout>
 </RelativeLayout>

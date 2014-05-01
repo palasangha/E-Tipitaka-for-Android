@@ -3,6 +3,7 @@ package org.yuttadhammo.tipitaka;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -29,9 +30,11 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.Html;
+import android.text.Spannable;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.text.style.BackgroundColorSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -40,9 +43,11 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import android.view.View;
+import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.OnHierarchyChangeListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -181,7 +186,6 @@ public class ReadBookActivity extends SherlockFragmentActivity {
 				lastPosition = arg0;
 				
 				updateIndexList(modifier);
-		        
 			}
         	
         });
@@ -377,6 +381,9 @@ public class ReadBookActivity extends SherlockFragmentActivity {
 	            return true;
 			case R.id.index:
 				slideMenu.toggle();
+				break;	            
+			case R.id.find:
+				searchInPage();
 				break;	            
 			case (int)R.id.help_menu_item:
 				intent = new Intent(this, HelpActivity.class);
@@ -920,4 +927,128 @@ public class ReadBookActivity extends SherlockFragmentActivity {
 	        return rootView;
 	    }
 	}
+	
+	
+	int atSearch = 0;
+	private String currentSearchText;
+	private EditText findBox;
+	private CharSequence virginText;
+	
+    public void searchInPage(){
+    	
+    	View fc = mPager.getChildAt(lastPosition);
+		textContent = (PaliTextView) fc.findViewById(R.id.main_text);
+		virginText = textContent.getText();
+    	
+    	findBox = new EditText(this);
+    	atSearch = 0;
+    	
+	    final LinearLayout container = (LinearLayout)findViewById(R.id.search);
+	    
+	    if(container.getChildCount() > 0)
+	    	return;
+
+	    Button nextButton = new Button(this);  
+	    nextButton.setText("Next");
+	    nextButton.setOnClickListener(new OnClickListener(){  
+	    	@Override  
+	    	public void onClick(View v){
+	    		
+	    		if(!findBox.getText().toString().equals(currentSearchText))
+	    			atSearch = 0;
+
+	    		doSearch();
+	    	}  
+	    });  
+	    container.addView(nextButton);  
+	      
+	    Button closeButton = new Button(this);  
+	    closeButton.setText("Close");
+	    closeButton.setOnClickListener(new OnClickListener(){  
+	    	@Override  
+	    	public void onClick(View v){
+	    		textContent.setText(virginText);
+	    		container.removeAllViews();  
+	    	}
+    	}); 
+	    container.addView(closeButton);  
+	      
+	    findBox.setOnKeyListener(new OnKeyListener(){  
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+		    	if((event.getAction() == KeyEvent.ACTION_DOWN) && ((keyCode == KeyEvent.KEYCODE_ENTER))){  
+		    		if(!findBox.getText().toString().equals(currentSearchText))
+		    			atSearch = 0;
+		    		
+		    		doSearch();
+				}  
+				return false;  
+			}  
+    	}); 
+		findBox.setMinEms(30);  
+		findBox.setSingleLine(true);
+		container.addView(findBox);  
+    }  
+
+    void doSearch() {
+    	View fc = mPager.getChildAt(lastPosition);
+    	
+		if(fc == null)
+			return;
+		
+		textContent = (PaliTextView) fc.findViewById(R.id.main_text);
+		scrollview = (ScrollView) fc.findViewById(R.id.scroll_text);
+		if(textContent.getLayout() == null)
+			return;
+
+    	currentSearchText = findBox.getText().toString();
+    	if(currentSearchText.length() == 0)
+    		return;
+
+		InputMethodManager imm = (InputMethodManager)getSystemService(
+			      Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(fc.getWindowToken(), 0);
+    	
+		String boxText = textContent.getText().toString();
+		
+		// next offset - this gives us the index in the whole text of the first instance after atSearch
+		
+		if(atSearch > 0) {
+			String subText = boxText.substring(atSearch+currentSearchText.length());
+				
+			int offset = subText.indexOf(currentSearchText);
+
+			// if not found, get first match (loop)
+			
+			if(offset < 1)
+				atSearch = boxText.indexOf(currentSearchText);
+			else
+				atSearch =  atSearch+currentSearchText.length() + offset;
+    	}
+    	else
+			atSearch = boxText.indexOf(currentSearchText);
+
+		Log.d(TAG,"new atSearch: "+atSearch);
+
+		if(atSearch == -1)
+			return;
+		
+		// highlight
+		
+		Spannable spanText = Spannable.Factory.getInstance().newSpannable(virginText);
+		spanText.setSpan(new BackgroundColorSpan(0xFFFFFF00), atSearch, atSearch+currentSearchText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		textContent.setText(spanText);
+		
+		// scroll
+		
+		int jumpLine = textContent.getLayout().getLineForOffset(atSearch);
+		int y=0;
+		if(jumpLine > 2)
+			y = textContent.getLayout().getLineTop(jumpLine - 2);
+		else
+			y = textContent.getLayout().getLineTop(0);
+		scrollview.scrollTo(0, y);
+		
+    }
+  
 }
