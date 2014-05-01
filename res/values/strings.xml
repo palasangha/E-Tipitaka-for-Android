@@ -199,7 +199,9 @@
 
 	<string name="index">Index</string>
 	<string name="find">Find in page</string>
-	
+	<string name="search_from_start">Reached end of page, continuing from top</string>
+	<string name="search_no_match">Search term not found</string>
+		
 	<string name="prefText">Text Preferences</string>
 	<string name="prefBaseSize">Tipitaka Font Size</string>
 	<string name="prefShowVar">Show Variants</string>

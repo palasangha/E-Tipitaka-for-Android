@@ -1005,7 +1005,10 @@ public class ReadBookActivity extends SherlockFragmentActivity {
     	if(currentSearchText.length() == 0)
     		return;
 
-		InputMethodManager imm = (InputMethodManager)getSystemService(
+    	currentSearchText = PaliUtils.toUni(currentSearchText);
+    	findBox.setText(currentSearchText);
+
+		InputMethodManager imm = (InputMethodManager) getSystemService(
 			      Context.INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(fc.getWindowToken(), 0);
     	
@@ -1020,8 +1023,10 @@ public class ReadBookActivity extends SherlockFragmentActivity {
 
 			// if not found, get first match (loop)
 			
-			if(offset < 1)
+			if(offset < 1) {
+				Toast.makeText(this, getString(R.string.search_from_start), Toast.LENGTH_SHORT).show();
 				atSearch = boxText.indexOf(currentSearchText);
+			}
 			else
 				atSearch =  atSearch+currentSearchText.length() + offset;
     	}
@@ -1030,8 +1035,10 @@ public class ReadBookActivity extends SherlockFragmentActivity {
 
 		Log.d(TAG,"new atSearch: "+atSearch);
 
-		if(atSearch == -1)
+		if(atSearch == -1) {
+			Toast.makeText(this, getString(R.string.search_no_match), Toast.LENGTH_SHORT).show();
 			return;
+		}
 		
 		// highlight
 		
