@@ -322,6 +322,7 @@ public class SelectBookActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+        main.setBackgroundColor(prefs.getInt("background_color", getResources().getColor(R.color.text_color_back)));
 	}
     
     protected void setVolumeList() {

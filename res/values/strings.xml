@@ -208,6 +208,14 @@
 	<string name="prefShowDefs">Show Definitions</string>
 	<string name="prefShowDefNote">When highlighting a word, show a concise definition</string>
 
+	<string name="prefColor">Text Color</string>
+	<string name="prefBackColor">Background Color</string>
+	<string name="prefSearchColor">Search Term Color</string>
+	<string name="prefFindColor">Find Highlight Color</string>
+	<string name="prefTitleColor">Title Color</string>
+	<string name="prefVarColor">Variant Color</string>
+			
+	
 	<string name="prefNav">Navigation Preferences</string>
 	<string name="prefFlingNav">Fling to Navigate</string>
 	<string name="prefFlingNavDesc">allows dragging finger left or right on text to navigate</string>

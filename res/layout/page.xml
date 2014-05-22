@@ -4,7 +4,6 @@
     android:id="@+id/scroll_text"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:background="@drawable/background"
     >
     <view class="org.yuttadhammo.tipitaka.ReadBookActivity$PaliTextView" 
 	    style="?android:attr/textViewStyle"

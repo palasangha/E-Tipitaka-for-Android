@@ -108,6 +108,7 @@ public class SearchDialog extends SherlockActivity {
 		prefs =  PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		sortKey = prefs.getString("SORT_KEY", SearchHistoryDBAdapter.KEY_KEYWORDS);
 		isDesc = prefs.getBoolean("IS_DESC", false);
+		searchView.setBackgroundColor(prefs.getInt("background_color", getResources().getColor(R.color.text_color_back)));
 
 		font = Typeface.createFromAsset(getAssets(), "verajjan.ttf");
 		

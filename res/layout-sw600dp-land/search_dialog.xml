@@ -5,7 +5,6 @@
 	android:layout_height="match_parent"
 	android:fillViewport="true"
 	android:orientation="vertical"
-	android:background="@drawable/background"
 	android:scrollbars="horizontal|vertical">
 	<RelativeLayout 
 		android:id="@+id/search_dialog_layout" 

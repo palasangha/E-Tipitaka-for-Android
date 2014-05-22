@@ -5,7 +5,6 @@
   	android:layout_width="fill_parent"
   	android:layout_height="fill_parent"
   	android:paddingLeft="8dp"
-  	android:background="@drawable/background"
   	android:paddingRight="8dp">
 
 	<TextView android:id="@+id/search_word"
@@ -13,14 +12,14 @@
                android:layout_height="wrap_content"
                android:gravity="center"
  			   android:layout_alignParentTop="true"
-               android:textSize="18dp"
+               android:textSize="18sp"
 	/>
     <TextView android:id="@+id/result_status"
                android:layout_width="fill_parent"
                android:layout_height="wrap_content"
                android:gravity="center"
                android:layout_below="@id/search_word"
-               android:textSize="18dp"
+               android:textSize="18sp"
                />
 	<View 
 		android:id="@+id/result_divider_1"
@@ -45,7 +44,7 @@
 				android:id="@+id/vinai_label"
 				android:text="V" 
 				android:textColor="#1e90ff"				
-				android:textSize="18dp" 
+				android:textSize="18sp" 
 				android:width="50dp"
 				android:gravity="center"
 				android:layout_gravity="center"/>
@@ -54,7 +53,7 @@
 				android:id="@+id/suttan_label"
 				android:text="S" 				
 				android:textColor="#ff4500"
-				android:textSize="18dp"
+				android:textSize="18sp"
 				android:width="50dp"
 				android:gravity="center"				 
 				android:layout_gravity="center"/>
@@ -63,7 +62,7 @@
 				android:id="@+id/abhi_label"
 				android:text="A" 
 				android:textColor="#A020F0"
-				android:textSize="18dp"
+				android:textSize="18sp"
 				android:width="50dp"
 				android:gravity="center"				 
 				android:layout_gravity="center"/>
@@ -72,7 +71,7 @@
 				android:id="@+id/etc_label"
 				android:text="E" 
 				android:textColor="#000000"
-				android:textSize="18dp"
+				android:textSize="18sp"
 				android:width="50dp"
 				android:gravity="center"				 
 				android:layout_gravity="center"/>
@@ -81,40 +80,40 @@
 			<TextView 
 				android:id="@+id/npage1" 
 				android:text="" 
-				android:textSize="16dp" 
+				android:textSize="16sp" 
 				android:layout_gravity="center"/>
 			<TextView 
 				android:id="@+id/npage2" 
 				android:text="" 
-				android:textSize="16dp" 
+				android:textSize="16sp" 
 				android:layout_gravity="center"/>
 			<TextView 
 				android:id="@+id/npage3" 
 				android:text="" 
-				android:textSize="16dp" 
+				android:textSize="16sp" 
 				android:layout_gravity="center"/>
 			<TextView 
 				android:id="@+id/npage4" 
 				android:text="" 
-				android:textSize="16dp" 
+				android:textSize="16sp" 
 				android:layout_gravity="center"/>
 		</TableRow>
 		<TableRow>
 			<TextView 
 				android:id="@+id/nsutt1" 
-				android:textSize="16dp" 
+				android:textSize="16sp" 
 				android:layout_gravity="center"/>
 			<TextView 
 				android:id="@+id/nsutt2" 
-				android:textSize="16dp" 
+				android:textSize="16sp" 
 				android:layout_gravity="center"/>
 			<TextView 
 				android:id="@+id/nsutt3" 
-				android:textSize="16dp" 
+				android:textSize="16sp" 
 				android:layout_gravity="center"/>
 			<TextView 
 				android:id="@+id/nsutt4" 
-				android:textSize="16dp" 
+				android:textSize="16sp" 
 				android:layout_gravity="center"/>
 		</TableRow>		
 	</TableLayout>

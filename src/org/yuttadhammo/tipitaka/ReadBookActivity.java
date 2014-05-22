@@ -60,6 +60,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import android.graphics.Color;
 import android.graphics.Typeface;
 
 public class ReadBookActivity extends SherlockFragmentActivity {
@@ -125,6 +126,11 @@ public class ReadBookActivity extends SherlockFragmentActivity {
 	private static Context context;
 	public static boolean isLookingUp = false;
 	private static boolean lookupDefs;
+	private static int searchColor;
+	private int findColor;
+	private static int titleColor;
+	private static int varColor;
+	private static int textColor;
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -342,12 +348,27 @@ public class ReadBookActivity extends SherlockFragmentActivity {
 	protected void onResume() {
 		super.onResume();
 
+		read.setBackgroundColor(prefs.getInt("text_color_back", getResources().getColor(R.color.text_color_back)));
+
 		String size = prefs.getString("base_text_size", "16");
         if(size.equals(""))
         	size = "16";
 		textSize = Float.parseFloat(size);
         smallSize = Float.parseFloat(Double.toString(textSize*0.75));
 		defText.setTextSize(smallSize);
+
+		textColor = prefs.getInt("text_color", getResources().getColor(R.color.text_color));
+		titleColor = prefs.getInt("text_color_title", getResources().getColor(R.color.text_color_title));
+		varColor = prefs.getInt("text_color_var", getResources().getColor(R.color.text_color_var));
+		searchColor = prefs.getInt("text_color_search", getResources().getColor(R.color.text_color_search));
+		findColor = prefs.getInt("text_color_find", getResources().getColor(R.color.text_color_find));
+
+		View fc = mPager.getChildAt(lastPosition);
+    	
+		if(fc != null) {
+			textContent = (PaliTextView) fc.findViewById(R.id.main_text);
+			textContent.setTextColor(prefs.getInt("text_color", getResources().getColor(R.color.text_color)));
+		}
 	}
 
     @Override
@@ -691,18 +712,33 @@ public class ReadBookActivity extends SherlockFragmentActivity {
 			Arrays.sort(tokens, new StringLengthComparator());
 			Collections.reverse(Arrays.asList(tokens));
 			for(String token: tokens) {
-				content = content.replace(token, "<font color='#888800'>"+token+"</font>");
+				content = content.replace(token, "<font color='"
+						+String.format("#%06X", 
+								(0xFFFFFF & searchColor)
+							)
+						+"'>"
+						+token
+						+"</font>"
+					);
 			}
 		}
 		
 		if(prefs.getBoolean("show_var", true))
-			content = content.replaceAll("\\{([^}]+)\\}", "<font color='#7D7D7D'>[$1]</font>");
+			content = content.replaceAll("\\{([^}]+)\\}", "<font color='"
+				+String.format("#%06X", 
+						(0xFFFFFF & varColor)
+					)
+				+"'>[$1]</font>");
 		else
 			content = content.replaceAll("\\{([^}]+)\\}", "");
 		
 		title = formatTitle(title);
 		headerText = volumeTitle+", " + title;
-		content = "<font color='#888800'>"+headerText+"</font><br/><br/>"+content.replace("\n", "<br/>");
+		content = "<font color='"
+				+String.format("#%06X", 
+						(0xFFFFFF & titleColor)
+					)
+				+"'>"+headerText+"</font><br/><br/>"+content.replace("\n", "<br/>");
 		Spanned html = Html.fromHtml(content);
 						
 		savedItems = cursor.getString(0);	
@@ -916,6 +952,7 @@ public class ReadBookActivity extends SherlockFragmentActivity {
 				size = "16";
 			Float textSize = Float.parseFloat(size);
 			textView.setTextSize(textSize);
+			textView.setTextColor(textColor);
 			textView.setMovementMethod(LinkMovementMethod.getInstance());
 			@SuppressWarnings("deprecation")
 			int api = Integer.parseInt(Build.VERSION.SDK);
@@ -1043,7 +1080,7 @@ public class ReadBookActivity extends SherlockFragmentActivity {
 		// highlight
 		
 		Spannable spanText = Spannable.Factory.getInstance().newSpannable(virginText);
-		spanText.setSpan(new BackgroundColorSpan(0xFFFFFF00), atSearch, atSearch+currentSearchText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		spanText.setSpan(new BackgroundColorSpan(findColor), atSearch, atSearch+currentSearchText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		textContent.setText(spanText);
 		
 		// scroll

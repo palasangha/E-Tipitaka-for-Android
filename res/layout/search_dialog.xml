@@ -5,7 +5,6 @@
 	android:layout_height="match_parent"
 	android:fillViewport="true"
 	android:orientation="vertical"
-	android:background="@drawable/background"
 	android:scrollbars="horizontal|vertical">
 	<ScrollView
 	  android:layout_width="match_parent"
