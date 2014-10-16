@@ -1,3 +1,9 @@
+This is outdated code! See here:
+
+https://github.com/yuttadhammo/atipitaka
+
+for new gradle-based repository.
+
 Android Tipitaka
 ==================
 
